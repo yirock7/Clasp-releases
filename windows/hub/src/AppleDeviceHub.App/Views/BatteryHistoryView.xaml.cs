@@ -23,7 +23,7 @@ public sealed partial class BatteryHistoryView : UserControl
     private const double PlotTop = 8;
     private const double PlotHeight = 104;
     private const double RightPad = 10;
-    private const double TimeLabelWidth = 60;
+    private const double TimeLabelWidth = BatteryChartModel.LabelWidth;
     private const double LineThickness = 2.5;
 
     private IReadOnlyList<BatterySample> _samples = Array.Empty<BatterySample>();
@@ -124,7 +124,7 @@ public sealed partial class BatteryHistoryView : UserControl
 
         _baseName = _samples.Count == 0
             ? "Battery history chart, no readings yet"
-            : $"Battery history chart, {rangeName}. {SummaryText.Text}. Use the left and right arrow keys to move between readings.";
+            : $"Battery history chart, {rangeName}. {SummaryText.Text}. {(_model.IsCompressed ? "Long stretches without readings are shortened. " : "")}Use the left and right arrow keys to move between readings.";
         AutomationProperties.SetName(ChartFocus, _baseName);
     }
 
@@ -133,6 +133,15 @@ public sealed partial class BatteryHistoryView : UserControl
         BandLayer.Children.Clear();
         foreach (var band in model.Charging)
         {
+            if (band.Instant)
+            {
+                // One charging reading with nothing known around it: a short cap on the top edge, not a full-height band.
+                var cap = new Microsoft.UI.Xaml.Shapes.Rectangle { Width = 8, Height = 3, Fill = LegendCharging.BorderBrush, IsHitTestVisible = false };
+                Canvas.SetLeft(cap, PlotLeft + Math.Clamp(band.X1 - 4, 0, Math.Max(0, model.Width - 8)));
+                Canvas.SetTop(cap, PlotTop);
+                BandLayer.Children.Add(cap);
+                continue;
+            }
             var fill = new Microsoft.UI.Xaml.Shapes.Rectangle { Width = Math.Max(1, band.X2 - band.X1), Height = PlotHeight, Fill = LegendCharging.Background, IsHitTestVisible = false };
             Canvas.SetLeft(fill, PlotLeft + band.X1);
             Canvas.SetTop(fill, PlotTop);
@@ -147,6 +156,24 @@ public sealed partial class BatteryHistoryView : UserControl
     private void DrawVerticalLines(BatteryChartModel model)
     {
         LineLayer.Children.Clear();
+        // A stretch with no readings that was shortened: a faint strip with a double slash, so it never reads as data.
+        foreach (var gap in model.Breaks)
+        {
+            double mid = PlotTop + PlotHeight / 2, cx = PlotLeft + (gap.X1 + gap.X2) / 2;
+            var strip = new Microsoft.UI.Xaml.Shapes.Rectangle
+            {
+                Width = Math.Max(1, gap.X2 - gap.X1), Height = PlotHeight, Fill = GridTop.Stroke, Opacity = 0.16, IsHitTestVisible = false,
+            };
+            Canvas.SetLeft(strip, PlotLeft + gap.X1);
+            Canvas.SetTop(strip, PlotTop);
+            LineLayer.Children.Add(strip);
+            foreach (double dx in new[] { -2.0, 2.0 })
+                LineLayer.Children.Add(new Line
+                {
+                    X1 = cx + dx - 2, X2 = cx + dx + 2, Y1 = mid + 5, Y2 = mid - 5,
+                    Stroke = GridTop.Stroke, StrokeThickness = 1.2, Opacity = 0.9, IsHitTestVisible = false,
+                });
+        }
         foreach (double x in model.Axis.Lines)
         {
             var line = new Line
