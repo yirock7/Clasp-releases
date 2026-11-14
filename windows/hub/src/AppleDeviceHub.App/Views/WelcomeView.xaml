@@ -107,13 +107,19 @@
                     <!-- Opens by itself when nothing is paired yet. -->
                     <views:PairingHelpView x:Name="PairingHelp" />
 
-                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
+                    <!-- A grid, not a horizontal stack: the Auto columns are shrunk to the 380 DIP column, so the longer
+                         in-app-pairing label wraps inside its button instead of running past the button's fill. -->
+                    <Grid ColumnSpacing="{StaticResource GlassSpace8}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
                         <design:GlassButton x:Name="OpenBluetoothButton" Content="Open Bluetooth settings"
                                             Visibility="Collapsed"
                                             Click="OnOpenBluetoothSettingsClick" />
-                        <design:GlassButton x:Name="RefreshButton" Content="Refresh"
+                        <design:GlassButton x:Name="RefreshButton" Grid.Column="1" Content="Refresh"
                                             Click="OnRefreshClick" />
-                    </StackPanel>
+                    </Grid>
                 </StackPanel>
 
                 <!-- ===== Page 3: Find Clasp in the tray ===== -->
