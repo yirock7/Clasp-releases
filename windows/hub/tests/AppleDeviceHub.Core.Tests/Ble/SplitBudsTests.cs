@@ -93,6 +93,29 @@ public sealed class SplitBudsTests : IAsyncDisposable
     private void Emit(byte[] payload, ulong address) => _source.Emit(Payload.Sighting(payload, address));
 
     [Fact]
+    public async Task Worn_buds_heard_again_with_identical_packets_stay_out_of_the_case_past_the_artwork_freshness_window()
+    {
+        await StartAsync();
+        // Both buds in the ears, the same payload every 2 s for 45 s: the art must never fall back to the buds in the case.
+        for (int i = 0; i < 23; i++)
+        {
+            Emit(LeftInEar(), 1);
+            Assert.True(HubViewModel.FreshBudsOut(_transport.Current, _clock.GetUtcNow()).Left, $"left bud drawn in the case at {i * 2} s");
+            _clock.Advance(TimeSpan.FromSeconds(2));
+        }
+    }
+
+    [Fact]
+    public async Task Worn_buds_no_longer_heard_fall_back_to_the_neutral_art_once_the_placement_is_stale()
+    {
+        await StartAsync();
+        Emit(LeftInEar(), 1);
+        Assert.True(HubViewModel.FreshBudsOut(_transport.Current, _clock.GetUtcNow()).Left);
+        _clock.Advance(HubViewModel.ArtworkEarFreshness + TimeSpan.FromSeconds(1));
+        Assert.False(HubViewModel.FreshBudsOut(_transport.Current, _clock.GetUtcNow()).Any);
+    }
+
+    [Fact]
     public async Task One_bud_in_an_ear_and_one_in_the_case_is_accepted_with_batteries_and_the_left_bud_out()
     {
         await StartAsync();
