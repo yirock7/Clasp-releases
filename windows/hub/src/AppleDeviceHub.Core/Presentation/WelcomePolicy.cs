@@ -13,8 +13,8 @@ public static class WelcomePolicy
         return !welcomeCompleted && !isDemoTransport && !quietStart && !isCommandLaunch;
     }
 
-    /// <summary>Reads <c>--welcome-page=N</c> (1 to 3) for screenshots; anything else gives page 1.</summary>
-    public static int ParseStartPage(IEnumerable<string> arguments, int pageCount = 3)
+    /// <summary>Reads <c>--welcome-page=N</c> (1 to 4) for screenshots; anything else gives page 1.</summary>
+    public static int ParseStartPage(IEnumerable<string> arguments, int pageCount = 4)
     {
         const string prefix = "--welcome-page=";
         foreach (var argument in arguments)
