@@ -30,7 +30,7 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
 
     private readonly IPairingDiscovery _discovery;
     private readonly Action<Action> _dispatch;
-    private readonly Func<string, CancellationToken, Task<bool>>? _adoptPairedDevice;
+    private readonly Func<PairingCandidate, CancellationToken, Task<bool>>? _adoptPairedDevice;
     private readonly TimeProvider _timeProvider;
     private readonly Action<string>? _log;
 
@@ -45,7 +45,7 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
     public PairingSessionViewModel(
         IPairingDiscovery discovery,
         Action<Action> dispatch,
-        Func<string, CancellationToken, Task<bool>>? adoptPairedDevice = null,
+        Func<PairingCandidate, CancellationToken, Task<bool>>? adoptPairedDevice = null,
         TimeProvider? timeProvider = null,
         Action<string>? log = null)
     {
@@ -160,7 +160,7 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
 
         if (outcome is PairingOutcome.Paired or PairingOutcome.AlreadyPaired)
         {
-            await AdoptAsync(name, generation, userCts);
+            await AdoptAsync(candidate ?? new PairingCandidate(candidateId, name, null), name, generation, userCts);
             return;
         }
 
@@ -183,22 +183,30 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
         _discovery.CandidatesChanged -= OnCandidatesChanged;
     }
 
-    private async Task AdoptAsync(string name, int generation, CancellationTokenSource userCts)
+    private async Task AdoptAsync(PairingCandidate candidate, string name, int generation, CancellationTokenSource userCts)
     {
         StatusText = $"Setting up {name}…";
         State = PairingState.Connecting;
 
         var adopted = false;
+        using var timeoutCts = new CancellationTokenSource(AdoptTimeout, _timeProvider);
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(userCts.Token, timeoutCts.Token);
         try
         {
             if (_adoptPairedDevice is not null)
             {
-                adopted = await _adoptPairedDevice(name, userCts.Token).WaitAsync(AdoptTimeout, _timeProvider, userCts.Token);
+                adopted = await _adoptPairedDevice(candidate, linked.Token).WaitAsync(AdoptTimeout, _timeProvider, userCts.Token);
             }
         }
         catch (TimeoutException)
         {
             Log($"Setting up {name} timed out.");
+            linked.Cancel();
+        }
+        catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested && !userCts.IsCancellationRequested)
+        {
+            Log($"Setting up {name} timed out.");
+            linked.Cancel();
         }
         catch (OperationCanceledException)
         {
