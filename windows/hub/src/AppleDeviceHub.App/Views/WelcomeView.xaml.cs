@@ -418,8 +418,15 @@ public sealed partial class WelcomeView : UserControl
             {
                 token.ThrowIfCancellationRequested();
                 connection.SelectedDeviceId = device.Id;
-                for (int i = 0; i < 10 && !connection.IsConnected; i++) await Task.Delay(500, token);
+                // The picker stays usable meanwhile: if the user picks another device, their choice wins and
+                // nothing is connected on their behalf.
+                for (int i = 0; i < 10 && !connection.IsConnected; i++)
+                {
+                    await Task.Delay(500, token);
+                    if (!string.Equals(connection.SelectedDeviceId, device.Id, StringComparison.Ordinal)) return false;
+                }
                 token.ThrowIfCancellationRequested();
+                if (!string.Equals(connection.SelectedDeviceId, device.Id, StringComparison.Ordinal)) return false;
                 if (!connection.IsConnected && connection.CanConnect) await connection.ConnectAsync();
                 return true;
             }
