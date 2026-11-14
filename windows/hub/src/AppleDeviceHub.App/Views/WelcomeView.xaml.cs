@@ -292,7 +292,7 @@ public sealed partial class WelcomeView : UserControl
         PairingHelp.SetInAppPairing(_hasDiscovery);
         if (_hasDiscovery)
         {
-            OpenBluetoothButton.Content = "Pair in Windows Settings instead";
+            OpenBluetoothButton.Content = new TextBlock { Text = "Pair in Windows Settings instead", TextWrapping = TextWrapping.WrapWholeWords };
             OpenBluetoothButton.IsFlat = true;
             OpenBluetoothButton.Padding = new Thickness(10, 4, 10, 4);
             OpenBluetoothButton.MinHeight = 32;
