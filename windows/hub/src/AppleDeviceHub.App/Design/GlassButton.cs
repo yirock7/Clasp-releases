@@ -50,6 +50,9 @@ public partial class GlassButton : Button
     public static readonly DependencyProperty IsFlatProperty = DependencyProperty.Register(
         nameof(IsFlat), typeof(bool), typeof(GlassButton), new PropertyMetadata(false, (d, _) => ((GlassButton)d).UpdateCapsuleLayers()));
 
+    /// <summary>Relative radius of the pointer light on a flat button: more than the full width, so it never ends inside the pill.</summary>
+    private const double FlatLightRadiusX = 1.5;
+
     private static readonly Uri AccentOverridesUri = new("ms-appx:///Design/GlassAccentOverrides.xaml");
 
     private ResourceDictionary? _accentOverrides;
@@ -64,6 +67,7 @@ public partial class GlassButton : Button
     private bool _cornerWatched;
     private bool _effectsSubscribed;
     private RadialGradientBrush? _lightBrush;
+    private double _lightRadiusX = double.NaN;
     private bool _lightVisible;
     private bool _wasPressed;
 
@@ -195,6 +199,7 @@ public partial class GlassButton : Button
         base.OnApplyTemplate();
         _pointerLight = GetTemplateChild("PointerLight") as Border;
         _lightBrush = _pointerLight?.Background as RadialGradientBrush;
+        _lightRadiusX = _lightBrush?.RadiusX ?? double.NaN;
         _lens = GetTemplateChild("Lens") as Border;
         _bottomShade = GetTemplateChild("BottomShade") as Border;
         _rimLight = GetTemplateChild("RimLight") as Border;
@@ -296,6 +301,11 @@ public partial class GlassButton : Button
         var centre = new Point(Math.Clamp(p.X / w, 0, 1), Math.Clamp(p.Y / h, 0, 1));
         _lightBrush.Center = centre;
         _lightBrush.GradientOrigin = centre;
+        // The template's light fades out 0.6 widths from the pointer and is flat after that. On a wide flat button
+        // (no lens, shade or rim around it) that ending reads as a lighter box over the pointer's side of the pill.
+        // Flat buttons get a light that is still fading past the far end, so it covers the whole pill without an edge.
+        if (!double.IsNaN(_lightRadiusX))
+            _lightBrush.RadiusX = IsFlat ? Math.Max(_lightRadiusX, FlatLightRadiusX) : _lightRadiusX;
     }
 }
 
