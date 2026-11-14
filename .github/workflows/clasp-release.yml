@@ -145,7 +145,7 @@ jobs:
           if ($checksumParts[0] -cne $actualHash) {
             throw "Installer SHA-256 mismatch: sidecar has '$($checksumParts[0])', file has '$actualHash'."
           }
-          $payloadManifest = Get-Content -LiteralPath $payloadManifestPath -Raw
+          $payloadManifest = (Get-Content -LiteralPath $payloadManifestPath -Raw) -replace "`r", ''
           foreach ($requiredResource in @('AppleDeviceHub.pri', 'App.xbf', 'Views\FlyoutView.xbf')) {
             $escapedResource = [regex]::Escape($requiredResource)
             if ($payloadManifest -notmatch "(?im)^$escapedResource\t\d+\t[0-9a-f]{64}$") {
