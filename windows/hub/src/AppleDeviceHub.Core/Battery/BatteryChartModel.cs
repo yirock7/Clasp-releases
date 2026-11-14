@@ -15,8 +15,11 @@ public enum BatteryChartRange
 /// </summary>
 public sealed record ChartSegment(IReadOnlyList<(double X, double Y)> Points, bool IsDot);
 
-/// <summary>A horizontal span (plot x) in which a charging reading was recorded.</summary>
-public sealed record ChartBand(double X1, double X2);
+/// <summary>
+/// A horizontal span (plot x) in which a charging reading was recorded. <see cref="Instant"/> marks a single
+/// charging reading with nothing known about before or after it: the view draws a small marker, not a full-height band.
+/// </summary>
+public sealed record ChartBand(double X1, double X2, bool Instant = false);
 
 public sealed record ChartGridline(int Percent, double Y);
 
@@ -52,7 +55,7 @@ public sealed class BatteryChartModel
 
     private BatteryChartModel(BatteryChartRange range, DateTimeOffset start, DateTimeOffset end, double width, double height,
         IReadOnlyList<ChartSegment> left, IReadOnlyList<ChartSegment> right, IReadOnlyList<ChartSegment> @case,
-        IReadOnlyList<ChartBand> charging, IReadOnlyList<ChartProbe> probes, ChartAxis axis)
+        IReadOnlyList<ChartBand> charging, IReadOnlyList<ChartProbe> probes, ChartAxis axis, ChartTimeMap map)
     {
         Range = range;
         Start = start;
@@ -65,6 +68,8 @@ public sealed class BatteryChartModel
         Charging = charging;
         Probes = probes;
         Axis = axis;
+        IsCompressed = map.IsCompressed;
+        Breaks = map.Breaks;
         Gridlines = new[] { 100, 50, 0 }.Select(p => new ChartGridline(p, YOf(p, height))).ToList();
     }
 
@@ -82,6 +87,15 @@ public sealed class BatteryChartModel
     public IReadOnlyList<ChartProbe> Probes { get; }
 
     public ChartAxis Axis { get; }
+
+    /// <summary>True when long stretches with no readings were shrunk to <see cref="Breaks"/> to keep the data readable.</summary>
+    public bool IsCompressed { get; }
+
+    /// <summary>Narrow markers standing in for silent stretches; empty unless <see cref="IsCompressed"/>.</summary>
+    public IReadOnlyList<ChartBreak> Breaks { get; }
+
+    /// <summary>Widest a time label is expected to be; labels closer than this are thinned out.</summary>
+    public const double LabelWidth = 76;
 
     /// <summary>The 100, 50 and 0 % lines.</summary>
     public IReadOnlyList<ChartGridline> Gridlines { get; }
@@ -117,18 +131,18 @@ public sealed class BatteryChartModel
 
     /// <summary>
     /// Builds the chart for <paramref name="range"/> ending at <paramref name="now"/>, drawn into a plot
-    /// <paramref name="width"/> by <paramref name="height"/> (no margins; the view adds those).
+    /// <paramref name="width"/> by <paramref name="height"/> (no margins; the view adds those). When much of the window is
+    /// silence, <paramref name="compressGaps"/> shrinks it to break markers (see <see cref="ChartTimeMap"/>).
     /// </summary>
     public static BatteryChartModel Build(IReadOnlyList<BatterySample> samples, DateTimeOffset now, BatteryChartRange range,
-        double width, double height, TimeZoneInfo? zone = null, CultureInfo? culture = null)
+        double width, double height, TimeZoneInfo? zone = null, CultureInfo? culture = null, bool compressGaps = true)
     {
         zone ??= TimeZoneInfo.Local;
         culture ??= CultureInfo.CurrentCulture;
         var start = now - WindowOf(range);
-        double total = (now - start).TotalSeconds;
-        double X(DateTimeOffset t) => Math.Clamp((t - start).TotalSeconds / total * width, 0, width);
-
         var ordered = samples.Where(s => s.Time <= now).OrderBy(s => s.Time).ToList();
+        var map = ChartTimeMap.Create(ordered, start, now, width, MaxGap, compressGaps);
+        double X(DateTimeOffset t) => map.X(t);
         Func<BatterySample, int?>[] picks = { s => s.Left, s => s.Right, s => s.Case };
         var finished = new List<Run>[] { new(), new(), new() };
         var open = new Run?[3];
@@ -198,14 +212,16 @@ public sealed class BatteryChartModel
             if (to < start) continue;
             double x1 = X(from < start ? start : from);
             double x2 = X(to);
-            if (x2 - x1 < 2) x2 = Math.Min(width, x1 + 2);
+            // A single reading (nothing before or after it that can be trusted) is a marker, not a band.
+            bool instant = to <= from;
+            if (!instant && x2 - x1 < 2) x2 = Math.Min(width, x1 + 2);
             if (chargingBands.Count > 0 && x1 <= chargingBands[^1].X2 + 0.5)
-                chargingBands[^1] = new ChartBand(chargingBands[^1].X1, Math.Max(x2, chargingBands[^1].X2));
-            else chargingBands.Add(new ChartBand(x1, x2));
+                chargingBands[^1] = new ChartBand(chargingBands[^1].X1, Math.Max(x2, chargingBands[^1].X2), chargingBands[^1].Instant && instant);
+            else chargingBands.Add(new ChartBand(x1, x2, instant));
         }
 
-        var axis = BuildAxis(range, start, now, width, X, zone, culture);
-        return new BatteryChartModel(range, start, now, width, height, segments[0], segments[1], segments[2], chargingBands, probes, axis);
+        var axis = BuildAxis(range, start, now, width, X, zone, culture, map);
+        return new BatteryChartModel(range, start, now, width, height, segments[0], segments[1], segments[2], chargingBands, probes, axis, map);
     }
 
     private sealed class Run
@@ -286,8 +302,9 @@ public sealed class BatteryChartModel
     }
 
     private static ChartAxis BuildAxis(BatteryChartRange range, DateTimeOffset start, DateTimeOffset end, double width,
-        Func<DateTimeOffset, double> x, TimeZoneInfo zone, CultureInfo culture)
+        Func<DateTimeOffset, double> x, TimeZoneInfo zone, CultureInfo culture, ChartTimeMap map)
     {
+        if (map.IsCompressed) return BuildCompressedAxis(range, map, zone, culture);
         var labels = new List<ChartTick>();
         var lines = new List<double>();
         var localStart = TimeZoneInfo.ConvertTime(start, zone).DateTime;
@@ -323,6 +340,38 @@ public sealed class BatteryChartModel
                 double visible = (shownTo - shownFrom).TotalHours;
                 if (visible < 6) continue;   // a sliver of a day is too narrow to name
                 labels.Add(new ChartTick((x(shownFrom) + x(shownTo)) / 2, day.ToString("ddd", culture)));
+            }
+        }
+        return new ChartAxis(labels, lines);
+    }
+
+    /// <summary>
+    /// With silent stretches shrunk, evenly spaced weekday or hour ticks would lie, so each session is named by its
+    /// own start (day and time in the 7 day view, time in the 24 hour view). Labels that would overlap are dropped,
+    /// earlier ones first kept. In the 7 day view a faint line marks midnight inside a session.
+    /// </summary>
+    private static ChartAxis BuildCompressedAxis(BatteryChartRange range, ChartTimeMap map, TimeZoneInfo zone, CultureInfo culture)
+    {
+        var labels = new List<ChartTick>();
+        var lines = new List<double>();
+        double lastX = double.NegativeInfinity;
+        foreach (var session in map.Sessions)
+        {
+            double centre = (session.X1 + session.X2) / 2;
+            if (centre - lastX >= LabelWidth)
+            {
+                var local = TimeZoneInfo.ConvertTime(session.From, zone);
+                string time = local.ToString(culture.DateTimeFormat.ShortTimePattern, culture);
+                labels.Add(new ChartTick(centre, range == BatteryChartRange.Week ? local.ToString("ddd", culture) + " " + time : time));
+                lastX = centre;
+            }
+            if (range != BatteryChartRange.Week) continue;
+            var localFrom = TimeZoneInfo.ConvertTime(session.From, zone).DateTime;
+            for (var day = localFrom.Date.AddDays(1); ; day = day.AddDays(1))
+            {
+                var at = new DateTimeOffset(day, zone.GetUtcOffset(day));
+                if (at >= session.To) break;
+                lines.Add(map.X(at));
             }
         }
         return new ChartAxis(labels, lines);

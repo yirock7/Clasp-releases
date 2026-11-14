@@ -11,8 +11,8 @@ public class BatteryChartModelTests
     // 2026-10-02 12:00 UTC is a Friday.
     private static readonly DateTimeOffset Now = new(2026, 10, 2, 12, 0, 0, TimeSpan.Zero);
 
-    private static BatteryChartModel Build(IReadOnlyList<BatterySample> samples, BatteryChartRange range = BatteryChartRange.Day, double width = 240, double height = 100)
-        => BatteryChartModel.Build(samples, Now, range, width, height, Utc, Inv);
+    private static BatteryChartModel Build(IReadOnlyList<BatterySample> samples, BatteryChartRange range = BatteryChartRange.Day, double width = 240, double height = 100, bool compress = false)
+        => BatteryChartModel.Build(samples, Now, range, width, height, Utc, Inv, compress);
 
     private static BatterySample Reading(DateTimeOffset t, int? l, int? r, int? c, bool charging = false)
         => new(t, l, r, c, charging ? true : null, charging ? true : null, null, BatterySampleSource.Driver);
@@ -231,6 +231,156 @@ public class BatteryChartModelTests
         var axis = BatteryChartModel.Build(Array.Empty<BatterySample>(), Now, BatteryChartRange.Day, 240, 100, zone, Inv).Axis;
         Assert.Equal(new[] { "12:00", "18:00", "00:00", "06:00" }, axis.Labels.Select(l => l.Label));
         Assert.Equal(new[] { 50.0, 110.0, 170.0, 230.0 }, axis.Labels.Select(l => Math.Round(l.X, 3)));
+    }
+
+    // ---- sparse history: silent stretches shrink to break markers ----------------------------
+
+    private static DateTimeOffset At(int day, int hour, int minute = 0) => new(2026, 10, day, hour, minute, 0, TimeSpan.Zero);
+
+    private static BatteryChartModel Compressed(IReadOnlyList<BatterySample> samples, BatteryChartRange range = BatteryChartRange.Week, double width = 300)
+        => Build(samples, range, width, compress: true);
+
+    // The owner's case: a few short sessions spread over a week (Now is Fri 2 Oct 12:00, window starts Fri 25 Sep 12:00).
+    private static List<BatterySample> SparseWeek() => new()
+    {
+        Reading(new DateTimeOffset(2026, 9, 26, 9, 0, 0, TimeSpan.Zero), 80, 70, 60),
+        Reading(new DateTimeOffset(2026, 9, 26, 9, 10, 0, TimeSpan.Zero), 78, 70, 60),
+        Reading(new DateTimeOffset(2026, 9, 26, 9, 20, 0, TimeSpan.Zero), 76, 68, 60),
+        Reading(new DateTimeOffset(2026, 9, 27, 10, 0, 0, TimeSpan.Zero), 50, 50, null),       // a lone reading
+        Reading(At(1, 18), 40, 40, 90),
+        Reading(At(1, 18, 30), 38, 40, 90),
+        Reading(At(2, 8), 90, 90, 100, charging: true),
+        Reading(At(2, 10), 100, 100, 100, charging: true),
+    };
+
+    [Fact]
+    public void A_dense_day_stays_linear()
+    {
+        var samples = Enumerable.Range(0, 48).Select(i => Reading(Now.AddMinutes(-30 * i), 90, 90, null)).ToList();
+        var m = Compressed(samples, BatteryChartRange.Day, 240);
+        Assert.False(m.IsCompressed);
+        Assert.Empty(m.Breaks);
+        Assert.Equal(new[] { "12:00", "18:00", "00:00", "06:00", "12:00" }, m.Axis.Labels.Select(l => l.Label));
+        Assert.Equal(new[] { 0.0, 60.0, 120.0, 180.0, 240.0 }, m.Axis.Labels.Select(l => Math.Round(l.X, 3)));
+    }
+
+    [Fact]
+    public void A_week_with_only_overnight_gaps_stays_linear()
+    {
+        // Used every day from 08:00 to 20:00 with the PC off overnight: half the week is silent, which is normal.
+        var samples = new List<BatterySample>();
+        for (int d = 0; d < 8; d++)
+            for (int h = 8; h <= 20; h += 2)
+            {
+                var t = Now.Date.AddDays(-7 + d).AddHours(h);
+                if (t <= Now && t >= Now.AddDays(-7)) samples.Add(Reading(new DateTimeOffset(t, TimeSpan.Zero), 80, 80, null));
+            }
+        var m = Compressed(samples, BatteryChartRange.Week, 700);
+        Assert.False(m.IsCompressed);
+        Assert.Equal(new[] { "Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri" }, m.Axis.Labels.Select(l => l.Label));
+    }
+
+    [Fact]
+    public void Sparse_sessions_across_a_week_are_compressed_with_break_markers()
+    {
+        var m = Compressed(SparseWeek());
+        Assert.True(m.IsCompressed);
+        // Before the first session, then between sessions: four silent stretches. Fri 08:00-12:00 runs on to now.
+        Assert.Equal(4, m.Breaks.Count);
+        Assert.All(m.Breaks, b => Assert.Equal(ChartTimeMap.BreakWidth, b.X2 - b.X1, 3));
+        // The probes stay in time order, inside the plot, and each short session now has real width.
+        Assert.Equal(SparseWeek().Count, m.Probes.Count);
+        Assert.All(m.Probes, p => Assert.InRange(p.X, 0, 300));
+        Assert.Equal(m.Probes.Select(p => p.X).OrderBy(x => x), m.Probes.Select(p => p.X));
+        Assert.True(m.Probes[2].X - m.Probes[0].X >= 25, "a 20 minute session must be wider than a sliver");
+        Assert.True(m.Probes[5].X - m.Probes[4].X >= 25);
+        // No reading falls inside a break marker.
+        Assert.All(m.Probes, p => Assert.DoesNotContain(m.Breaks, b => p.X > b.X1 + 0.01 && p.X < b.X2 - 0.01));
+    }
+
+    [Fact]
+    public void Compression_never_invents_values_between_readings()
+    {
+        var m = Compressed(SparseWeek());
+        var allowed = new[] { 80, 78, 76, 50, 40, 38, 90, 100 }.Select(l => Math.Round(100 * (1 - l / 100.0), 3)).ToHashSet();
+        Assert.All(m.Left.SelectMany(s => s.Points), p => Assert.Contains(Math.Round(p.Y, 3), allowed));
+        // Lines still break at every silence: one piece per session.
+        Assert.Equal(4, m.Left.Count);
+    }
+
+    [Fact]
+    public void Compressed_axis_names_each_session_by_its_start_and_drops_labels_that_would_overlap()
+    {
+        var m = Compressed(SparseWeek());
+        Assert.Equal("Sat 09:00", m.Axis.Labels[0].Label);
+        for (int i = 1; i < m.Axis.Labels.Count; i++)
+            Assert.True(m.Axis.Labels[i].X - m.Axis.Labels[i - 1].X >= BatteryChartModel.LabelWidth);
+        // Wider chart: more sessions get a name (the lone Sunday reading is still too close to Saturday's label).
+        var wide = Compressed(SparseWeek(), width: 600);
+        Assert.Equal(new[] { "Sat 09:00", "Thu 18:00", "Fri 08:00" }, wide.Axis.Labels.Select(l => l.Label));
+    }
+
+    [Fact]
+    public void A_24_hour_view_with_two_short_stretches_is_compressed_and_labelled_by_clock_time()
+    {
+        var samples = new[]
+        {
+            Reading(Now.AddHours(-20), 90, 90, null), Reading(Now.AddHours(-19), 80, 80, null),
+            Reading(Now.AddHours(-2), 60, 60, null), Reading(Now.AddHours(-1), 55, 55, null),
+        };
+        var m = Compressed(samples, BatteryChartRange.Day);
+        Assert.True(m.IsCompressed);
+        Assert.Equal(2, m.Breaks.Count);
+        Assert.Equal(new[] { "16:00", "10:00" }, m.Axis.Labels.Select(l => l.Label));
+        Assert.Equal(300.0, m.Left[^1].Points[^1].X, 3);     // the last session runs on to now
+    }
+
+    [Fact]
+    public void An_isolated_reading_is_one_dot_in_the_middle_of_its_own_session()
+    {
+        var m = Compressed(new[] { Reading(Now.AddDays(-2), 70, 70, 50) });
+        Assert.True(m.IsCompressed);
+        Assert.Equal(2, m.Breaks.Count);                     // silence before it and after it
+        var dot = Assert.Single(m.Left);
+        Assert.True(dot.IsDot);
+        Assert.Equal(150.0, dot.Points[0].X, 3);
+        Assert.Equal(dot.Points[0].X, Assert.Single(m.Probes).X, 3);
+        Assert.Equal("Wed 12:00", Assert.Single(m.Axis.Labels).Label);
+    }
+
+    [Fact]
+    public void Charging_over_a_session_is_a_band_as_wide_as_the_session()
+    {
+        var m = Compressed(SparseWeek());
+        var band = Assert.Single(m.Charging);                // only the Fri 08:00-12:00 session was charging
+        Assert.False(band.Instant);
+        Assert.Equal(m.Probes[6].X, band.X1, 3);
+        Assert.Equal(300.0, band.X2, 3);
+    }
+
+    [Fact]
+    public void A_single_charging_reading_is_a_marker_not_a_full_height_band()
+    {
+        var m = Compressed(new[] { Reading(Now.AddDays(-2), 70, 70, 50, charging: true), Reading(Now.AddDays(-4), 80, 80, 50) });
+        var band = Assert.Single(m.Charging);
+        Assert.True(band.Instant);
+        Assert.Equal(band.X1, band.X2, 3);
+    }
+
+    [Fact]
+    public void Charging_that_stops_inside_a_session_ends_at_the_next_reading()
+    {
+        var samples = new[]
+        {
+            Reading(At(2, 6), 40, 40, null), Reading(At(2, 7), 41, 41, null, charging: true),
+            Reading(At(2, 8), 60, 60, null, charging: true), Reading(At(2, 9), 70, 70, null),
+            Reading(At(2, 10), 70, 70, null),
+        };
+        var m = Compressed(samples, BatteryChartRange.Week);
+        var band = Assert.Single(m.Charging);
+        Assert.False(band.Instant);
+        Assert.Equal(m.Probes[1].X, band.X1, 3);
+        Assert.Equal(m.Probes[3].X, band.X2, 3);
     }
 
     // ---- summary line ----------------------------------------------------------------------
