@@ -2,6 +2,16 @@
 
 What changed in each version of Clasp, written for people who use it. Each version's full release (with the installer) is on the [releases page](https://github.com/yirock7/Clasp-releases/releases).
 
+## 0.4.1
+
+Fixes for three things you could see in 0.4.0.
+
+### Fixed
+
+- **AirPods no longer jump back into the case while you're wearing them.** The tray flyout's picture switched from AirPods out of the case to AirPods in it about 15 seconds after it opened, even though nothing had changed. Clasp now keeps the in-ear picture for as long as your AirPods keep reporting that they're in your ears.
+- **Battery history is readable when you only use your AirPods with this PC now and then.** Long stretches with no readings shrink to a narrow break mark, so each time you used them gets room to read, labelled with when it started. A single charging reading no longer shows as a thin full-height green bar. Clasp still never fills in levels it didn't see.
+- **The "Pair in Windows Settings instead" link in the welcome guide no longer looks cut off** when you point at it.
+
 ## 0.4.0
 
 Easier first-time setup.
