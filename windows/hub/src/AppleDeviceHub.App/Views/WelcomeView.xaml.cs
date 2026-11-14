@@ -359,7 +359,11 @@ public sealed partial class WelcomeView : UserControl
 
     private void RebuildPairRows(PairingSessionViewModel session, List<(string Id, string Name)> wanted)
     {
-        bool hadFocus = _pairButtons.Values.Any(b => b.FocusState != FocusState.Unfocused);
+        var focused = _pairButtons.FirstOrDefault(kv => kv.Value.FocusState != FocusState.Unfocused);
+        var focusedButton = focused.Value;
+        bool hadFocus = focusedButton is not null;
+        string? focusedId = focusedButton is not null ? focused.Key : null;
+        var focusedState = focusedButton?.FocusState ?? FocusState.Unfocused;
         PairList.Children.Clear();
         _pairButtons.Clear();
         _pairShown = wanted;
@@ -384,7 +388,11 @@ public sealed partial class WelcomeView : UserControl
             PairList.Children.Add(row);
             _pairButtons[candidate.Id] = button;
         }
-        if (hadFocus && !_pairButtons.Values.Any(b => b.FocusState != FocusState.Unfocused))
+        if (focusedId is not null && _pairButtons.TryGetValue(focusedId, out var again))
+        {
+            again.Focus(focusedState == FocusState.Keyboard ? FocusState.Keyboard : FocusState.Programmatic);
+        }
+        else if (hadFocus)
         {
             // The focused button went away (for example the device paired): hand focus to the next sensible control.
             if (PickerPanel.Visibility == Visibility.Visible) PairedDevicePicker.Focus(FocusState.Programmatic);

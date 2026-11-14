@@ -273,8 +273,31 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
         var ordered = PairingCandidateFilter.Order(_discovery.Candidates);
         if (!ordered.SequenceEqual(Candidates))
         {
-            Candidates.Clear();
-            foreach (var c in ordered) Candidates.Add(c);
+            // Sync in place so devices that remain never disappear from the list mid-update (a Clear would
+            // make the UI destroy and rebuild every row, dropping keyboard focus).
+            var keep = new HashSet<string>(ordered.Select(c => c.Id));
+            for (int i = Candidates.Count - 1; i >= 0; i--)
+                if (!keep.Contains(Candidates[i].Id)) Candidates.RemoveAt(i);
+
+            for (int i = 0; i < ordered.Count; i++)
+            {
+                var c = ordered[i];
+                if (i < Candidates.Count && Candidates[i].Id == c.Id)
+                {
+                    if (Candidates[i] != c) Candidates[i] = c;
+                    continue;
+                }
+                int j = -1;
+                for (int k = i + 1; k < Candidates.Count; k++)
+                    if (Candidates[k].Id == c.Id) { j = k; break; }
+                if (j >= 0)
+                {
+                    Candidates.Move(j, i);
+                    if (Candidates[i] != c) Candidates[i] = c;
+                }
+                else Candidates.Insert(i, c);
+            }
+            while (Candidates.Count > ordered.Count) Candidates.RemoveAt(Candidates.Count - 1);
         }
         Raise(nameof(HasCandidates));
     }
