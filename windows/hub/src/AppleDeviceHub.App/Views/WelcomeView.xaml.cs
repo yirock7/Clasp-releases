@@ -4,6 +4,7 @@ using AppleDeviceHub.App.Design;
 using AppleDeviceHub.Core.Artwork;
 using AppleDeviceHub.Core.Ble;
 using AppleDeviceHub.Core.Connection;
+using AppleDeviceHub.Core.Pairing;
 using AppleDeviceHub.Core.Presentation;
 using AppleDeviceHub.Core.Startup;
 using Microsoft.UI.Xaml;
@@ -16,16 +17,17 @@ using Windows.System;
 namespace AppleDeviceHub.App.Views;
 
 /// <summary>
-/// The welcome guide: three short pages (what Clasp does, choose your AirPods, find the tray icon). The host sets
+/// The welcome guide: four short pages (what Clasp does, choose or pair your AirPods, find the tray icon, quick settings). The host sets
 /// <see cref="Setup"/> and listens for <see cref="Finished"/> (true = Done, false = Skip or Esc). Pages slide with the
 /// existing spring tokens; under reduced motion they crossfade for a moment instead. Enter is Next, Esc is Skip, and each
 /// page change is announced to Narrator.
 /// </summary>
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1001", Justification = "The pairing session is disposed when Setup replaces it; the discovery it wraps belongs to the app.")]
 public sealed partial class WelcomeView : UserControl
 {
-    public const int PageCount = 3;
+    public const int PageCount = 4;
 
-    private static readonly string[] PageNames = { "Welcome to Clasp", "Choose your AirPods", "Find Clasp in the tray" };
+    private static readonly string[] PageNames = { "Welcome to Clasp", "Choose your AirPods", "Find Clasp in the tray", "Quick settings" };
 
     private readonly FrameworkElement[] _pages;
     private readonly FrameworkElement[] _dots;
@@ -39,6 +41,10 @@ public sealed partial class WelcomeView : UserControl
     private HubSettings? _settings;
     private CompanionConnectionViewModel? _connection;
     private CompanionHost? _companion;
+    private PairingSessionViewModel? _session;
+    private bool _hasDiscovery;
+    private readonly Dictionary<string, GlassButton> _pairButtons = new(StringComparer.Ordinal);
+    private List<(string Id, string Name)> _pairShown = new();
 
     public WelcomeView()
     {
@@ -47,8 +53,8 @@ public sealed partial class WelcomeView : UserControl
         HeroWaiting.Pause();
         PairingHelp.SetActive(false);
         SyncHeroModel();
-        _pages = new FrameworkElement[] { Page1, Page2, Page3 };
-        _dots = new[] { Dot1, Dot2, Dot3 };
+        _pages = new FrameworkElement[] { Page1, Page2, Page3, Page4 };
+        _dots = new[] { Dot1, Dot2, Dot3, Dot4 };
         Unloaded += (_, _) => Detach();
         Loaded += (_, _) =>
         {
@@ -67,7 +73,8 @@ public sealed partial class WelcomeView : UserControl
     public int CurrentPage => Math.Max(_page, 0);
 
     /// <summary>Hands the guide the same objects Settings uses, so it edits the same settings.</summary>
-    internal void Setup(HubViewModel viewModel, HubSettings settings, CompanionConnectionViewModel? connection, CompanionHost? companion)
+    internal void Setup(HubViewModel viewModel, HubSettings settings, CompanionConnectionViewModel? connection, CompanionHost? companion,
+        IPairingDiscovery? pairingDiscovery)
     {
         _viewModel = viewModel;
         _settings = settings;
@@ -77,6 +84,7 @@ public sealed partial class WelcomeView : UserControl
         _companion = companion;
         _helpHadDevices = null;
         PairedDevicePicker.ItemsSource = _connection is null ? null : BindableItems.From(_connection.Devices);
+        SetupPairing(pairingDiscovery);
     }
 
     /// <summary>
@@ -94,28 +102,31 @@ public sealed partial class WelcomeView : UserControl
     /// <summary>AirPods Pro 2 (USB-C): the model the hero shows until Clasp knows the user's own.</summary>
     private const ushort DefaultHeroModel = 0x2420;
 
-    /// <summary>Listens to the connection only while the guide is showing.</summary>
+    /// <summary>Listens to the connection (and searches for AirPods to pair) only while the guide is showing.</summary>
     private void Attach()
     {
-        if (_attached || _connection is null) return;
-        _connection.PropertyChanged += OnConnectionPropertyChanged;
-        if (_viewModel is not null) _viewModel.PropertyChanged += OnConnectionPropertyChanged;
+        if (_attached) return;
         _attached = true;
+        if (_connection is not null)
+        {
+            _connection.PropertyChanged += OnConnectionPropertyChanged;
+            if (_viewModel is not null) _viewModel.PropertyChanged += OnConnectionPropertyChanged;
+        }
         if (_page == 1) SetPage2Active(true);
     }
 
     /// <summary>Stops listening (the window hid, or the view unloaded), so a hidden guide never touches the selection.</summary>
     internal void Detach()
     {
-        SetPage2Active(false); // also when there is no connection to unhook
-        if (!_attached || _connection is null) { _attached = false; return; }
+        bool wasAttached = _attached;
+        _attached = false; // before SetPage2Active, so the pairing search stops
+        SetPage2Active(false);
+        if (!wasAttached || _connection is null) return;
         _connection.PropertyChanged -= OnConnectionPropertyChanged;
         if (_viewModel is not null) _viewModel.PropertyChanged -= OnConnectionPropertyChanged;
-        _attached = false;
-        SetPage2Active(false);
     }
 
-    /// <summary>Starts (or restarts) the guide on <paramref name="page"/> (0 to 2), without a slide.</summary>
+    /// <summary>Starts (or restarts) the guide on <paramref name="page"/> (0 to 3), without a slide.</summary>
     public void Restart(int page = 0)
     {
         Attach();
@@ -154,6 +165,7 @@ public sealed partial class WelcomeView : UserControl
         SetPage2Active(page == 1);
         if (page == 1) RefreshDevices(refreshFromWindows: first || animate);
         if (page == 2) RefreshToggles();
+        if (page == 3) RefreshQuickSettings();
 
         if (animate && IsLoaded) Transition(_pages[page], direction);
         // A hidden Back button cannot keep focus: hand it to the primary button.
@@ -246,6 +258,9 @@ public sealed partial class WelcomeView : UserControl
     {
         if (active) HeroWaiting.Resume(); else HeroWaiting.Pause();
         PairingHelp.SetActive(active);
+        // The search runs only while page 2 shows and the guide is open (never in a hidden window).
+        if (active && _attached) _session?.Activate();
+        else _session?.Deactivate();
     }
 
     /// <summary>
@@ -260,6 +275,174 @@ public sealed partial class WelcomeView : UserControl
         HeroWaiting.Update(found);
         string text = found is null ? "Looking for your AirPods" : $"Found {found.Name}";
         if (WaitingStatus.Text != text) WaitingStatus.Text = text;
+    }
+
+    // ----- Page 2: pairing new AirPods in the app -----
+
+    private void SetupPairing(IPairingDiscovery? discovery)
+    {
+        if (_session is { } old)
+        {
+            old.PropertyChanged -= OnSessionPropertyChanged;
+            old.Candidates.CollectionChanged -= OnSessionCandidatesChanged;
+            old.Dispose(); // the discovery belongs to the app and is not disposed here
+            _session = null;
+        }
+        _hasDiscovery = discovery is not null;
+        PairingHelp.SetInAppPairing(_hasDiscovery);
+        if (_hasDiscovery)
+        {
+            OpenBluetoothButton.Content = "Pair in Windows Settings instead";
+            OpenBluetoothButton.IsFlat = true;
+            OpenBluetoothButton.Padding = new Thickness(10, 4, 10, 4);
+            OpenBluetoothButton.MinHeight = 32;
+        }
+        else
+        {
+            OpenBluetoothButton.Content = "Open Bluetooth settings";
+            OpenBluetoothButton.IsFlat = false;
+            OpenBluetoothButton.ClearValue(Control.PaddingProperty);
+            OpenBluetoothButton.ClearValue(FrameworkElement.MinHeightProperty);
+        }
+
+        if (discovery is not null)
+        {
+            _session = new PairingSessionViewModel(
+                discovery,
+                action => DispatcherQueue.TryEnqueue(() => action()),
+                adoptPairedDevice: _connection is null ? null : AdoptPairedDeviceAsync,
+                log: Shell.LocalLog.Write);
+            _session.PropertyChanged += OnSessionPropertyChanged;
+            _session.Candidates.CollectionChanged += OnSessionCandidatesChanged;
+        }
+        UpdatePairing();
+    }
+
+    private void OnSessionPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        UpdatePairing();
+        if (e.PropertyName == nameof(PairingSessionViewModel.State) && _session?.State == PairingState.Paired) UpdateDevices();
+    }
+
+    private void OnSessionCandidatesChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) => UpdatePairing();
+
+    /// <summary>
+    /// Shows the session's status line, spinner and the Pair rows. The rows are rebuilt only when the candidates (id or
+    /// name) change; otherwise the existing buttons are updated in place so keyboard focus is not lost.
+    /// </summary>
+    private void UpdatePairing()
+    {
+        var session = _session;
+        PairPanel.Visibility = session is null ? Visibility.Collapsed : Visibility.Visible;
+        if (session is null)
+        {
+            PairList.Children.Clear();
+            _pairButtons.Clear();
+            _pairShown.Clear();
+            return;
+        }
+
+        PairRing.IsActive = session.State is PairingState.Searching or PairingState.Pairing or PairingState.Connecting;
+        if (PairStatus.Text != session.StatusText) PairStatus.Text = session.StatusText;
+
+        var wanted = session.Candidates.Select(c => (c.Id, c.Name)).ToList();
+        if (!wanted.SequenceEqual(_pairShown)) RebuildPairRows(session, wanted);
+
+        foreach (var (id, button) in _pairButtons)
+        {
+            bool pending = session.IsBusy && session.PairingCandidateId == id;
+            // The button being paired stays enabled (it shows the spinner), so it does not drop keyboard focus.
+            button.IsEnabled = session.CanPair || pending;
+            button.IsPending = pending;
+        }
+    }
+
+    private void RebuildPairRows(PairingSessionViewModel session, List<(string Id, string Name)> wanted)
+    {
+        var focused = _pairButtons.FirstOrDefault(kv => kv.Value.FocusState != FocusState.Unfocused);
+        var focusedButton = focused.Value;
+        bool hadFocus = focusedButton is not null;
+        string? focusedId = focusedButton is not null ? focused.Key : null;
+        var focusedState = focusedButton?.FocusState ?? FocusState.Unfocused;
+        PairList.Children.Clear();
+        _pairButtons.Clear();
+        _pairShown = wanted;
+        foreach (var candidate in session.Candidates)
+        {
+            var label = new TextBlock
+            {
+                Text = candidate.Name,
+                Style = (Style)Application.Current.Resources["GlassLabelTextStyle"],
+                VerticalAlignment = VerticalAlignment.Center,
+                TextWrapping = TextWrapping.WrapWholeWords,
+            };
+            var button = new GlassButton { Content = "Pair", Tag = candidate.Id, MinWidth = 72 };
+            AutomationProperties.SetName(button, $"Pair {candidate.Name}");
+            button.Click += OnPairClick;
+            var row = new Grid { ColumnSpacing = 8 };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            Grid.SetColumn(button, 1);
+            row.Children.Add(label);
+            row.Children.Add(button);
+            PairList.Children.Add(row);
+            _pairButtons[candidate.Id] = button;
+        }
+        if (focusedId is not null && _pairButtons.TryGetValue(focusedId, out var again))
+        {
+            again.Focus(focusedState == FocusState.Keyboard ? FocusState.Keyboard : FocusState.Programmatic);
+        }
+        else if (hadFocus)
+        {
+            // The focused button went away (for example the device paired): hand focus to the next sensible control.
+            if (PickerPanel.Visibility == Visibility.Visible) PairedDevicePicker.Focus(FocusState.Programmatic);
+            else NextButton.Focus(FocusState.Programmatic);
+        }
+    }
+
+    private async void OnPairClick(object sender, RoutedEventArgs e)
+    {
+        if (_session is not { } session || (sender as FrameworkElement)?.Tag is not string id) return;
+        await session.PairAsync(id);
+    }
+
+    /// <summary>
+    /// After pairing: refreshes Clasp's paired list until the device shows up with an audio endpoint, selects it, and
+    /// connects it when Windows has not already. The caller applies the overall timeout by cancelling the token.
+    /// </summary>
+    private async Task<bool> AdoptPairedDeviceAsync(PairingCandidate candidate, CancellationToken token)
+    {
+        var connection = _connection;
+        if (connection is null) return false;
+        var address = BluetoothAddressParser.TryParse(candidate.Id);
+        if (address is null) return false;
+        while (true)
+        {
+            token.ThrowIfCancellationRequested();
+            await connection.RefreshAsync();
+            var device = connection.Devices.FirstOrDefault(d =>
+                d.HasAvailableAudioEndpoint && BluetoothAddressParser.TryParse(d.Id) == address);
+            if (device is not null)
+            {
+                token.ThrowIfCancellationRequested();
+                connection.SelectedDeviceId = device.Id;
+                // The picker stays usable meanwhile: if the user picks another device, their choice wins and
+                // nothing is connected on their behalf.
+                for (int i = 0; i < 10 && !connection.IsConnected; i++)
+                {
+                    await Task.Delay(500, token);
+                    if (!string.Equals(connection.SelectedDeviceId, device.Id, StringComparison.Ordinal)) return false;
+                }
+                token.ThrowIfCancellationRequested();
+                if (!string.Equals(connection.SelectedDeviceId, device.Id, StringComparison.Ordinal)) return false;
+                if (!connection.IsConnected && connection.CanConnect) await connection.ConnectAsync();
+                // ConnectAsync returns normally when the attempt fails, so report success only when the paired
+                // device is still the selected one and is actually connected.
+                return connection.IsConnected
+                    && string.Equals(connection.SelectedDeviceId, device.Id, StringComparison.Ordinal);
+            }
+            await Task.Delay(1000, token);
+        }
     }
 
     // ----- Page 2: the paired-device picker (the same logic as Settings > AirPods) -----
@@ -299,11 +482,13 @@ public sealed partial class WelcomeView : UserControl
         UpdateDetection();
         PickerPanel.Visibility = hasDevices ? Visibility.Visible : Visibility.Collapsed;
         EmptyPanel.Visibility = hasDevices ? Visibility.Collapsed : Visibility.Visible;
-        OpenBluetoothButton.Visibility = hasDevices ? Visibility.Collapsed : Visibility.Visible;
+        // With in-app pairing the link is always there as a fallback; without it, only when nothing is paired.
+        OpenBluetoothButton.Visibility = _hasDiscovery || !hasDevices ? Visibility.Visible : Visibility.Collapsed;
         RefreshButton.IsEnabled = connection is not null;
+        EmptyTitle.Text = _hasDiscovery ? "Put your AirPods in pairing mode" : "Pair your AirPods in Windows first";
         EmptyDetail.Text = connection is null
             ? "Clasp can't check your paired devices right now."
-            : "Once they're paired, they'll show up here.";
+            : _hasDiscovery ? "They'll appear above with a Pair button." : "Once they're paired, they'll show up here.";
 
         // The pairing help opens by itself when nothing is paired, and closes once something is. Between those
         // changes it stays however the user left it.
@@ -405,5 +590,47 @@ public sealed partial class WelcomeView : UserControl
     {
         if (_updatingToggles || _settings is null) return;
         _settings.ObserveNearbyAirPods = NearbyToggle.IsOn;
+    }
+
+    // ----- Page 4: quick settings (the same HubSettings as Settings; the demo may change them too, as in Settings) -----
+
+    private void RefreshQuickSettings()
+    {
+        _updatingToggles = true;
+        try
+        {
+            var settings = _settings;
+            bool has = settings is not null;
+            LowBatteryBox.IsEnabled = has;
+            AutoConnectToggle.IsEnabled = has && settings!.ObserveNearbyAirPods;
+            SwitchOutputToggle.IsEnabled = has;
+            AutoPlayToggle.IsEnabled = has;
+            AutoPauseToggle.IsEnabled = has;
+            if (settings is null) return;
+            LowBatteryBox.SelectedIndex = settings.LowBatteryThresholdIndex;
+            AutoConnectToggle.IsOn = settings.AutoConnectAirPods;
+            SwitchOutputToggle.IsOn = settings.SwitchOutputToAirPodsOnConnect;
+            AutoPlayToggle.IsOn = settings.AutoPlayOnConnect;
+            AutoPauseToggle.IsOn = settings.AutoPauseOnDisconnect;
+            AutoConnectHelp.Text = settings.ObserveNearbyAirPods
+                ? "Clasp tries once to connect your AirPods when it notices the case opening nearby. That could be someone else's AirPods."
+                : "Needs nearby detection (on the previous page).";
+        }
+        finally { _updatingToggles = false; }
+    }
+
+    private void OnLowBatteryChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_updatingToggles || _settings is null || LowBatteryBox.SelectedIndex < 0) return;
+        _settings.LowBatteryThresholdIndex = LowBatteryBox.SelectedIndex;
+    }
+
+    private void OnQuickToggled(object sender, RoutedEventArgs e)
+    {
+        if (_updatingToggles || _settings is not { } settings) return;
+        if (ReferenceEquals(sender, AutoConnectToggle)) settings.AutoConnectAirPods = AutoConnectToggle.IsOn;
+        else if (ReferenceEquals(sender, SwitchOutputToggle)) settings.SwitchOutputToAirPodsOnConnect = SwitchOutputToggle.IsOn;
+        else if (ReferenceEquals(sender, AutoPlayToggle)) settings.AutoPlayOnConnect = AutoPlayToggle.IsOn;
+        else if (ReferenceEquals(sender, AutoPauseToggle)) settings.AutoPauseOnDisconnect = AutoPauseToggle.IsOn;
     }
 }

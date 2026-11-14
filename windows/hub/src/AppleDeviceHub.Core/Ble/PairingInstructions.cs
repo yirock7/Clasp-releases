@@ -112,6 +112,20 @@ public static class PairingInstructions
     /// <summary>Every guide, in picker order. The last one is the fallback.</summary>
     public static IReadOnlyList<PairingGuide> Guides => All;
 
+    /// <summary>
+    /// The guide's steps for the in-app welcome guide: a last step that starts with "In Windows, open Bluetooth settings"
+    /// is replaced by waiting for the device to appear in Clasp. Other steps are unchanged.
+    /// </summary>
+    public static IReadOnlyList<string> InAppSteps(PairingGuide guide)
+    {
+        ArgumentNullException.ThrowIfNull(guide);
+        var steps = guide.Steps;
+        if (steps.Count == 0 || !steps[^1].StartsWith("In Windows, open Bluetooth settings", StringComparison.Ordinal)) return steps;
+        var result = new List<string>(steps);
+        result[^1] = "Wait for them to appear below, then click Pair.";
+        return result;
+    }
+
     /// <summary>The guide shown when a model is unknown or unlisted.</summary>
     public static PairingGuide Fallback => All[^1];
 

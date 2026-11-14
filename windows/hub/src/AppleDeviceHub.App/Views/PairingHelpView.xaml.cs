@@ -20,6 +20,8 @@ public sealed partial class PairingHelpView : UserControl
     private readonly PairingDefaultTracker _default = new();
     private bool _loading;
     private bool _active = true;
+    private bool _inApp;
+    private PairingGuide _guide;
 
     // WinRT cannot hand a plain IReadOnlyList to ItemsSource under Native AOT; a List is marshalled fine.
     private readonly List<PairingGuide> _guides = new(PairingInstructions.Guides);
@@ -49,7 +51,19 @@ public sealed partial class PairingHelpView : UserControl
             ModelPicker.SelectedIndex = 0;
         }
         finally { _loading = false; }
-        ShowGuide(_guides[0]);
+        _guide = _guides[0];
+        ShowGuide(_guide);
+    }
+
+    /// <summary>
+    /// True in the welcome guide, where the last step says to wait for the device to appear in Clasp instead of
+    /// pointing to Windows Settings. Applies to the current guide and to every guide shown afterwards.
+    /// </summary>
+    public void SetInAppPairing(bool inApp)
+    {
+        if (_inApp == inApp) return;
+        _inApp = inApp;
+        ShowSteps(_guide);
     }
 
     public bool IsExpanded => HelpExpander.IsExpanded;
@@ -109,12 +123,19 @@ public sealed partial class PairingHelpView : UserControl
 
     private void ShowGuide(PairingGuide guide)
     {
+        _guide = guide;
         GuideTitle.Text = guide.Title;
         try { Illustration?.Show(PairingAnimations.For(guide)); }
         catch (Exception ex) { DropIllustration(ex); }
         UpdateAnimation();
-        var items = new List<PairingStepItem>(guide.Steps.Count);
-        for (int i = 0; i < guide.Steps.Count; i++) items.Add(new PairingStepItem($"{i + 1}.", guide.Steps[i]));
+        ShowSteps(guide);
+    }
+
+    private void ShowSteps(PairingGuide guide)
+    {
+        var steps = _inApp ? PairingInstructions.InAppSteps(guide) : guide.Steps;
+        var items = new List<PairingStepItem>(steps.Count);
+        for (int i = 0; i < steps.Count; i++) items.Add(new PairingStepItem($"{i + 1}.", steps[i]));
         StepList.ItemsSource = items;
     }
 
