@@ -1,0 +1,18 @@
+{
+  "description": "Case status 0x04 (not present) and level 0xFF: level and charging both unknown",
+  "packet_hex": "0400040004000302014f020104015202010801ff0401",
+  "expect_fields": {
+    "battery.left": {
+      "level": 82,
+      "charging": false
+    },
+    "battery.right": {
+      "level": 79,
+      "charging": false
+    },
+    "battery.case": {
+      "level": null,
+      "charging": null
+    }
+  }
+}

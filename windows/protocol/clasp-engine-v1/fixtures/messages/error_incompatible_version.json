@@ -1,0 +1,11 @@
+{
+  "direction": "engine_to_client",
+  "description": "Major version mismatch; the engine closes after sending this",
+  "message": {
+    "type": "error",
+    "seq": 1,
+    "code": "incompatible_version",
+    "detail": "engine speaks major 1, client asked for 2",
+    "request_id": null
+  }
+}

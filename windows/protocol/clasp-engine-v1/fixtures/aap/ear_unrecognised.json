@@ -1,0 +1,10 @@
+{
+  "description": "v1.1: unrecognised value 0x09 -> unknown",
+  "packet_hex": "0400040006000009",
+  "expect_fields": {
+    "ear": {
+      "primary": "in_ear",
+      "secondary": "unknown"
+    }
+  }
+}

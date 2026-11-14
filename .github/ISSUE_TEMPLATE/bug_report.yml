@@ -1,0 +1,75 @@
+name: Bug report
+description: Something in Clasp doesn't work (connecting, battery, sound output, shortcuts, updates...)
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please fill in what you can. The more exact the steps, the faster I can reproduce it.
+
+  - type: input
+    id: version
+    attributes:
+      label: Clasp version
+      description: Open Clasp's settings and look under **About**.
+      placeholder: "0.3.0"
+    validations:
+      required: true
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      description: Press Win+R, type `winver` and press Enter.
+      placeholder: "Windows 11 24H2, build 26100"
+    validations:
+      required: true
+
+  - type: input
+    id: model
+    attributes:
+      label: AirPods or Beats model
+      placeholder: "AirPods Pro 2 (USB-C)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      description: Screenshots help.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Does it happen every time?
+      options:
+        - Every time
+        - Sometimes
+        - Only once so far
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Log excerpt (optional)
+      description: |
+        Clasp keeps a small local log at `%LOCALAPPDATA%\AppleDeviceHub\hub.log`. Paste the last lines from around the time of the problem.
+
+        The log is written so it doesn't contain device names, but please read it before posting and remove anything you don't want public.
+      render: text

@@ -1,0 +1,21 @@
+{
+  "direction": "engine_to_client",
+  "description": "1.1 engine handshake",
+  "message": {
+    "type": "hello_ack",
+    "seq": 1,
+    "protocol": "clasp-engine",
+    "major": 1,
+    "minor": 1,
+    "engine": "clasp-engine 0.2.0",
+    "engine_epoch": "6f1c2a9e-3b7d-4c11-9a52-0d8e4f7b2c10",
+    "capabilities": [
+      "list_devices",
+      "observe",
+      "listening_mode_write",
+      "observe_conversation_awareness",
+      "observe_ear",
+      "conversation_awareness_write"
+    ]
+  }
+}

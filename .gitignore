@@ -1,0 +1,7 @@
+/windows/drivers/aap/.build/
+/docs/driver-release/artifacts/
+/windows/hub/tools/EngineHandshakeProbe/bin/
+/windows/hub/tools/EngineHandshakeProbe/obj/
+/internal/
+/AGENTS.md
+/CLAUDE.md

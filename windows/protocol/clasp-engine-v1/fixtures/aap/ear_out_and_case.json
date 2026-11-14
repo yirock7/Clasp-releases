@@ -1,0 +1,10 @@
+{
+  "description": "v1.1: primary out of ear, secondary in case",
+  "packet_hex": "0400040006000102",
+  "expect_fields": {
+    "ear": {
+      "primary": "out_of_ear",
+      "secondary": "in_case"
+    }
+  }
+}

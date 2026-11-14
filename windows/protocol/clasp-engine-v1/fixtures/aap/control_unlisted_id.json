@@ -1,0 +1,5 @@
+{
+  "description": "Control id 0x34 (allow off): not reported",
+  "packet_hex": "0400040009003401000000",
+  "expect_fields": null
+}

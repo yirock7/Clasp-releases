@@ -1,0 +1,14 @@
+{
+  "direction": "engine_to_client",
+  "description": "Unrecognised listening-mode byte",
+  "message": {
+    "type": "observation",
+    "seq": 8,
+    "session_id": 1,
+    "device_id": "dev-3f9a1c0e8b7d6a52",
+    "observed_at": "2026-10-15T18:04:07.000Z",
+    "fields": {
+      "listening_mode": "unknown"
+    }
+  }
+}

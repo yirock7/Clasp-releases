@@ -1,0 +1,10 @@
+{
+  "description": "v1.1: opcode 0x06, both buds in ear",
+  "packet_hex": "0400040006000000",
+  "expect_fields": {
+    "ear": {
+      "primary": "in_ear",
+      "secondary": "in_ear"
+    }
+  }
+}

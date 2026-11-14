@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 230">
+  <style>
+    svg {
+      --body-hi: #ffffff;
+      --body: #f1f2f5;
+      --body-lo: #d9dce3;
+      --edge: #c2c6ce;
+      --rim-fill: #eef0f3;
+      --cavity-top: #8b9099;
+      --cavity-bottom: #cfd2d8;
+      --lid-shade: #cfd3da;
+      --lid-shade-right: #cbcfd7;
+      --lid-mid: #f4f5f8;
+      --inside-hi: #e3e5ea;
+      --inside-lo: #b4b8c1;
+      --bud-hi: #ffffff;
+      --bud: #eceef2;
+      --bud-lo: #cfd3da;
+      --bud-edge: #bfc3cb;
+      --bud-ear: #f1f2f5;
+      --bud-ear-in: #d3d6dc;
+      --mesh-hi: #55585f;
+      --mesh-lo: #121316;
+      --metal-lo: #8b94a1;
+      --metal-mid: #c3c9d2;
+      --metal-hi: #f4f6f9;
+      --metal-tip: #9aa3af;
+      --lip: #f7f8fa;
+      --light: #34c759;
+      --light-core: #3ddc66;
+    }
+    svg[data-colorway="white"] {
+    }
+  </style>
+
+  <defs>
+    <linearGradient id="bodyEdge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#000000" stop-opacity=".16"/>
+      <stop offset=".18" stop-color="#000000" stop-opacity="0"/>
+      <stop offset=".82" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity=".2"/>
+    </linearGradient>
+    <radialGradient id="mesh" cx=".4" cy=".35" r=".8">
+      <stop offset="0" stop-color="var(--mesh-hi)"/>
+      <stop offset="1" stop-color="var(--mesh-lo)"/>
+    </radialGradient>
+    <linearGradient id="wBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--body-hi)"/>
+      <stop offset=".6" stop-color="var(--body)"/>
+      <stop offset="1" stop-color="var(--body-lo)"/>
+    </linearGradient>
+    <radialGradient id="wBud" cx=".35" cy=".3" r=".9">
+      <stop offset="0" stop-color="var(--bud-hi)"/>
+      <stop offset=".7" stop-color="var(--bud)"/>
+      <stop offset="1" stop-color="var(--bud-lo)"/>
+    </radialGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--metal-tip)"/>
+      <stop offset=".35" stop-color="var(--metal-hi)"/>
+      <stop offset=".6" stop-color="var(--metal-mid)"/>
+      <stop offset="1" stop-color="var(--metal-lo)"/>
+    </linearGradient>
+    <linearGradient id="cavity" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--cavity-top)"/>
+      <stop offset="1" stop-color="var(--cavity-bottom)"/>
+    </linearGradient>
+    <linearGradient id="lidSide" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--lid-shade)"/>
+      <stop offset=".16" stop-color="var(--lid-mid)"/>
+      <stop offset=".5" stop-color="var(--body-hi)"/>
+      <stop offset=".84" stop-color="var(--lid-mid)"/>
+      <stop offset="1" stop-color="var(--lid-shade-right)"/>
+    </linearGradient>
+    <linearGradient id="lidIn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--inside-hi)"/>
+      <stop offset="1" stop-color="var(--inside-lo)"/>
+    </linearGradient>
+    <!-- Soft shapes that replace blur filters: fade to nothing at the edge. -->
+    <radialGradient id="shadowSoft" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#000000" stop-opacity=".26"/>
+      <stop offset=".5" stop-color="#000000" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glossSoft" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".7"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lightGlow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="var(--light)" stop-opacity=".55"/>
+      <stop offset=".45" stop-color="var(--light)" stop-opacity=".3"/>
+      <stop offset="1" stop-color="var(--light)" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- One earbud (left); the right one is this mirrored. Drawn unclipped: the front lip below hides the stem inside the case. -->
+    <g id="apBud">
+      <g transform="rotate(-7 114 116)">
+        <rect x="108.5" y="106" width="11" height="20" rx="5.5" fill="url(#wBud)" stroke="var(--bud-edge)"/>
+        <path d="M114.0,77.5 C122.0,77.5 126.5,83.0 126.5,90.5 C126.5,98.0 122.0,103.0 119.5,108.0 C118.6,110.0 118.5,112.0 118.5,114.0 L108.5,114.0 C108.5,111.0 108.2,108.5 106.5,105.5 C103.5,100.5 101.0,96.0 101.0,90.5 C101.0,83.0 106.0,77.5 114.0,77.5 Z" fill="url(#wBud)" stroke="var(--bud-edge)"/>
+        <path d="M126.5,90.5 C126.5,98.0 122.0,103.0 119.5,108.0 C118.6,110.0 118.5,112.0 118.5,114.0 L115.0,114.0 C115.5,110.0 117.0,105.0 120.0,100.0 C122.5,96.0 123.5,92.0 123.0,87.0 C124.8,87.8 126.5,88.5 126.5,90.5 Z" fill="var(--bud-lo)" opacity=".4"/>
+        <rect x="115.4" y="81" width="3.2" height="10" rx="1.6" fill="url(#mesh)" transform="rotate(16 117 86)"/>
+        <path d="M104.5,86.0 C105.5,81.5 109.0,79.4 113.5,79.2" stroke="#ffffff" stroke-opacity=".9" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <path d="M103.4,92.0 C103.2,90.5 103.3,89.6 103.6,88.8" stroke="#ffffff" stroke-opacity=".55" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+      </g>
+    </g>
+  </defs>
+
+  <g data-part="shadow">
+    <ellipse cx="150" cy="208" rx="93.06" ry="18.23" fill="url(#shadowSoft)"/>
+  </g>
+
+  <!-- The open lid is painted here, behind the buds. Its inside face is in rim-local coordinates (y 0 at the hinge). -->
+  <g data-part="lid" data-lid="x=79.5;width=141;depth=26;rx=24;ry=13;hingeY=104;height=34;tilt=30;open=104;domeRadius=21.6" data-side-fill="url(#lidSide)" data-rim-stroke="var(--edge)">
+    <rect x="87.5" y="3.5" width="125" height="19" rx="18" ry="9.5" fill="url(#lidIn)"/>
+    <ellipse cx="114" cy="12.5" rx="19.5" ry="7.5" fill="#000000" opacity=".08"/>
+    <ellipse cx="186" cy="12.5" rx="19.5" ry="7.5" fill="#000000" opacity=".08"/>
+    <rect x="132" y="21" width="36" height="2.2" rx="1.1" fill="#ffffff" opacity=".7"/>
+  </g>
+
+  <g data-part="body">
+    <!-- hinge barrel on the back rim: two body knuckles and the lid knuckle between them -->
+    <rect x="130" y="99.5" width="40" height="8" rx="4" fill="url(#metal)" stroke="#8a929d" stroke-width=".8"/>
+    <path d="M138,99.5 L138,107.5 M162,99.5 L162,107.5" stroke="#6f7884" stroke-width=".9" fill="none"/>
+    <path d="M132,102 L168,102" stroke="#ffffff" stroke-opacity=".7" stroke-width="1" fill="none"/>
+    <path d="M79.5,117 L79.5,176 C79.5,190.36 92.93,202 109.5,202 L190.5,202 C207.07,202 220.5,190.36 220.5,176 L220.5,117 A24,13 0 0 1 196.5,130 L103.5,130 A24,13 0 0 1 79.5,117 Z" fill="url(#wBody)" stroke="var(--edge)"/>
+    <path d="M79.5,117 L79.5,176 C79.5,190.36 92.93,202 109.5,202 L190.5,202 C207.07,202 220.5,190.36 220.5,176 L220.5,117 A24,13 0 0 1 196.5,130 L103.5,130 A24,13 0 0 1 79.5,117 Z" fill="url(#bodyEdge)"/>
+    <ellipse cx="150" cy="150.16" rx="60.63" ry="12.24" fill="url(#glossSoft)"/>
+    <rect x="79.5" y="104" width="141" height="26" rx="24" ry="13" fill="var(--rim-fill)" stroke="var(--edge)"/>
+    <rect x="88.5" y="108" width="123" height="18" rx="18" ry="9" fill="url(#cavity)"/>
+  </g>
+
+  <g data-part="buds">
+    <g data-part="bud-left"><use href="#apBud"/></g>
+    <g data-part="bud-right"><use href="#apBud" transform="translate(300,0) scale(-1,1)"/></g>
+  </g>
+
+  <!-- Front lip: repaints the part of the rim in front of the cavity so the bud stems look hidden inside the case. -->
+  <g id="front-lip">
+    <path d="M79.5,117 A24,13 0 0 0 103.5,130 L196.5,130 A24,13 0 0 0 220.5,117 L211.5,117 A18,9 0 0 1 193.5,126 L106.5,126 A18,9 0 0 1 88.5,117 Z" fill="var(--rim-fill)"/>
+    <path d="M79.5,117 A24,13 0 0 0 103.5,130 L196.5,130 A24,13 0 0 0 220.5,117" fill="none" stroke="var(--edge)"/>
+    <path d="M86.7,126.5 C95.1,129.5 101.1,129.8 103.5,129.8 L196.5,129.8 C198.9,129.8 204.9,129.5 213.3,126.5" stroke="var(--lip)" stroke-width="2" fill="none"/>
+  </g>
+
+  <g data-part="light">
+    <ellipse cx="150" cy="150.16" rx="10" ry="10" fill="url(#lightGlow)"/>
+    <circle cx="150" cy="150.16" r="2.3" fill="var(--light-core)"/>
+  </g>
+</svg>

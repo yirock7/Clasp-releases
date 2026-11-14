@@ -1,0 +1,11 @@
+# Windows stack build output.
+**/target/
+.vs/
+*.user
+DvlErrLog.txt
+
+# Prebuilt/release output — produced by CI, never committed
+dist/
+
+# Driver build output (local WDK builds; CI builds its own)
+drivers/**/x64/

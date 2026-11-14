@@ -1,0 +1,12 @@
+{
+  "direction": "engine_to_client",
+  "description": "Identity check failed: nothing was opened",
+  "message": {
+    "type": "result",
+    "seq": 3,
+    "request_id": "0b7e4c2a-1f3d-4e5a-8b6c-9d0e1f2a3b4c",
+    "outcome": "failed",
+    "detail": "ambiguous: 2 AAP driver interfaces name this device",
+    "session_id": null
+  }
+}

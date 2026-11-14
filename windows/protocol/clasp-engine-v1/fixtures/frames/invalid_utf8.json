@@ -1,0 +1,5 @@
+{
+  "description": "Invalid UTF-8",
+  "bytes_hex": "060000007b22fffe227d",
+  "expect": "reject_malformed"
+}

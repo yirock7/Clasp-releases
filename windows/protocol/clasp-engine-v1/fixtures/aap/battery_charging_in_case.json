@@ -1,0 +1,14 @@
+{
+  "description": "Status 0x05 = charging while in the case",
+  "packet_hex": "04000400040002020128050104012a0501",
+  "expect_fields": {
+    "battery.left": {
+      "level": 42,
+      "charging": true
+    },
+    "battery.right": {
+      "level": 40,
+      "charging": true
+    }
+  }
+}

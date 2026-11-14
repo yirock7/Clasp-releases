@@ -1,0 +1,11 @@
+{
+  "direction": "engine_to_client",
+  "description": "Second open_session while a session is open: per-request busy error, no result; connection stays up",
+  "message": {
+    "type": "error",
+    "seq": 5,
+    "code": "busy",
+    "detail": "a session is already open",
+    "request_id": "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c8d"
+  }
+}

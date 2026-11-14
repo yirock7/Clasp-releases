@@ -1,0 +1,5 @@
+{
+  "description": "Length 0",
+  "bytes_hex": "00000000",
+  "expect": "reject_zero_length"
+}

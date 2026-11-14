@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Settings page (host: normal window on the clear GlassBackdrop, ~720 x 640 DIP).
+    Glass navigation chrome (left rail) around readable content surfaces (right, scrolling).
+-->
+<UserControl
+    x:Class="AppleDeviceHub.App.Views.SettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:design="using:AppleDeviceHub.App.Design"
+    xmlns:views="using:AppleDeviceHub.App.Views"
+    xmlns:presentation="using:AppleDeviceHub.Core.Presentation"
+    xmlns:connection="using:AppleDeviceHub.Core.Connection"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    FontWeight="Medium"
+    Background="Transparent">
+
+    <Grid>
+    <!-- Reduced transparency: an opaque page behind the (also opaque) surfaces. -->
+    <Border design:GlassFallback.ShowWhenOpaque="True"
+            Background="{ThemeResource GlassOpaqueFillBrush}"
+            Visibility="Collapsed" />
+    <!-- Top inset clears the caption buttons (the window extends content into the title bar). -->
+    <Grid Padding="16,44,16,16" ColumnSpacing="{StaticResource GlassSpace16}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="184" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ===== Glass navigation chrome ===== -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalScrollMode="Disabled">
+        <design:GlassSurface Style="{StaticResource GlassNestedSurfaceStyle}" VerticalAlignment="Top" TracksPointerLight="True">
+            <StackPanel Spacing="{StaticResource GlassSpace4}">
+                <StackPanel Orientation="Horizontal" Spacing="10" Margin="8,4,8,12" AutomationProperties.AccessibilityView="Raw">
+                    <views:ClaspGlyph x:Name="BrandMark" Width="28" Height="28" VerticalAlignment="Center" />
+                    <TextBlock Text="Clasp" Style="{StaticResource GlassSectionTitleTextStyle}" FontSize="18" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock Text="Settings"
+                           Style="{StaticResource GlassCaptionTextStyle}"
+                           FontWeight="SemiBold"
+                           Margin="10,0,8,4"
+                           AutomationProperties.HeadingLevel="Level1" />
+                <design:GlassButton x:Name="NavGeneral" Style="{StaticResource GlassNavSelectedButtonStyle}" Content="General" Tag="General" Click="OnNavClick" />
+                <design:GlassButton x:Name="NavAirPods" Style="{StaticResource GlassNavButtonStyle}" Content="AirPods" Tag="AirPods" Click="OnNavClick" />
+                <design:GlassButton x:Name="NavSound" Style="{StaticResource GlassNavButtonStyle}" Content="Sound" Tag="Sound" Click="OnNavClick" />
+                <design:GlassButton x:Name="NavShortcuts" Style="{StaticResource GlassNavButtonStyle}" Content="Shortcuts" Tag="Shortcuts" Click="OnNavClick" />
+                <design:GlassButton x:Name="NavAdvanced" Style="{StaticResource GlassNavButtonStyle}" Content="Advanced" Tag="Advanced" Click="OnNavClick" />
+                <design:GlassButton x:Name="NavAbout" Style="{StaticResource GlassNavButtonStyle}" Content="About" Tag="About" Click="OnNavClick" />
+            </StackPanel>
+        </design:GlassSurface>
+        </ScrollViewer>
+
+        <!-- ===== Readable content ===== -->
+        <ScrollViewer x:Name="ContentScroller"
+                      Grid.Column="1"
+                      HorizontalScrollMode="Disabled"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="{StaticResource GlassSpace16}" Padding="0,0,12,16">
+
+
+                <!-- ===== General: Appearance, Startup, Notices & tray ===== -->
+                <design:GlassSurface x:Name="GeneralSection" Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock Text="General" Style="{StaticResource GlassSectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level2" />
+
+                        <TextBlock Text="Appearance" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <RadioButtons Header="Theme"
+                                      MaxColumns="3"
+                                      SelectedIndex="{x:Bind Settings.ThemeIndex, Mode=TwoWay}">
+                            <x:String>System</x:String>
+                            <x:String>Light</x:String>
+                            <x:String>Dark</x:String>
+                        </RadioButtons>
+                        <ToggleSwitch Header="Reduce motion"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.ReduceMotion, Mode=TwoWay}" />
+                        <ToggleSwitch Header="Reduce transparency"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.ReduceTransparency, Mode=TwoWay}" />
+                        <TextBlock Text="When these are off, Clasp follows your Windows settings for animations, transparency and contrast."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock x:Name="EffectsText"
+                                   Style="{StaticResource GlassCaptionTextStyle}"
+                                   TextWrapping="WrapWholeWords"
+                                   AutomationProperties.LiveSetting="Polite" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <!-- Startup: the sign-in entry lives in the registry; this toggle reads and writes it live. -->
+                        <TextBlock Text="Startup" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch x:Name="RunOnStartupToggle"
+                                      Header="Start Clasp when I sign in"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      Toggled="OnRunOnStartupToggled" />
+                        <TextBlock Text="Clasp starts quietly in the tray. No window opens."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock x:Name="RunOnStartupStatus"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                   AutomationProperties.LiveSetting="Polite" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock Text="Notices &amp; tray" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch Header="Show Clasp when the AirPods case opens"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.AutoShowCaseCard, Mode=TwoWay}"
+                                      IsEnabled="True" />
+                        <TextBlock Style="{StaticResource GlassCaptionTextStyle}"
+                                   TextWrapping="WrapWholeWords"
+                                   Text="Clasp appears for a few seconds when you open your AirPods case, without taking focus. Needs nearby detection. AirPods that belong to someone else nearby might trigger it." />
+                        <Grid Opacity="{x:Bind design:GlassBind.DimIfDisabled(CaseSecondsSlider.IsEnabled), Mode=OneWay}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Hide after" Style="{StaticResource GlassLabelTextStyle}" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{x:Bind views:SettingsView.SecondsText(Settings.CaseCardSeconds), Mode=OneWay}"
+                                       Style="{StaticResource GlassCaptionTextStyle}"
+                                       AutomationProperties.AccessibilityView="Raw" />
+                        </Grid>
+                        <Slider x:Name="CaseSecondsSlider"
+                                Style="{StaticResource GlassSliderStyle}"
+                                IsThumbToolTipEnabled="False"
+                                AutomationProperties.Name="Seconds before Clasp hides"
+                                IsEnabled="{x:Bind Settings.AutoShowCaseCard, Mode=OneWay}"
+                                Minimum="3"
+                                Maximum="15"
+                                StepFrequency="1"
+                                SmallChange="1"
+                                LargeChange="3"
+                                Value="{x:Bind design:GlassBind.ToDouble(Settings.CaseCardSeconds), Mode=OneWay}"
+                                ValueChanged="OnCaseSecondsChanged" />
+                        <ToggleSwitch Header="Tell me when my AirPods move to another device"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.HandoffNoticeEnabled, Mode=TwoWay}" />
+                        <TextBlock Text="If your AirPods disconnect from this PC but are still nearby, Clasp lets you know and offers to take them back. Clasp can only say probably, because it can't know which device has them. Needs nearby detection."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ToggleSwitch Header="Colour the tray icon by battery level"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.ShowTrayBatteryPercentage, Mode=TwoWay}" />
+                        <TextBlock Text="Amber when low, red at your low-battery level, green while charging. Hover for the exact percentage."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ToggleSwitch Header="Dim the tray icon when sound isn't on your AirPods"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.DimTrayIconWhenAudioElsewhere, Mode=TwoWay}" />
+                        <TextBlock Text="Helps you see at a glance when sound is going somewhere else."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+                </design:GlassSurface>
+
+                <!-- ===== AirPods: the chosen pair, connect/disconnect behaviour, Fix connection, battery history ===== -->
+                <StackPanel x:Name="AirPodsSection" Spacing="{StaticResource GlassSpace16}">
+                <design:GlassSurface Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock Text="AirPods" Style="{StaticResource GlassSectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level2" />
+
+                        <!-- Paired identity is selected explicitly and stays separate from output routing. -->
+                        <TextBlock Text="Your AirPods" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <TextBlock Text="Choose AirPods you've already paired in Windows. Clasp uses them when you connect from Clasp."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ComboBox x:Name="PairedDevicePicker"
+                                  Header="AirPods"
+                                  HorizontalAlignment="Stretch"
+                                  PlaceholderText="Choose your AirPods"
+                                  ItemsSource="{x:Bind design:BindableItems.From(PairedDevices), Mode=OneTime}"
+                                  SelectedItem="{x:Bind SelectedPairedDevice, Mode=OneTime}"
+                                  IsEnabled="{x:Bind HasConnectionController, Mode=OneTime}"
+                                  SelectionChanged="OnPairedDeviceSelected">
+                                  <ComboBox.ItemTemplate>
+                                      <DataTemplate x:DataType="connection:ConnectionDevice">
+                                          <TextBlock Text="{x:Bind Name}" />
+                                      </DataTemplate>
+                                  </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <ComboBox x:Name="ArtworkColorwayPicker"
+                                  Header="Device color"
+                                  HorizontalAlignment="Stretch"
+                                  Visibility="Collapsed"
+                                  ItemsSource="{x:Bind ArtworkColorwayChoices, Mode=OneTime}"
+                                  SelectionChanged="OnArtworkColorwaySelectionChanged">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="views:ArtworkColorwayOption">
+                                    <TextBlock Text="{x:Bind Name, Mode=OneTime}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBlock Text="{x:Bind PairedDeviceStatusText, Mode=OneTime}"
+                                   Style="{StaticResource GlassLabelTextStyle}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                        <TextBlock Text="{x:Bind PairedDeviceDetailText, Mode=OneTime}"
+                                   Style="{StaticResource GlassCaptionTextStyle}"
+                                   TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(PairedDeviceDetailText), Mode=OneTime}" />
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
+                            <design:GlassButton x:Name="RefreshPairedDevicesButton"
+                                                Content="Refresh list"
+                                                IsPending="{x:Bind PairedConnectionIsRefreshing, Mode=OneTime}"
+                                                IsEnabled="{x:Bind CanRefreshPairedDevices, Mode=OneTime}"
+                                                Click="OnRefreshPairedDevicesClick" />
+                            <design:GlassButton Content="Open Bluetooth settings"
+                                                Click="OnOpenBluetoothSettingsClick" />
+                            <design:GlassButton Content="Clear choice"
+                                                Click="OnClearPairedDeviceClick" />
+                        </StackPanel>
+                        <views:PairingHelpView x:Name="PairingHelp" />
+                        <TextBlock Text="Choosing AirPods here doesn't change your sound output. Use Sound for that."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock Text="Connecting" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch Header="Nearby detection"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.ObserveNearbyAirPods, Mode=TwoWay}"
+                                      IsEnabled="{x:Bind CanObserveNearbyAirPods, Mode=OneTime}" />
+                        <TextBlock Text="{x:Bind NearbyObservationHelpText, Mode=OneTime}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ToggleSwitch Header="Connect automatically when nearby"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.AutoConnectAirPods, Mode=TwoWay}"
+                                      IsEnabled="{x:Bind Settings.ObserveNearbyAirPods, Mode=OneWay}" />
+                        <TextBlock Text="Off by default. When on, Clasp tries once to connect your chosen AirPods after it notices a case opening nearby. That could be someone else's AirPods. Clasp never starts or resumes your music."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="Nearby readings can't be verified, so someone else's AirPods, or a fake signal, could trigger these."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock Text="When AirPods connect or disconnect" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch Header="Play music when AirPods connect"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.AutoPlayOnConnect, Mode=TwoWay}" />
+                        <TextBlock Text="Clasp presses Play shortly after your AirPods connect, but only when they're your sound output. It doesn't do this if they were already connected when Clasp opened."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ToggleSwitch Header="Pause music when AirPods disconnect"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.AutoPauseOnDisconnect, Mode=TwoWay}" />
+                        <TextBlock Text="Keeps sound from suddenly playing through your PC speakers. Windows sometimes does this on its own."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ToggleSwitch Header="Set volume when AirPods connect"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.DefaultVolumeEnabled, Mode=TwoWay}" />
+                        <TextBlock Text="Sets the volume each time your AirPods connect. When off, the volume stays as it was."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel Spacing="{StaticResource GlassSpace8}"
+                                    Visibility="{x:Bind design:GlassBind.Visible(Settings.DefaultVolumeEnabled), Mode=OneWay}">
+                            <Grid ColumnSpacing="{StaticResource GlassSpace8}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Volume on connect" Style="{StaticResource GlassLabelTextStyle}" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{x:Bind views:SettingsView.PercentText(Settings.DefaultVolumeSliderValue), Mode=OneWay}"
+                                           Style="{StaticResource GlassCaptionTextStyle}"
+                                           AutomationProperties.AccessibilityView="Raw" />
+                            </Grid>
+                            <Slider Style="{StaticResource GlassSliderStyle}"
+                                    IsThumbToolTipEnabled="False"
+                                    Minimum="0" Maximum="100" StepFrequency="1" SmallChange="1" LargeChange="10"
+                                    AutomationProperties.Name="Volume when AirPods connect, percent"
+                                    Value="{x:Bind Settings.DefaultVolumeSliderValue, Mode=TwoWay}" />
+                        </StackPanel>
+                        <ToggleSwitch Header="Switch sound to AirPods when they connect"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.SwitchOutputToAirPodsOnConnect, Mode=TwoWay}" />
+                        <TextBlock Text="Makes your AirPods the sound output when they connect. Skipped if you just chose an output yourself, or while Clasp is switching back to your previous one."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock Text="Ear detection" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch Header="Ear detection (nearby estimate)"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.BroadcastEarDetection, Mode=TwoWay}" />
+                        <TextBlock Text="Pauses when you take your AirPods out and resumes when you put them back. This is an estimate from nearby signals, so it can be slow or miss changes, especially on AirPods with the H2 chip. Off by default. It works together with &quot;Pause media when AirPods are removed&quot; in Sound, and only when the signal is probably your AirPods."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="Nearby readings can't be verified, so someone else's AirPods, or a fake signal, could trigger these."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel Spacing="{StaticResource GlassSpace8}"
+                                    Visibility="{x:Bind design:GlassBind.Visible(Settings.BroadcastEarDetection), Mode=OneWay}">
+                            <ComboBox x:Name="EarOutputPicker"
+                                      Header="When both AirPods are out, play through:"
+                                      HorizontalAlignment="Stretch"
+                                      PlaceholderText="Don't switch"
+                                      ItemsSource="{x:Bind design:BindableItems.From(Audio.Outputs), Mode=OneWay}"
+                                      SelectedItem="{x:Bind SelectedEarOutput, Mode=OneWay}"
+                                      IsEnabled="{x:Bind IsAudioAvailable}"
+                                      AutomationProperties.Name="Sound output to use while both AirPods are out"
+                                      SelectionChanged="OnEarOutputSelected">
+                                      <ComboBox.ItemTemplate>
+                                          <DataTemplate x:DataType="presentation:AudioOutputChoice">
+                                              <TextBlock Text="{x:Bind Label, Mode=OneWay}" />
+                                          </DataTemplate>
+                                      </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <design:GlassButton Content="Don't switch"
+                                                HorizontalAlignment="Left"
+                                                Click="OnClearEarOutputClick" />
+                            <TextBlock Text="Clasp switches back to your AirPods when you put one in, unless you changed the output yourself."
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        </StackPanel>
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock Text="Microphone and sound quality" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ComboBox Header="AirPods microphone (Handsfree)"
+                                  HorizontalAlignment="Stretch"
+                                  SelectedIndex="{x:Bind Settings.HandsfreeModeIndex, Mode=TwoWay}">
+                            <ComboBoxItem Content="Always on (Windows default)" />
+                            <ComboBoxItem Content="Always off" />
+                            <ComboBoxItem Content="Smart" />
+                        </ComboBox>
+                        <TextBlock Text="{x:Bind views:SettingsView.HandsfreeDescription(Settings.HandsfreeModeIndex), Mode=OneWay}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="{x:Bind CompanionState.HandsfreeText, Mode=OneWay}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(CompanionState.HandsfreeText), Mode=OneWay}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                        <ToggleSwitch Header="Low audio latency"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.LowAudioLatency, Mode=TwoWay}" />
+                        <TextBlock Text="Keeps the audio connection awake so sounds start right away. Uses a little more battery."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="{x:Bind CompanionState.LowLatencyText, Mode=OneWay}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(CompanionState.LowLatencyText), Mode=OneWay}"
+                                   AutomationProperties.LiveSetting="Polite" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock Text="Battery" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ComboBox Header="Low battery notification"
+                                  HorizontalAlignment="Stretch"
+                                  SelectedIndex="{x:Bind Settings.LowBatteryThresholdIndex, Mode=TwoWay}">
+                            <ComboBoxItem Content="Off" />
+                            <ComboBoxItem Content="At 10%" />
+                            <ComboBoxItem Content="At 20%" />
+                            <ComboBoxItem Content="At 30%" />
+                        </ComboBox>
+                        <TextBlock Text="Shows a notification when an earbud reaches this level. Battery updates in 10% steps. Needs nearby detection, and only when the signal is probably your AirPods."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+                </design:GlassSurface>
+
+                <design:GlassSurface Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock Text="Fix connection" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <TextBlock Text="Turns Bluetooth off and on, then reconnects your AirPods. Other Bluetooth devices, like a mouse or keyboard, disconnect for a few seconds."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
+                            <design:GlassButton x:Name="FixConnectionButton"
+                                                Content="Fix connection"
+                                                IsEnabled="{x:Bind CompanionState.CanStartRepair, Mode=OneWay}"
+                                                IsPending="{x:Bind CompanionState.RepairIsRunning, Mode=OneWay}"
+                                                Click="OnFixConnectionClick" />
+                            <design:GlassButton Content="Cancel"
+                                                Visibility="{x:Bind design:GlassBind.Visible(CompanionState.RepairIsRunning), Mode=OneWay}"
+                                                Click="OnCancelFixConnectionClick" />
+                        </StackPanel>
+                        <TextBlock Text="{x:Bind CompanionState.RepairText, Mode=OneWay}"
+                                   Style="{StaticResource GlassLabelTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(CompanionState.RepairText), Mode=OneWay}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                    </StackPanel>
+                </design:GlassSurface>
+
+                <!-- Battery history: local readings only; nothing is invented. -->
+                <design:GlassSurface x:Name="BatteryHistorySection" Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace8}">
+                        <views:BatteryHistoryView x:Name="BatteryHistoryPanel" />
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
+                            <design:GlassButton Content="Refresh" HorizontalAlignment="Left" Click="OnRefreshBatteryHistoryClick" />
+                            <design:GlassButton Content="Clear history" HorizontalAlignment="Left" Click="OnClearBatteryHistoryClick"
+                                                AutomationProperties.Name="Clear battery history" />
+                        </StackPanel>
+                    </StackPanel>
+                </design:GlassSurface>
+                </StackPanel>
+
+                <!-- ===== Sound: Audio output, Media controls, Phone audio ===== -->
+                <StackPanel x:Name="SoundSection" Spacing="{StaticResource GlassSpace16}">
+                <design:GlassSurface Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock Text="Sound" Style="{StaticResource GlassSectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level2" />
+
+                        <TextBlock Text="Audio output" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch Header="Restore previous sound output after disconnect"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.RestorePreviousAudioOutput, Mode=TwoWay}"
+                                      IsEnabled="{x:Bind IsAudioAvailable}" />
+                        <TextBlock Text="Clasp remembers the sound output you used before your AirPods connected and switches back when they disconnect. Changes you make yourself come first. Microphones aren't changed."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="{x:Bind AudioAvailabilityText}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.Collapsed(IsAudioAvailable)}" />
+                        <StackPanel Spacing="{StaticResource GlassSpace12}"
+                                    Visibility="{x:Bind design:GlassBind.Visible(IsAudioAvailable)}">
+                            <ComboBox Header="AirPods sound output"
+                                      HorizontalAlignment="Stretch"
+                                      PlaceholderText="Choose your AirPods sound output"
+                                      ItemsSource="{x:Bind design:BindableItems.From(Audio.Outputs), Mode=OneWay}"
+                                      SelectedItem="{x:Bind Audio.SelectedTarget, Mode=OneWay}"
+                                      AutomationProperties.Name="AirPods sound output to watch"
+                                      SelectionChanged="OnAudioTargetSelected">
+                                      <ComboBox.ItemTemplate>
+                                          <DataTemplate x:DataType="presentation:AudioOutputChoice">
+                                              <TextBlock Text="{x:Bind Label, Mode=OneWay}" />
+                                          </DataTemplate>
+                                      </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <TextBlock Text="{x:Bind Audio.SelectedTargetStatusText, Mode=OneWay}"
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                       AutomationProperties.LiveSetting="Polite" />
+                            <design:GlassButton Content="Use this sound output now"
+                                                IsEnabled="{x:Bind CanUseAudioTarget, Mode=OneTime}"
+                                                Click="OnUseAudioTargetClick" />
+                            <TextBlock Text="Plays media and calls through this sound output. Your microphone doesn't change."
+                                       Style="{StaticResource GlassCaptionTextStyle}"
+                                       TextWrapping="WrapWholeWords" />
+                            <ComboBox Header="Fallback sound output"
+                                      HorizontalAlignment="Stretch"
+                                      PlaceholderText="Optional: your speakers or another headset"
+                                      ItemsSource="{x:Bind design:BindableItems.From(Audio.Outputs), Mode=OneWay}"
+                                      SelectedItem="{x:Bind Audio.SelectedFallback, Mode=OneWay}"
+                                      AutomationProperties.Name="Fallback sound output when the previous output is unknown"
+                                      SelectionChanged="OnAudioFallbackSelected">
+                                      <ComboBox.ItemTemplate>
+                                          <DataTemplate x:DataType="presentation:AudioOutputChoice">
+                                              <TextBlock Text="{x:Bind Label, Mode=OneWay}" />
+                                          </DataTemplate>
+                                      </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
+                                <design:GlassButton Content="Use fallback now"
+                                                    IsEnabled="{x:Bind CanUseAudioFallback, Mode=OneTime}"
+                                                    Click="OnUseAudioFallbackClick" />
+                                <design:GlassButton Content="Clear fallback"
+                                                    IsEnabled="{x:Bind HasAudioFallback, Mode=OneTime}"
+                                                    Click="OnClearAudioFallbackClick" />
+                            </StackPanel>
+                            <TextBlock Text="Used when your AirPods are already the sound output as Clasp starts, so there's no earlier one to go back to. Normally Clasp switches back to the sound output you used before."
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                            <TextBlock Text="{x:Bind Audio.StatusText, Mode=OneWay}" Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                       AutomationProperties.LiveSetting="Polite" />
+                            <TextBlock Text="{x:Bind Audio.LastActionText, Mode=OneWay}" Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                       AutomationProperties.LiveSetting="Polite" />
+                            <TextBlock Text="{x:Bind Audio.VolumeStatusText, Mode=OneWay}"
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                       AutomationProperties.LiveSetting="Polite" />
+                            <StackPanel Spacing="{StaticResource GlassSpace8}"
+                                        Visibility="{x:Bind design:GlassBind.Visible(HasSelectedOutputVolume), Mode=OneTime}">
+                                <Grid ColumnSpacing="{StaticResource GlassSpace8}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="AirPods output volume" Style="{StaticResource GlassLabelTextStyle}" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind OutputVolumePercentText, Mode=OneTime}" Style="{StaticResource GlassCaptionTextStyle}" />
+                                </Grid>
+                                <Slider x:Name="AudioVolumeSlider"
+                                        Style="{StaticResource GlassSliderStyle}"
+                                        IsThumbToolTipEnabled="False"
+                                        Minimum="0" Maximum="100" StepFrequency="1"
+                                        AutomationProperties.Name="AirPods output volume"
+                                        Value="{x:Bind OutputVolumePercent, Mode=OneTime}"
+                                        ValueChanged="OnOutputVolumeChanged" />
+                            </StackPanel>
+                            <design:GlassButton Content="Refresh list" Click="OnRefreshAudioClick" />
+                        </StackPanel>
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <!-- Media: opt-in ear-detection pause/resume (EarMediaPolicy). Off by default. -->
+                        <TextBlock Text="Media controls" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch Header="Show playback controls in Clasp"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsEnabled="{x:Bind CanUsePlaybackControls, Mode=OneTime}"
+                                      IsOn="{x:Bind Settings.ShowPlaybackControls, Mode=TwoWay}" />
+                        <TextBlock Style="{StaticResource GlassCaptionTextStyle}"
+                                   TextWrapping="WrapWholeWords"
+                                   Text="Shows what's playing in Windows, with Play, Pause, Previous and Next, in the Clasp panel. Turning this off stops Clasp from reading Windows media." />
+                        <ToggleSwitch Header="Pause media when AirPods are removed"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.PauseMediaOnEarRemoval, Mode=TwoWay}" />
+                        <TextBlock Style="{StaticResource GlassCaptionTextStyle}"
+                                   TextWrapping="WrapWholeWords"
+                                   Text="Clasp pauses when you take your AirPods out and resumes only what it paused. It cancels the resume if you use playback controls, switch players or disconnect. This doesn't change the ear detection built into your AirPods. It needs ear changes from your AirPods, or &quot;Ear detection (nearby estimate)&quot; turned on in AirPods." />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <!-- Phone audio: the PC acts as a Bluetooth speaker for a phone; independent of the AirPods. -->
+                        <TextBlock Text="Phone audio" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <TextBlock Text="Play your phone's audio through this PC, like a Bluetooth speaker."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ComboBox x:Name="PhonePicker"
+                                  Header="Phone"
+                                  HorizontalAlignment="Stretch"
+                                  PlaceholderText="Choose a phone"
+                                  SelectionChanged="OnPhoneSelected" />
+                        <TextBlock Text="Only phones that Windows says can stream audio appear here."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
+                            <design:GlassButton x:Name="PhoneRefreshButton" Content="Refresh phones" Click="OnPhoneRefreshClick" />
+                            <design:GlassButton x:Name="PhoneConnectButton" Content="Connect" Click="OnPhoneConnectClick" />
+                        </StackPanel>
+                        <TextBlock x:Name="PhoneStatusText"
+                                   Style="{StaticResource GlassLabelTextStyle}" TextWrapping="WrapWholeWords"
+                                   AutomationProperties.LiveSetting="Polite" />
+                    </StackPanel>
+                </design:GlassSurface>
+                </StackPanel>
+
+                <!-- ===== Shortcuts: clasp:// links (off by default) and global hotkeys (all unassigned by default) ===== -->
+                <design:GlassSurface x:Name="ShortcutsSection" Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock Text="Shortcuts" Style="{StaticResource GlassSectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level2" />
+
+                        <TextBlock Text="Links" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch Header="Allow clasp:// links"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.AllowClaspLinks, Mode=TwoWay}" />
+                        <TextBlock Text="Lets other apps on this PC, like Stream Deck or PowerToys, ask Clasp to connect, switch sound or open settings by opening a link such as clasp://connect. Links can only do the things listed below. Turning this on adds a small entry for your Windows account only, and turning it off removes it."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="Websites can open these links too. Clasp asks before connecting, changing your sound, fixing the connection or playing or pausing your media."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="{x:Bind CompanionState.LinksText, Mode=OneWay}"
+                                   Style="{StaticResource GlassLabelTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(CompanionState.LinksText), Mode=OneWay}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                        <TextBlock Text="{x:Bind views:SettingsView.LinkListText}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                   IsTextSelectionEnabled="True"
+                                   Visibility="{x:Bind design:GlassBind.Visible(Settings.AllowClaspLinks), Mode=OneWay}" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock Text="Global shortcuts" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <TextBlock Text="Shortcuts work in any app and are empty until you set them. Use Ctrl, Alt or Win, for example Ctrl+Alt+A, then press Enter or Tab to save. Windows keeps some shortcuts for itself."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel x:Name="HotkeyRows" Spacing="{StaticResource GlassSpace8}" />
+                    </StackPanel>
+                </design:GlassSurface>
+
+                <!-- ===== Advanced: relies on Windows behaviour Clasp does not control. Everything is off by default. ===== -->
+                <design:GlassSurface x:Name="AdvancedSection" Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock Text="Advanced" Style="{StaticResource GlassSectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level2" />
+                        <TextBlock Text="These features rely on parts of Windows that Clasp doesn't control, so they might stop working after a Windows update. They're off by default."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+
+                        <TextBlock Text="Stem actions" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch Header="Customize AirPods stem presses"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.StemActionsEnabled, Mode=TwoWay}" />
+                        <TextBlock Text="Change what pressing the stem does while your AirPods are the sound output. Windows can't tell stem presses from keyboard media keys, so those keys change too while this is on."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel Spacing="{StaticResource GlassSpace8}"
+                                    Visibility="{x:Bind design:GlassBind.Visible(Settings.StemActionsEnabled), Mode=OneWay}">
+                            <ComboBox Header="Press once (play/pause)" HorizontalAlignment="Stretch"
+                                      SelectedIndex="{x:Bind Settings.StemPlayPauseActionIndex, Mode=TwoWay}">
+                                <ComboBoxItem Content="Leave as is" />
+                                <ComboBoxItem Content="Mute or unmute microphone" />
+                                <ComboBoxItem Content="Play/pause" />
+                                <ComboBoxItem Content="Next track" />
+                                <ComboBoxItem Content="Previous track" />
+                                <ComboBoxItem Content="Do nothing" />
+                            </ComboBox>
+                            <ComboBox Header="Press twice (next track)" HorizontalAlignment="Stretch"
+                                      SelectedIndex="{x:Bind Settings.StemNextActionIndex, Mode=TwoWay}">
+                                <ComboBoxItem Content="Leave as is" />
+                                <ComboBoxItem Content="Mute or unmute microphone" />
+                                <ComboBoxItem Content="Play/pause" />
+                                <ComboBoxItem Content="Next track" />
+                                <ComboBoxItem Content="Previous track" />
+                                <ComboBoxItem Content="Do nothing" />
+                            </ComboBox>
+                            <ComboBox Header="Press three times (previous track)" HorizontalAlignment="Stretch"
+                                      SelectedIndex="{x:Bind Settings.StemPreviousActionIndex, Mode=TwoWay}">
+                                <ComboBoxItem Content="Leave as is" />
+                                <ComboBoxItem Content="Mute or unmute microphone" />
+                                <ComboBoxItem Content="Play/pause" />
+                                <ComboBoxItem Content="Next track" />
+                                <ComboBoxItem Content="Previous track" />
+                                <ComboBoxItem Content="Do nothing" />
+                            </ComboBox>
+                            <TextBlock Text="&quot;Leave as is&quot; keeps that press the way Windows handles it."
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                            <TextBlock Text="{x:Bind CompanionState.StemText, Mode=OneWay}"
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                       Visibility="{x:Bind design:GlassBind.VisibleIfText(CompanionState.StemText), Mode=OneWay}"
+                                       AutomationProperties.LiveSetting="Polite" />
+                        </StackPanel>
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock Text="Output for each app" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch Header="Choose a sound output for each app"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsEnabled="{x:Bind views:SettingsView.CanToggle(CompanionState.PerAppSupported, Settings.PerAppOutputEnabled), Mode=OneWay}"
+                                      IsOn="{x:Bind Settings.PerAppOutputEnabled, Mode=TwoWay}" />
+                        <TextBlock Text="Send certain apps to certain sound outputs, for example music to your AirPods and games to your speakers. This uses an experimental Windows feature that an update could break."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="{x:Bind CompanionState.PerAppSupportText, Mode=OneWay}"
+                                   Style="{StaticResource GlassLabelTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(CompanionState.PerAppSupportText), Mode=OneWay}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                        <StackPanel Spacing="{StaticResource GlassSpace8}"
+                                    Visibility="{x:Bind design:GlassBind.Visible(Settings.PerAppOutputEnabled), Mode=OneWay}">
+                            <TextBox Header="Rules (one per line)"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     MinHeight="96"
+                                     PlaceholderText="spotify.exe=airpods"
+                                     AutomationProperties.Name="Output rules for each app, one per line"
+                                     Text="{x:Bind Settings.PerAppRulesText, Mode=TwoWay}" />
+                            <TextBlock Text="Write an app name, an equals sign, then airpods, speakers or default. For example: spotify.exe=airpods or chrome.exe=default. To pick one particular speaker, write speakers:ID."
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                            <TextBlock Text="{x:Bind views:SettingsView.IgnoredRulesText(Settings.PerAppRulesText), Mode=OneWay}"
+                                       Style="{StaticResource GlassLabelTextStyle}" TextWrapping="WrapWholeWords"
+                                       Visibility="{x:Bind views:SettingsView.IgnoredRulesVisibility(Settings.PerAppRulesText), Mode=OneWay}"
+                                       AutomationProperties.LiveSetting="Polite" />
+                            <TextBlock Text="Rules apply when an app starts playing sound. Apps sent to your AirPods switch to the default output when the AirPods disconnect, and go back when they reconnect."
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        </StackPanel>
+                    </StackPanel>
+                </design:GlassSurface>
+
+                <!-- ===== About: version, updates, links ===== -->
+                <StackPanel x:Name="AboutSection" Spacing="{StaticResource GlassSpace16}">
+                <design:GlassSurface Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace8}">
+                        <TextBlock Text="About" Style="{StaticResource GlassSectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level2" />
+                        <TextBlock Text="Clasp" Style="{StaticResource GlassLabelTextStyle}" FontSize="18" />
+                        <TextBlock Text="Connect your AirPods with one click." Style="{StaticResource GlassBodyTextStyle}" Foreground="{ThemeResource GlassTextSecondaryBrush}" />
+                        <TextBlock Text="{x:Bind Updates.CurrentVersionText, Mode=OneWay, FallbackValue=''}" Style="{StaticResource GlassCaptionTextStyle}" />
+                        <design:GlassButton Content="Show welcome guide" HorizontalAlignment="Left" Click="OnShowWelcomeClick" />
+                        <TextBlock Text="Developed by yirock7" Style="{StaticResource GlassBodyTextStyle}" />
+                        <HyperlinkButton Content="Open-source licenses"
+                                         Padding="0"
+                                         Click="OnOpenSourceLicensesClick"
+                                         AutomationProperties.Name="Open-source licenses" />
+                        <TextBlock Text="Clasp isn't affiliated with Apple. AirPods is a trademark of Apple Inc."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="The design is inspired by Liquid Glass and built with WinUI. It doesn't use Apple's rendering technology."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+                </design:GlassSurface>
+
+                <!-- Updates: checks GitHub releases; installs only releases signed with Clasp's release key. -->
+                <design:GlassSurface x:Name="UpdatesSection" Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock Text="Updates" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ComboBox x:Name="UpdateFrequencyPicker"
+                                  Header="Check for updates"
+                                  MinWidth="220"
+                                  IsEnabled="{x:Bind Updates.CanCheck, Mode=OneWay, FallbackValue=False}"
+                                  SelectedIndex="{x:Bind Settings.UpdateCheckFrequencyIndex, Mode=TwoWay}">
+                            <x:String>Only when I click Check now</x:String>
+                            <x:String>Daily</x:String>
+                            <x:String>Weekly</x:String>
+                            <x:String>Monthly</x:String>
+                        </ComboBox>
+                        <TextBlock Text="Clasp checks GitHub for new releases. Nothing about you or your devices is sent. An update installs only when you choose Update, and only if it's signed with Clasp's release key."
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="{x:Bind Updates.StatusText, Mode=OneWay, FallbackValue=''}"
+                                   Style="{StaticResource GlassBodyTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(Updates.StatusText), Mode=OneWay, FallbackValue=Collapsed}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                        <TextBlock Text="{x:Bind Updates.LastCheckedText, Mode=OneWay, FallbackValue=''}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
+                            <design:GlassButton x:Name="CheckUpdatesButton"
+                                                Content="Check now"
+                                                IsEnabled="{x:Bind Updates.CanCheck, Mode=OneWay, FallbackValue=False}"
+                                                IsPending="{x:Bind Updates.IsBusy, Mode=OneWay, FallbackValue=False}"
+                                                Click="OnCheckUpdatesClick" />
+                            <design:GlassButton x:Name="InstallUpdateButton"
+                                                Content="{x:Bind Updates.InstallButtonText, Mode=OneWay, FallbackValue='Update'}"
+                                                Visibility="{x:Bind design:GlassBind.Visible(Updates.CanInstall), Mode=OneWay, FallbackValue=Collapsed}"
+                                                AutomationProperties.HelpText="Downloads and checks the update, closes Clasp, installs it and reopens Clasp."
+                                                Click="OnInstallUpdateClick" />
+                            <design:GlassButton Content="Release notes" Click="OnReleaseNotesClick" />
+                        </StackPanel>
+                    </StackPanel>
+                </design:GlassSurface>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+    </Grid>
+</UserControl>

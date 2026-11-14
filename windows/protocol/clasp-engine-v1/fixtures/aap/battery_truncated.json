@@ -1,0 +1,10 @@
+{
+  "description": "Battery header claims 3 components but only one is complete: only that one is reported",
+  "packet_hex": "0400040004000302014f02010401",
+  "expect_fields": {
+    "battery.right": {
+      "level": 79,
+      "charging": false
+    }
+  }
+}

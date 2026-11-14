@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Listening-mode selector: native RadioButtons (one group) laid over equal star columns,
+    with ONE sliding glass capsule behind them. The capsule is moved with composition
+    Translation and Scale X driven by two edge springs (LiquidSlide in Motion.cs, MotionTokens.Capsule*), so layout never changes.
+
+    Capsule states:  Confirmed = solid selected fill (device agrees)
+                     Requested = outline + light fill (waiting for the device)
+                     Failed    = brief error edge while sliding back to the confirmed mode
+-->
+<UserControl
+    x:Class="AppleDeviceHub.App.Design.GlassSegmentedControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    IsTabStop="False">
+
+    <UserControl.Resources>
+        <!-- One segment: glyph above label, text wraps, centred. No radio circle; the
+             capsule behind the row shows the selection. Checked text uses the selected brush. -->
+        <Style x:Key="GlassSegmentRadioStyle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{ThemeResource GlassTextPrimaryBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="4,6,4,6" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="MinHeight" Value="44" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="{ThemeResource GlassCaptionFontSize}" />
+            <Setter Property="UseSystemFocusVisuals" Value="True" />
+            <Setter Property="FocusVisualMargin" Value="-1" />
+            <Setter Property="CornerRadius" Value="{ThemeResource GlassCapsuleRadius}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Grid x:Name="RootGrid"
+                              Background="Transparent"
+                              CornerRadius="{TemplateBinding CornerRadius}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Target="HoverOverlay.Background" Value="{ThemeResource GlassHoverOverlayBrush}" />
+                                            <Setter Target="HoverOverlay.BorderBrush" Value="{ThemeResource GlassHoverEdgeBrush}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Target="HoverOverlay.Background" Value="{ThemeResource GlassPressedOverlayBrush}" />
+                                            <Setter Target="HoverOverlay.BorderBrush" Value="{ThemeResource GlassHoverEdgeBrush}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <VisualState.Setters>
+                                            <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource GlassTextDisabledBrush}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="CheckStates">
+                                    <VisualState x:Name="Checked">
+                                        <VisualState.Setters>
+                                            <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource GlassSelectedTextBrush}" />
+                                            <Setter Target="ContentPresenter.FontWeight" Value="SemiBold" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Unchecked" />
+                                    <VisualState x:Name="Indeterminate" />
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+
+                            <Border x:Name="HoverOverlay"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent"
+                                    BorderThickness="1"
+                                    CornerRadius="{TemplateBinding CornerRadius}"
+                                    IsHitTestVisible="False" />
+                            <ContentPresenter x:Name="ContentPresenter"
+                                              Padding="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              Foreground="{TemplateBinding Foreground}"
+                                              AutomationProperties.AccessibilityView="Raw" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid x:Name="Root" MinHeight="{ThemeResource GlassSegmentHeight}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="CapsuleStates">
+                <VisualState x:Name="Confirmed" />
+                <VisualState x:Name="Requested">
+                    <VisualState.Setters>
+                        <Setter Target="Capsule.Background" Value="{ThemeResource GlassRequestedFillBrush}" />
+                        <Setter Target="Capsule.BorderBrush" Value="{ThemeResource GlassRequestedEdgeBrush}" />
+                        <Setter Target="Capsule.BorderThickness" Value="1.5" />
+                        <Setter Target="CapsuleSheen.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Failed">
+                    <VisualState.Setters>
+                        <Setter Target="Capsule.BorderBrush" Value="{ThemeResource GlassErrorBrush}" />
+                        <Setter Target="Capsule.BorderThickness" Value="2" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <!-- Recessed track. -->
+        <Border x:Name="Track"
+                Background="{ThemeResource GlassTrackBrush}"
+                BorderBrush="{ThemeResource GlassControlEdgeBrush}"
+                BorderThickness="{ThemeResource GlassTileEdgeThickness}"
+                CornerRadius="{ThemeResource GlassTrackRadius}" />
+
+        <!-- The single sliding selection capsule (Width and Translation set in code). -->
+        <Border x:Name="Capsule"
+                Margin="4"
+                HorizontalAlignment="Left"
+                Visibility="Collapsed"
+                Background="{ThemeResource GlassSelectedFillBrush}"
+                BorderBrush="{ThemeResource GlassSelectedEdgeBrush}"
+                BorderThickness="1"
+                CornerRadius="{ThemeResource GlassCapsuleRadius}"
+                IsHitTestVisible="False">
+            <Border x:Name="CapsuleSheen"
+                    Background="{ThemeResource GlassControlSheenBrush}"
+                    CornerRadius="{ThemeResource GlassCapsuleRadius}" />
+        </Border>
+
+        <!-- Segments are created in code from ItemsSource (one star column each). -->
+        <Grid x:Name="ItemsHost"
+              Margin="4"
+              XYFocusKeyboardNavigation="Enabled"
+              TabFocusNavigation="Once" />
+    </Grid>
+</UserControl>

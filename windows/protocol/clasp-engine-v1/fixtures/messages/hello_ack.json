@@ -1,0 +1,18 @@
+{
+  "direction": "engine_to_client",
+  "description": "Handshake accepted",
+  "message": {
+    "type": "hello_ack",
+    "seq": 1,
+    "protocol": "clasp-engine",
+    "major": 1,
+    "minor": 0,
+    "engine": "clasp-engine 0.1.0",
+    "engine_epoch": "6f1c2a9e-3b7d-4c11-9a52-0d8e4f7b2c10",
+    "capabilities": [
+      "list_devices",
+      "observe",
+      "listening_mode_write"
+    ]
+  }
+}

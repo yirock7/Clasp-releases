@@ -1,0 +1,5 @@
+{
+  "description": "Wrong header bytes",
+  "packet_hex": "0500040009000d02000000",
+  "expect_fields": null
+}

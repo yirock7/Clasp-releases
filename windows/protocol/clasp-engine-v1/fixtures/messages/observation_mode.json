@@ -1,0 +1,14 @@
+{
+  "direction": "engine_to_client",
+  "description": "Listening-mode readback",
+  "message": {
+    "type": "observation",
+    "seq": 7,
+    "session_id": 1,
+    "device_id": "dev-3f9a1c0e8b7d6a52",
+    "observed_at": "2026-10-15T18:04:06.500Z",
+    "fields": {
+      "listening_mode": "transparency"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "description": "Battery opcode 0x04: right 79 (status 02), left 82 (status 02), case 64 charging (status 01)",
+  "packet_hex": "0400040004000302014f020104015202010801400101",
+  "expect_fields": {
+    "battery.left": {
+      "level": 82,
+      "charging": false
+    },
+    "battery.right": {
+      "level": 79,
+      "charging": false
+    },
+    "battery.case": {
+      "level": 64,
+      "charging": true
+    }
+  }
+}

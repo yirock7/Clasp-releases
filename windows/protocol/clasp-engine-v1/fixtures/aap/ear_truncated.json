@@ -1,0 +1,5 @@
+{
+  "description": "Ear packet missing the secondary byte: no observation",
+  "packet_hex": "04000400060000",
+  "expect_fields": null
+}

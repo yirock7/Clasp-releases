@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Radio-free tests for the probe's pure helpers (Analysis/*.cs, compiled in by link).
+       Not part of AppleDeviceHub.sln; run with
+       dotnet test windows/hub/tools/BleObservationProbe/Tests/BleObservationProbe.Tests.csproj -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>BleObservationProbe.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../src/AppleDeviceHub.Core/AppleDeviceHub.Core.csproj" />
+    <Compile Include="../Analysis/*.cs" Link="Analysis/%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

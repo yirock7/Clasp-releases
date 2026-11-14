@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Plain .NET library: device contracts, the demo transport, the clasp-engine client, state logic and view
+       models. No WinUI, no Bluetooth, no driver access, no process launching; the only I/O is the
+       identity-checked client end of the clasp-engine pipe (Engine/), so it can be
+       unit-tested anywhere and cannot reach real hardware by accident. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>AppleDeviceHub.Core</RootNamespace>
+    <AssemblyName>AppleDeviceHub.Core</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AppleDeviceHub.Core.Tests" />
+  </ItemGroup>
+
+</Project>

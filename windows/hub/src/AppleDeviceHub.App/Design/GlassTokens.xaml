@@ -1,0 +1,642 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Liquid Glass design tokens (LIQUID-GLASS-DESIGN.md, "Initial design tokens").
+    Starting values for visual review: tune here, never in views.
+
+    - Non-theme tokens (spacing, radii, sizes, type) sit at the root.
+    - Colours live in ThemeDictionaries: Light, Dark, HighContrast.
+      HighContrast maps everything to Windows system colours with solid fills.
+    - Colour and edge tokens for the ToggleSwitch and Slider templates (GlassToggleStyle,
+      GlassSliderStyle in GlassStyles.xaml) are also here, defined for Light, Dark and HighContrast.
+      Some reuse WinUI's own key names (ToggleSwitchFillOn, SliderTrackFill ...) so the templates stay close to the stock ones.
+-->
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ===== Spacing (DIP) ===== -->
+    <x:Double x:Key="GlassSpace4">4</x:Double>
+    <x:Double x:Key="GlassSpace8">8</x:Double>
+    <x:Double x:Key="GlassSpace12">12</x:Double>
+    <x:Double x:Key="GlassSpace16">16</x:Double>
+    <x:Double x:Key="GlassSpace24">24</x:Double>
+
+    <Thickness x:Key="GlassPadding8">8</Thickness>
+    <Thickness x:Key="GlassPadding12">12</Thickness>
+    <Thickness x:Key="GlassPadding16">16</Thickness>
+    <Thickness x:Key="GlassPadding24">24</Thickness>
+
+    <!-- ===== Radii ===== -->
+    <!-- Main floating card. -->
+    <CornerRadius x:Key="GlassSurfaceRadius">24</CornerRadius>
+    <!-- Nested surface inside a card. -->
+    <CornerRadius x:Key="GlassNestedRadius">16</CornerRadius>
+    <!-- Surface that fills a whole window: matches the Windows 11 DWM window corner (~8). -->
+    <CornerRadius x:Key="GlassWindowRadius">8</CornerRadius>
+    <!-- Pills: half of the control height so the ends are true semicircles. -->
+    <CornerRadius x:Key="GlassControlRadius">18</CornerRadius>
+    <CornerRadius x:Key="GlassIconRadius">22</CornerRadius>
+    <CornerRadius x:Key="GlassChipRadius">12</CornerRadius>
+    <!-- Segmented control: track radius = capsule radius + 4 DIP inset (aligned nesting). -->
+    <CornerRadius x:Key="GlassTrackRadius">20</CornerRadius>
+    <CornerRadius x:Key="GlassCapsuleRadius">16</CornerRadius>
+    <!-- Borderless content tile inside a window surface (hero, settings group). -->
+    <CornerRadius x:Key="GlassTileRadius">18</CornerRadius>
+
+    <!-- ===== Sizes ===== -->
+    <Thickness x:Key="GlassEdgeThickness">1</Thickness>
+    <x:Double x:Key="GlassControlHeight">36</x:Double>
+    <!-- Compact controls: >= 40 DIP; 44 where space permits (brief). -->
+    <x:Double x:Key="GlassIconButtonSize">44</x:Double>
+    <x:Double x:Key="GlassChipHeight">24</x:Double>
+    <x:Double x:Key="GlassSegmentHeight">64</x:Double>
+
+    <!-- ===== Type (Windows system font via the default theme) ===== -->
+    <x:Double x:Key="GlassTitleFontSize">20</x:Double>
+    <x:Double x:Key="GlassSectionFontSize">16</x:Double>
+    <x:Double x:Key="GlassBodyFontSize">14</x:Double>
+    <!-- Smallest text in the app; the brief asks to avoid tiny status text. -->
+    <x:Double x:Key="GlassCaptionFontSize">12</x:Double>
+
+    <ResourceDictionary.ThemeDictionaries>
+
+        <!-- =============================== LIGHT =============================== -->
+        <ResourceDictionary x:Key="Light">
+            <Color x:Key="GlassPointerLightColor">#8CFFFFFF</Color>
+            <!-- Edge light that follows the pointer / opening glint (GlassSurface PointerRim): soft white at the centre of the pool, clear at its edge. -->
+            <Color x:Key="GlassPointerRimColor">#E6FFFFFF</Color>
+
+            <!-- Surfaces: a thin, clear veil over the thin desktop acrylic (GlassBackdrop), not a
+                 milky fill. The veil is about the minimum that keeps text at WCAG AA over a black or
+                 white blurred backdrop (docs/LIQUID-GLASS-CLARITY.md, "Lighter Frosted"); the acrylic's luminosity layer
+                 supplies the rest. Nearly flat: a strong top-to-bottom gradient reads as Vista gloss. -->
+            <LinearGradientBrush x:Key="GlassTintBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#80FFFFFF" />
+                <GradientStop Offset="1" Color="#78FBFCFE" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassNestedTintBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#66FFFFFF" />
+                <GradientStop Offset="1" Color="#5CFFFFFF" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassReadableFillBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#A6FFFFFF" />
+                <GradientStop Offset="1" Color="#9EFCFDFE" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="GlassOpaqueFillBrush" Color="#FFF2F4F7" />
+            <SolidColorBrush x:Key="GlassNestedOpaqueFillBrush" Color="#FFFFFFFF" />
+
+            <!-- Specular rim, 1 DIP: bright where light hits the top-left, nearly gone along the
+                 sides, and a weaker glint bottom-right where light leaves the glass.
+                 No dark outline (a dark bottom edge is the Aero look). -->
+            <LinearGradientBrush x:Key="GlassEdgeBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#FFFFFFFF" />
+                <GradientStop Offset="0.25" Color="#CCFFFFFF" />
+                <GradientStop Offset="0.6" Color="#4DFFFFFF" />
+                <GradientStop Offset="1" Color="#29FFFFFF" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="GlassOpaqueEdgeBrush" Color="#33000000" />
+            <!-- Reduced transparency: the outline that keeps a plain button visible on a white card (about 3:1). -->
+            <SolidColorBrush x:Key="GlassOpaqueControlEdgeBrush" Color="#6B000000" />
+            <!-- Keyboard focus: an accent ring that follows the control's own shape, with a light halo outside it.
+                 The system focus visuals (SystemControlFocusVisual*) use the same colours, so every control matches. -->
+            <SolidColorBrush x:Key="GlassFocusHaloBrush" Color="#CCFFFFFF" />
+            <SolidColorBrush x:Key="SystemControlFocusVisualPrimaryBrush" Color="#FF2F6FD6" />
+            <SolidColorBrush x:Key="SystemControlFocusVisualSecondaryBrush" Color="#CCFFFFFF" />
+            <!-- Soft inner light: a faint glow fading over the top half, not a hard gloss band. -->
+            <LinearGradientBrush x:Key="GlassInnerHighlightBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#1AFFFFFF" />
+                <GradientStop Offset="0.55" Color="#00FFFFFF" />
+            </LinearGradientBrush>
+            <!-- Inner rim, inset 1 DIP: a second, fainter line of light under the top edge, as in a thick lens. -->
+            <LinearGradientBrush x:Key="GlassInnerRimBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#4DFFFFFF" />
+                <GradientStop Offset="0.4" Color="#00FFFFFF" />
+                <GradientStop Offset="1" Color="#00FFFFFF" />
+            </LinearGradientBrush>
+            <!-- Inner shade, inset 1 DIP: a faint darker line along the bottom edge, so the glass reads as having
+                 thickness. Same hue at every stop so the gradient does not grey out. -->
+            <LinearGradientBrush x:Key="GlassInnerShadeBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#000B1A33" />
+                <GradientStop Offset="0.6" Color="#000B1A33" />
+                <GradientStop Offset="1" Color="#240B1A33" />
+            </LinearGradientBrush>
+            <!-- Specular sheen: a soft curved highlight across the top, like light on a rounded lens. Low alpha, and it
+                 is gone by the end of its short band (GlassSurface template, SurfaceSheen). -->
+            <RadialGradientBrush x:Key="GlassSurfaceSheenBrush" Center="0.3,0" GradientOrigin="0.3,0" RadiusX="0.85" RadiusY="1.0">
+                <GradientStop Offset="0" Color="#38FFFFFF" />
+                <GradientStop Offset="0.5" Color="#12FFFFFF" />
+                <GradientStop Offset="1" Color="#00FFFFFF" />
+            </RadialGradientBrush>
+
+            <!-- Controls: lit by their rim, with a barely-there sheen instead of a glossy top half. -->
+            <SolidColorBrush x:Key="GlassControlFillBrush" Color="#8CFFFFFF" />
+            <LinearGradientBrush x:Key="GlassControlSheenBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#1FFFFFFF" />
+                <GradientStop Offset="0.6" Color="#00FFFFFF" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassControlEdgeBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#FFFFFFFF" />
+                <GradientStop Offset="0.6" Color="#66FFFFFF" />
+                <GradientStop Offset="1" Color="#1A000000" />
+            </LinearGradientBrush>
+            <!-- Glass capsule layers (GlassButton template; glass material only, the Opaque material keeps the sheen and edge above). -->
+            <RadialGradientBrush x:Key="GlassButtonLensBrush" Center="0.4,0" GradientOrigin="0.4,0" RadiusX="0.85" RadiusY="0.6">
+                <GradientStop Offset="0" Color="#66FFFFFF" />
+                <GradientStop Offset="0.5" Color="#26FFFFFF" />
+                <GradientStop Offset="1" Color="#00FFFFFF" />
+            </RadialGradientBrush>
+            <LinearGradientBrush x:Key="GlassButtonRimBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#FFFFFFFF" />
+                <GradientStop Offset="0.18" Color="#CCFFFFFF" />
+                <GradientStop Offset="0.4" Color="#66FFFFFF" />
+                <GradientStop Offset="0.65" Color="#26FFFFFF" />
+                <GradientStop Offset="1" Color="#14FFFFFF" />
+            </LinearGradientBrush>
+            <!-- Fake lens (Design/GlassLens.cs). Inner edge band: a thin deep-blue tint, strongest at the outer edge (the
+                 rings in the GlassSurface / GlassButton templates scale it down to nothing inward). Peak alpha 0.24, and under
+                 any text (12 DIP and more in) it is below 0.03: see docs/LIQUID-GLASS-CLARITY.md. -->
+            <SolidColorBrush x:Key="GlassLensBandBrush" Color="#3D0E3A78" />
+            <!-- Lit rim: light from the top-left. Alpha 1.0 at the top-left corner, 0.8, 0.38, 0.16, 0.08 and 0.06 at the
+                 bottom-right. The three 1 DIP rings (opacity 1, 0.6, 0.26) fall off like the slope of a squircle bevel. -->
+            <LinearGradientBrush x:Key="GlassLensRimBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#FFFFFFFF" />
+                <GradientStop Offset="0.15" Color="#E6FFFFFF" />
+                <GradientStop Offset="0.35" Color="#8CFFFFFF" />
+                <GradientStop Offset="0.55" Color="#40FFFFFF" />
+                <GradientStop Offset="0.8" Color="#1FFFFFFF" />
+                <GradientStop Offset="1" Color="#14FFFFFF" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassButtonShadeFillBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0.55" Color="#000B1A33" />
+                <GradientStop Offset="1" Color="#1F0B1A33" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassButtonShadeLineBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0.75" Color="#000B1A33" />
+                <GradientStop Offset="1" Color="#330B1A33" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="GlassHoverOverlayBrush" Color="#4DFFFFFF" />
+            <SolidColorBrush x:Key="GlassHoverEdgeBrush" Color="#59FFFFFF" />
+            <SolidColorBrush x:Key="GlassPressedOverlayBrush" Color="#12000000" />
+            <SolidColorBrush x:Key="GlassDisabledOverlayBrush" Color="#66EEF0F3" />
+            <SolidColorBrush x:Key="GlassDisabledEdgeBrush" Color="#1F000000" />
+            <!-- White SemiBold text on this fill: about 5.7:1 (top) to 7.1:1 (bottom), computed.
+                 Hover/press darken it (Design/GlassAccentOverrides.xaml). Measure in the visual pass. -->
+            <LinearGradientBrush x:Key="GlassAccentFillBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#FF275FD4" />
+                <GradientStop Offset="1" Color="#FF1E50BD" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="GlassAccentEdgeBrush" Color="#8CFFFFFF" />
+            <SolidColorBrush x:Key="GlassAccentBrush" Color="#FF2F6FD6" />
+            <SolidColorBrush x:Key="GlassOnAccentBrush" Color="#FFFFFFFF" />
+
+            <!-- Segmented control -->
+            <SolidColorBrush x:Key="GlassTrackBrush" Color="#170B1A33" />
+            <SolidColorBrush x:Key="GlassSelectedFillBrush" Color="#F7FFFFFF" />
+            <SolidColorBrush x:Key="GlassSelectedEdgeBrush" Color="#992F6FD6" />
+            <SolidColorBrush x:Key="GlassSelectedTextBrush" Color="#FF1D55B0" />
+            <SolidColorBrush x:Key="GlassRequestedFillBrush" Color="#59FFFFFF" />
+            <SolidColorBrush x:Key="GlassRequestedEdgeBrush" Color="#FF2F6FD6" />
+
+            <!-- Text (measured targets: >= 4.5:1 on the composited surface; verify in review). -->
+            <SolidColorBrush x:Key="GlassTextPrimaryBrush" Color="#FF0C0E12" />
+            <SolidColorBrush x:Key="GlassControlTextBrush" Color="#FF0C0E12" />
+            <!-- Darker than a typical secondary grey: the glass is clearer, so captions need the margin. -->
+            <SolidColorBrush x:Key="GlassTextSecondaryBrush" Color="#FF1F2329" />
+            <SolidColorBrush x:Key="GlassTextDisabledBrush" Color="#8C14171C" />
+            <SolidColorBrush x:Key="GlassDividerBrush" Color="#1F000000" />
+
+            <!-- Semantic foregrounds (always paired with a glyph and text). -->
+            <SolidColorBrush x:Key="GlassSuccessBrush" Color="#FF0E7A3E" />
+            <SolidColorBrush x:Key="GlassPendingBrush" Color="#FF2559A8" />
+            <SolidColorBrush x:Key="GlassWarningBrush" Color="#FF945600" />
+            <SolidColorBrush x:Key="GlassErrorBrush" Color="#FFC42B1C" />
+            <!-- Battery history chart: one colour per series (also told apart by line style), charging band, hover guide. -->
+            <SolidColorBrush x:Key="GlassChartLeftBrush" Color="#FF1F66D0" />
+            <SolidColorBrush x:Key="GlassChartRightBrush" Color="#FFC2570C" />
+            <SolidColorBrush x:Key="GlassChartCaseBrush" Color="#FF7B4FC9" />
+            <SolidColorBrush x:Key="GlassChartChargingBandBrush" Color="#240E7A3E" />
+            <SolidColorBrush x:Key="GlassChartChargingEdgeBrush" Color="#990E7A3E" />
+            <SolidColorBrush x:Key="GlassChartGuideBrush" Color="#80000000" />
+
+            <!-- Status chips -->
+            <SolidColorBrush x:Key="GlassChipNeutralFillBrush" Color="#73FFFFFF" />
+            <SolidColorBrush x:Key="GlassChipSuccessFillBrush" Color="#2E0E7A3E" />
+            <SolidColorBrush x:Key="GlassChipPendingFillBrush" Color="#262559A8" />
+            <SolidColorBrush x:Key="GlassChipWarningFillBrush" Color="#38FFB000" />
+            <SolidColorBrush x:Key="GlassChipErrorFillBrush" Color="#29C42B1C" />
+            <SolidColorBrush x:Key="GlassChipEdgeBrush" Color="#66FFFFFF" />
+            <!-- Demo: solid violet + white text, legible on any background. -->
+            <SolidColorBrush x:Key="GlassChipDemoFillBrush" Color="#FF5B3FCF" />
+            <SolidColorBrush x:Key="GlassChipDemoForegroundBrush" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="GlassChipDemoEdgeBrush" Color="#B3FFFFFF" />
+
+            <!-- Clasp: borderless tiles (depth from tint, not outlines), connection halo, status dots. -->
+            <LinearGradientBrush x:Key="GlassTileTintBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#59FFFFFF" />
+                <GradientStop Offset="1" Color="#4DFFFFFF" />
+            </LinearGradientBrush>
+            <Thickness x:Key="GlassTileEdgeThickness">0</Thickness>
+            <Color x:Key="GlassHaloColor">#802F6FD6</Color>
+            <SolidColorBrush x:Key="GlassStatusIdleBrush" Color="#FF8A919C" />
+
+            <!-- Battery -->
+            <SolidColorBrush x:Key="GlassRingTrackBrush" Color="#1F000000" />            <SolidColorBrush x:Key="GlassBatteryFillBrush" Color="#FF1F8A4C" />
+
+            <!-- Provisional case artwork (original vector shapes). -->
+            <LinearGradientBrush x:Key="GlassArtCaseFillBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#FFFFFFFF" />
+                <GradientStop Offset="1" Color="#FFE2E5EA" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="GlassArtCaseStrokeBrush" Color="#38000000" />
+            <SolidColorBrush x:Key="GlassArtLidInnerBrush" Color="#FFD5D9E0" />
+            <SolidColorBrush x:Key="GlassArtDetailBrush" Color="#33000000" />
+            <SolidColorBrush x:Key="GlassArtShadowBrush" Color="#24000000" />
+
+            <!-- Toggle and slider (Design/GlassStyles.xaml). The off track is an opaque mid grey, so the track and its
+                 edge hold 3:1 against the pale glass behind it and the white knob holds 3:1 against the track.
+                 Edge #70757E on white is about 4.6:1, fill #8A8F98 about 3.3:1. Measure in the visual pass. -->
+            <SolidColorBrush x:Key="ToggleSwitchFillOff" Color="#FF8A8F98" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOffPointerOver" Color="#FF7F848D" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOffPressed" Color="#FF767B84" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOffDisabled" Color="#FFD9DCE1" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOff" Color="#FF70757E" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOffPointerOver" Color="#FF666B74" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOffPressed" Color="#FF5E636C" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOffDisabled" Color="#FFC3C7CE" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOn" Color="#FF2F6FD6" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOnPointerOver" Color="#FF3C7DE2" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOnPressed" Color="#FF2A66CC" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOnDisabled" Color="#FFA9C0EA" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOn" Color="#FF2F6FD6" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnPointerOver" Color="#FF3C7DE2" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnPressed" Color="#FF2A66CC" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnDisabled" Color="#FFA9C0EA" />
+            <!-- The knob and slider thumb are white on and off, with a hairline edge and a soft shadow. -->
+            <SolidColorBrush x:Key="ToggleSwitchKnobFill" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillDisabled" Color="#FFF7F8FA" />
+            <SolidColorBrush x:Key="ToggleSwitchKnobStroke" Color="#29000000" />
+            <SolidColorBrush x:Key="ToggleSwitchKnobStrokeDisabled" Color="#1F000000" />
+            <RadialGradientBrush x:Key="GlassKnobShadowBrush" Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                <GradientStop Offset="0" Color="#38000000" />
+                <GradientStop Offset="0.68" Color="#2A000000" />
+                <GradientStop Offset="0.85" Color="#0F000000" />
+                <GradientStop Offset="1" Color="#00000000" />
+            </RadialGradientBrush>
+            <x:Double x:Key="GlassTrackEdgeThickness">1</x:Double>
+            <x:Double x:Key="GlassKnobEdgeThickness">1</x:Double>
+
+            <SolidColorBrush x:Key="SliderTrackFill" Color="#FFC9CDD3" />
+            <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#FFBEC3CA" />
+            <SolidColorBrush x:Key="SliderTrackFillDisabled" Color="#FFE4E6EA" />
+            <SolidColorBrush x:Key="SliderTrackStroke" Color="#FF8A8F98" />
+            <SolidColorBrush x:Key="SliderTrackStrokeDisabled" Color="#FFC3C7CE" />
+            <SolidColorBrush x:Key="SliderTrackValueFill" Color="#FF2F6FD6" />
+            <SolidColorBrush x:Key="SliderTrackValueFillPointerOver" Color="#FF3C7DE2" />
+            <SolidColorBrush x:Key="SliderTrackValueFillPressed" Color="#FF2A66CC" />
+            <SolidColorBrush x:Key="SliderTrackValueFillDisabled" Color="#FFA9C0EA" />
+            <SolidColorBrush x:Key="SliderThumbBackground" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="SliderThumbBackgroundDisabled" Color="#FFF7F8FA" />
+            <SolidColorBrush x:Key="SliderThumbStroke" Color="#FF8A8F98" />
+            <SolidColorBrush x:Key="SliderThumbStrokeDisabled" Color="#FFC3C7CE" />
+        </ResourceDictionary>
+
+        <!-- =============================== DARK =============================== -->
+        <ResourceDictionary x:Key="Dark">
+            <Color x:Key="GlassPointerLightColor">#38FFFFFF</Color>
+            <Color x:Key="GlassPointerRimColor">#B3FFFFFF</Color>
+
+            <!-- Surfaces: a smoked, clear veil (same rule as Light: about the minimum for AA text).
+                 Nested areas darken slightly rather than lighten, so white text keeps its margin. -->
+            <LinearGradientBrush x:Key="GlassTintBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#800C0E13" />
+                <GradientStop Offset="1" Color="#8A0A0C10" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassNestedTintBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#850A0C10" />
+                <GradientStop Offset="1" Color="#8C0A0C10" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassReadableFillBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#A6121418" />
+                <GradientStop Offset="1" Color="#AD0F1115" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="GlassOpaqueFillBrush" Color="#FF1E2126" />
+            <SolidColorBrush x:Key="GlassNestedOpaqueFillBrush" Color="#FF2A2E35" />
+
+            <LinearGradientBrush x:Key="GlassEdgeBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#B3FFFFFF" />
+                <GradientStop Offset="0.25" Color="#66FFFFFF" />
+                <GradientStop Offset="0.6" Color="#1FFFFFFF" />
+                <GradientStop Offset="1" Color="#14FFFFFF" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="GlassOpaqueEdgeBrush" Color="#40FFFFFF" />
+            <SolidColorBrush x:Key="GlassOpaqueControlEdgeBrush" Color="#70FFFFFF" />
+            <SolidColorBrush x:Key="GlassFocusHaloBrush" Color="#99000000" />
+            <SolidColorBrush x:Key="SystemControlFocusVisualPrimaryBrush" Color="#FF6AA6FF" />
+            <SolidColorBrush x:Key="SystemControlFocusVisualSecondaryBrush" Color="#99000000" />
+            <LinearGradientBrush x:Key="GlassInnerHighlightBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#0CFFFFFF" />
+                <GradientStop Offset="0.55" Color="#00FFFFFF" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassInnerRimBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#26FFFFFF" />
+                <GradientStop Offset="0.4" Color="#00FFFFFF" />
+                <GradientStop Offset="1" Color="#00FFFFFF" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassInnerShadeBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#00000000" />
+                <GradientStop Offset="0.6" Color="#00000000" />
+                <GradientStop Offset="1" Color="#47000000" />
+            </LinearGradientBrush>
+            <!-- Fainter than Light: white text sits close to the top band on the smoked glass. -->
+            <RadialGradientBrush x:Key="GlassSurfaceSheenBrush" Center="0.3,0" GradientOrigin="0.3,0" RadiusX="0.85" RadiusY="1.0">
+                <GradientStop Offset="0" Color="#14FFFFFF" />
+                <GradientStop Offset="0.45" Color="#06FFFFFF" />
+                <GradientStop Offset="1" Color="#00FFFFFF" />
+            </RadialGradientBrush>
+
+            <SolidColorBrush x:Key="GlassControlFillBrush" Color="#1FFFFFFF" />
+            <LinearGradientBrush x:Key="GlassControlSheenBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#0FFFFFFF" />
+                <GradientStop Offset="0.6" Color="#00FFFFFF" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassControlEdgeBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#80FFFFFF" />
+                <GradientStop Offset="0.6" Color="#1AFFFFFF" />
+                <GradientStop Offset="1" Color="#33FFFFFF" />
+            </LinearGradientBrush>
+            <RadialGradientBrush x:Key="GlassButtonLensBrush" Center="0.4,0" GradientOrigin="0.4,0" RadiusX="0.85" RadiusY="0.6">
+                <GradientStop Offset="0" Color="#30FFFFFF" />
+                <GradientStop Offset="0.5" Color="#10FFFFFF" />
+                <GradientStop Offset="1" Color="#00FFFFFF" />
+            </RadialGradientBrush>
+            <LinearGradientBrush x:Key="GlassButtonRimBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#CCFFFFFF" />
+                <GradientStop Offset="0.18" Color="#8CFFFFFF" />
+                <GradientStop Offset="0.4" Color="#40FFFFFF" />
+                <GradientStop Offset="0.65" Color="#1AFFFFFF" />
+                <GradientStop Offset="1" Color="#0DFFFFFF" />
+            </LinearGradientBrush>
+            <!-- Fake lens (see the Light dictionary): on smoked glass the band is a near-black navy, so white text only gains contrast. -->
+            <SolidColorBrush x:Key="GlassLensBandBrush" Color="#66061A4D" />
+            <LinearGradientBrush x:Key="GlassLensRimBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#FFFFFFFF" />
+                <GradientStop Offset="0.15" Color="#D9FFFFFF" />
+                <GradientStop Offset="0.35" Color="#80FFFFFF" />
+                <GradientStop Offset="0.55" Color="#38FFFFFF" />
+                <GradientStop Offset="0.8" Color="#1AFFFFFF" />
+                <GradientStop Offset="1" Color="#12FFFFFF" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassButtonShadeFillBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0.55" Color="#00000000" />
+                <GradientStop Offset="1" Color="#33000000" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="GlassButtonShadeLineBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0.75" Color="#00000000" />
+                <GradientStop Offset="1" Color="#59000000" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="GlassHoverOverlayBrush" Color="#14FFFFFF" />
+            <SolidColorBrush x:Key="GlassHoverEdgeBrush" Color="#33FFFFFF" />
+            <SolidColorBrush x:Key="GlassPressedOverlayBrush" Color="#26000000" />
+            <SolidColorBrush x:Key="GlassDisabledOverlayBrush" Color="#4D1A1D22" />
+            <SolidColorBrush x:Key="GlassDisabledEdgeBrush" Color="#1AFFFFFF" />
+            <!-- Same fill as Light: white text needs the darker blue in both themes (>= 4.5:1). -->
+            <LinearGradientBrush x:Key="GlassAccentFillBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#FF275FD4" />
+                <GradientStop Offset="1" Color="#FF1E50BD" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="GlassAccentEdgeBrush" Color="#66FFFFFF" />
+            <SolidColorBrush x:Key="GlassAccentBrush" Color="#FF6AA6FF" />
+            <SolidColorBrush x:Key="GlassOnAccentBrush" Color="#FFFFFFFF" />
+
+            <SolidColorBrush x:Key="GlassTrackBrush" Color="#40000000" />
+            <SolidColorBrush x:Key="GlassSelectedFillBrush" Color="#F2354C73" />
+            <SolidColorBrush x:Key="GlassSelectedEdgeBrush" Color="#B36AA6FF" />
+            <SolidColorBrush x:Key="GlassSelectedTextBrush" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="GlassRequestedFillBrush" Color="#1FFFFFFF" />
+            <SolidColorBrush x:Key="GlassRequestedEdgeBrush" Color="#FF6AA6FF" />
+
+            <SolidColorBrush x:Key="GlassTextPrimaryBrush" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="GlassControlTextBrush" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="GlassTextSecondaryBrush" Color="#FFE8ECF2" />
+            <SolidColorBrush x:Key="GlassTextDisabledBrush" Color="#80F5F7FA" />
+            <SolidColorBrush x:Key="GlassDividerBrush" Color="#24FFFFFF" />
+
+            <SolidColorBrush x:Key="GlassSuccessBrush" Color="#FF6FD394" />
+            <SolidColorBrush x:Key="GlassPendingBrush" Color="#FF94BCFF" />
+            <SolidColorBrush x:Key="GlassWarningBrush" Color="#FFFFC56B" />
+            <SolidColorBrush x:Key="GlassErrorBrush" Color="#FFFF9AA4" />
+            <!-- Battery history chart: one colour per series (also told apart by line style), charging band, hover guide. -->
+            <SolidColorBrush x:Key="GlassChartLeftBrush" Color="#FF6AA6FF" />
+            <SolidColorBrush x:Key="GlassChartRightBrush" Color="#FFFFA24C" />
+            <SolidColorBrush x:Key="GlassChartCaseBrush" Color="#FFC9A4FF" />
+            <SolidColorBrush x:Key="GlassChartChargingBandBrush" Color="#2E6FD394" />
+            <SolidColorBrush x:Key="GlassChartChargingEdgeBrush" Color="#A06FD394" />
+            <SolidColorBrush x:Key="GlassChartGuideBrush" Color="#99FFFFFF" />
+
+            <SolidColorBrush x:Key="GlassChipNeutralFillBrush" Color="#26FFFFFF" />
+            <SolidColorBrush x:Key="GlassChipSuccessFillBrush" Color="#336FD394" />
+            <SolidColorBrush x:Key="GlassChipPendingFillBrush" Color="#3394BCFF" />
+            <SolidColorBrush x:Key="GlassChipWarningFillBrush" Color="#33FFC56B" />
+            <SolidColorBrush x:Key="GlassChipErrorFillBrush" Color="#40FF9AA4" />
+            <SolidColorBrush x:Key="GlassChipEdgeBrush" Color="#26FFFFFF" />
+            <SolidColorBrush x:Key="GlassChipDemoFillBrush" Color="#FF5B3FCF" />
+            <SolidColorBrush x:Key="GlassChipDemoForegroundBrush" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="GlassChipDemoEdgeBrush" Color="#80FFFFFF" />
+
+            <LinearGradientBrush x:Key="GlassTileTintBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#2E0A0C10" />
+                <GradientStop Offset="1" Color="#380A0C10" />
+            </LinearGradientBrush>
+            <Thickness x:Key="GlassTileEdgeThickness">0</Thickness>
+            <Color x:Key="GlassHaloColor">#B35A8CFF</Color>
+            <SolidColorBrush x:Key="GlassStatusIdleBrush" Color="#FF8A919C" />
+
+            <SolidColorBrush x:Key="GlassRingTrackBrush" Color="#2EFFFFFF" />            <SolidColorBrush x:Key="GlassBatteryFillBrush" Color="#FF6FD394" />
+
+            <LinearGradientBrush x:Key="GlassArtCaseFillBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#FFF1F3F6" />
+                <GradientStop Offset="1" Color="#FFC5CAD2" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="GlassArtCaseStrokeBrush" Color="#66FFFFFF" />
+            <SolidColorBrush x:Key="GlassArtLidInnerBrush" Color="#FFA9AFBA" />
+            <SolidColorBrush x:Key="GlassArtDetailBrush" Color="#40000000" />
+            <SolidColorBrush x:Key="GlassArtShadowBrush" Color="#59000000" />
+
+            <!-- Same roles as Light. Off track #6B727D against the smoked glass is about 3.6:1 and the white knob against it about 4.9:1. -->
+            <SolidColorBrush x:Key="ToggleSwitchFillOff" Color="#FF6B727D" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOffPointerOver" Color="#FF7A818C" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOffPressed" Color="#FF858C97" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOffDisabled" Color="#FF2D3139" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOff" Color="#FF8D94A0" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOffPointerOver" Color="#FF9AA1AD" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOffPressed" Color="#FFA5ACB8" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOffDisabled" Color="#FF3F444D" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOn" Color="#FF4A88EA" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOnPointerOver" Color="#FF5B95EF" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOnPressed" Color="#FF346FD0" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOnDisabled" Color="#FF2E4468" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOn" Color="#FF4A88EA" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnPointerOver" Color="#FF5B95EF" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnPressed" Color="#FF346FD0" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnDisabled" Color="#FF2E4468" />
+            <SolidColorBrush x:Key="ToggleSwitchKnobFill" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillDisabled" Color="#A6FFFFFF" />
+            <SolidColorBrush x:Key="ToggleSwitchKnobStroke" Color="#1F000000" />
+            <SolidColorBrush x:Key="ToggleSwitchKnobStrokeDisabled" Color="#14000000" />
+            <RadialGradientBrush x:Key="GlassKnobShadowBrush" Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                <GradientStop Offset="0" Color="#66000000" />
+                <GradientStop Offset="0.68" Color="#4D000000" />
+                <GradientStop Offset="0.85" Color="#1F000000" />
+                <GradientStop Offset="1" Color="#00000000" />
+            </RadialGradientBrush>
+            <x:Double x:Key="GlassTrackEdgeThickness">1</x:Double>
+            <x:Double x:Key="GlassKnobEdgeThickness">1</x:Double>
+
+            <SolidColorBrush x:Key="SliderTrackFill" Color="#FF3A4049" />
+            <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#FF444A54" />
+            <SolidColorBrush x:Key="SliderTrackFillDisabled" Color="#FF2A2E35" />
+            <SolidColorBrush x:Key="SliderTrackStroke" Color="#FF6B727D" />
+            <SolidColorBrush x:Key="SliderTrackStrokeDisabled" Color="#FF3F444D" />
+            <SolidColorBrush x:Key="SliderTrackValueFill" Color="#FF6AA6FF" />
+            <SolidColorBrush x:Key="SliderTrackValueFillPointerOver" Color="#FF7FB3FF" />
+            <SolidColorBrush x:Key="SliderTrackValueFillPressed" Color="#FF5A95EE" />
+            <SolidColorBrush x:Key="SliderTrackValueFillDisabled" Color="#FF2E4468" />
+            <SolidColorBrush x:Key="SliderThumbBackground" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="SliderThumbBackgroundDisabled" Color="#A6FFFFFF" />
+            <SolidColorBrush x:Key="SliderThumbStroke" Color="#26000000" />
+            <SolidColorBrush x:Key="SliderThumbStrokeDisabled" Color="#14000000" />
+        </ResourceDictionary>
+
+        <!-- ============================ HIGH CONTRAST ============================ -->
+        <!-- Solid system colours, clear 1-2 DIP borders, no translucency or decorative light. -->
+        <ResourceDictionary x:Key="HighContrast">
+            <Color x:Key="GlassPointerLightColor">#00FFFFFF</Color>
+            <Color x:Key="GlassPointerRimColor">Transparent</Color>
+
+            <SolidColorBrush x:Key="GlassTintBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="GlassNestedTintBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="GlassReadableFillBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="GlassOpaqueFillBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="GlassNestedOpaqueFillBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="GlassEdgeBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="GlassOpaqueEdgeBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="GlassOpaqueControlEdgeBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="GlassFocusHaloBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="GlassInnerHighlightBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassInnerRimBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassInnerShadeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassSurfaceSheenBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassButtonLensBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassButtonRimBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassLensBandBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassLensRimBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassButtonShadeFillBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassButtonShadeLineBrush" Color="Transparent" />
+
+            <SolidColorBrush x:Key="GlassControlFillBrush" Color="{ThemeResource SystemColorButtonFaceColor}" />
+            <SolidColorBrush x:Key="GlassControlSheenBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassControlEdgeBrush" Color="{ThemeResource SystemColorButtonTextColor}" />
+            <SolidColorBrush x:Key="GlassHoverOverlayBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassHoverEdgeBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="GlassPressedOverlayBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassDisabledOverlayBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassDisabledEdgeBrush" Color="{ThemeResource SystemColorGrayTextColor}" />
+            <SolidColorBrush x:Key="GlassAccentFillBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="GlassAccentEdgeBrush" Color="{ThemeResource SystemColorHighlightTextColor}" />
+            <SolidColorBrush x:Key="GlassAccentBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="GlassOnAccentBrush" Color="{ThemeResource SystemColorHighlightTextColor}" />
+
+            <SolidColorBrush x:Key="GlassTrackBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="GlassSelectedFillBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="GlassSelectedEdgeBrush" Color="{ThemeResource SystemColorHighlightTextColor}" />
+            <SolidColorBrush x:Key="GlassSelectedTextBrush" Color="{ThemeResource SystemColorHighlightTextColor}" />
+            <!-- Requested keeps the Highlight fill so HighlightText stays readable; the edge, the
+                 confirmed-mode dot and the status text distinguish it from Confirmed. -->
+            <SolidColorBrush x:Key="GlassRequestedFillBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="GlassRequestedEdgeBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+
+            <SolidColorBrush x:Key="GlassTextPrimaryBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <!-- Controls sit on ButtonFace in high contrast, so their text is ButtonText (not WindowText). -->
+            <SolidColorBrush x:Key="GlassControlTextBrush" Color="{ThemeResource SystemColorButtonTextColor}" />
+            <SolidColorBrush x:Key="GlassTextSecondaryBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="GlassTextDisabledBrush" Color="{ThemeResource SystemColorGrayTextColor}" />
+            <SolidColorBrush x:Key="GlassDividerBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+
+            <SolidColorBrush x:Key="GlassSuccessBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="GlassPendingBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="GlassWarningBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="GlassErrorBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <!-- Battery history chart: one colour per series (also told apart by line style), charging band, hover guide. -->
+            <SolidColorBrush x:Key="GlassChartLeftBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="GlassChartRightBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="GlassChartCaseBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="GlassChartChargingBandBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassChartChargingEdgeBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="GlassChartGuideBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+
+            <SolidColorBrush x:Key="GlassChipNeutralFillBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="GlassChipSuccessFillBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="GlassChipPendingFillBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="GlassChipWarningFillBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="GlassChipErrorFillBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="GlassChipEdgeBrush" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="GlassChipDemoFillBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="GlassChipDemoForegroundBrush" Color="{ThemeResource SystemColorHighlightTextColor}" />
+            <SolidColorBrush x:Key="GlassChipDemoEdgeBrush" Color="{ThemeResource SystemColorHighlightTextColor}" />
+
+            <SolidColorBrush x:Key="GlassTileTintBrush" Color="{ThemeResource SystemColorWindowColor}" />
+            <Thickness x:Key="GlassTileEdgeThickness">1</Thickness>
+            <Color x:Key="GlassHaloColor">#00000000</Color>
+            <SolidColorBrush x:Key="GlassStatusIdleBrush" Color="{ThemeResource SystemColorGrayTextColor}" />
+
+            <SolidColorBrush x:Key="GlassRingTrackBrush" Color="{ThemeResource SystemColorGrayTextColor}" />            <SolidColorBrush x:Key="GlassBatteryFillBrush" Color="{ThemeResource SystemColorHighlightColor}" />
+
+            <SolidColorBrush x:Key="GlassArtCaseFillBrush" Color="{ThemeResource SystemColorButtonFaceColor}" />
+            <SolidColorBrush x:Key="GlassArtCaseStrokeBrush" Color="{ThemeResource SystemColorButtonTextColor}" />
+            <SolidColorBrush x:Key="GlassArtLidInnerBrush" Color="{ThemeResource SystemColorButtonFaceColor}" />
+            <SolidColorBrush x:Key="GlassArtDetailBrush" Color="{ThemeResource SystemColorButtonTextColor}" />
+            <SolidColorBrush x:Key="GlassArtShadowBrush" Color="Transparent" />
+
+            <!-- Toggle and slider: system colours, solid fills, visible edges, no shadow (the template also collapses the shadow shapes). -->
+            <SolidColorBrush x:Key="ToggleSwitchFillOff" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOffPointerOver" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOffPressed" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOffDisabled" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOff" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOffPointerOver" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOffPressed" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOffDisabled" Color="{ThemeResource SystemColorGrayTextColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOn" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOnPointerOver" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOnPressed" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchFillOnDisabled" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOn" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnPointerOver" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnPressed" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchStrokeOnDisabled" Color="{ThemeResource SystemColorGrayTextColor}" />
+            <!-- The knob is a Window-coloured disc with a WindowText ring, so it shows on both the Window and the Highlight track. -->
+            <SolidColorBrush x:Key="ToggleSwitchKnobFill" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchKnobFillDisabled" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchKnobStroke" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="ToggleSwitchKnobStrokeDisabled" Color="{ThemeResource SystemColorGrayTextColor}" />
+            <SolidColorBrush x:Key="GlassKnobShadowBrush" Color="Transparent" />
+            <x:Double x:Key="GlassTrackEdgeThickness">2</x:Double>
+            <x:Double x:Key="GlassKnobEdgeThickness">2</x:Double>
+
+            <SolidColorBrush x:Key="SliderTrackFill" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="SliderTrackFillDisabled" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="SliderTrackStroke" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="SliderTrackStrokeDisabled" Color="{ThemeResource SystemColorGrayTextColor}" />
+            <SolidColorBrush x:Key="SliderTrackValueFill" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="SliderTrackValueFillPointerOver" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="SliderTrackValueFillPressed" Color="{ThemeResource SystemColorHighlightColor}" />
+            <SolidColorBrush x:Key="SliderTrackValueFillDisabled" Color="{ThemeResource SystemColorGrayTextColor}" />
+            <SolidColorBrush x:Key="SliderThumbBackground" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="SliderThumbBackgroundDisabled" Color="{ThemeResource SystemColorWindowColor}" />
+            <SolidColorBrush x:Key="SliderThumbStroke" Color="{ThemeResource SystemColorWindowTextColor}" />
+            <SolidColorBrush x:Key="SliderThumbStrokeDisabled" Color="{ThemeResource SystemColorGrayTextColor}" />
+        </ResourceDictionary>
+
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

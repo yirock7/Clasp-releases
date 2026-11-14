@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="ArtworkGallery.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Plain opaque theme background; RequestedTheme is set on this root from the theme argument. -->
+    <Grid x:Name="Root" Background="{ThemeResource SolidBackgroundFillColorBaseBrush}" Padding="10" />
+</Window>

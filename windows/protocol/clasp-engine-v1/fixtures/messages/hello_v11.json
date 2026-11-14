@@ -1,0 +1,11 @@
+{
+  "direction": "client_to_engine",
+  "description": "A 1.1 client",
+  "message": {
+    "type": "hello",
+    "protocol": "clasp-engine",
+    "major": 1,
+    "minor": 1,
+    "client": "Clasp 0.4"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "direction": "engine_to_client",
+  "description": "1.1 fields: Conversation Awareness and ear state (separate packets would normally carry them)",
+  "message": {
+    "type": "observation",
+    "seq": 9,
+    "session_id": 1,
+    "device_id": "dev-3f9a1c0e8b7d6a52",
+    "observed_at": "2026-10-15T18:05:00.000Z",
+    "fields": {
+      "conversation_awareness": "on",
+      "ear": {
+        "primary": "in_ear",
+        "secondary": "out_of_ear"
+      }
+    }
+  }
+}

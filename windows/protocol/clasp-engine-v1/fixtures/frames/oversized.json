@@ -1,0 +1,5 @@
+{
+  "description": "Length 65537: rejected before allocating",
+  "bytes_hex": "010001007b7d",
+  "expect": "reject_oversized"
+}
