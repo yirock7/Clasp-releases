@@ -41,9 +41,10 @@ Some useful arguments:
 | Argument | Effect |
 | --- | --- |
 | `--show=flyout`, `--show=card`, `--show=settings`, `--show=welcome` | Open that window straight away |
-| `--welcome-page=1..3` | With `--show=welcome`, jump to a page |
+| `--welcome-page=1..4` | With `--show=welcome`, jump to a page |
 | `--settings-section=general`, `airpods`, `history`, `sound`, `shortcuts`, `advanced`, `about` | With `--show=settings`, jump to a section |
 | `--demo-history` | Fill the battery history chart with made-up data (never saved) |
+| `--demo-history=sparse` | Made-up history with long gaps, as when AirPods are only used with this PC now and then |
 | `--demo-battery=low`, `unknown`, `stale` | Start with that battery situation |
 | `--demo-model=0x1720` | Show a different model's artwork and battery layout, by its model id |
 | `--demo-ears=in`, `out`, `left`, `case` | Report where the earbuds are (in ears, out of the case, only the left out, both in the case), so you can see the buds pull out over their rings |

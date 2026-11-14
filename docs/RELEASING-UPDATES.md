@@ -15,6 +15,28 @@ The app installs an update only when all of these hold:
 The signature covers the version, the file name and the SHA-256, so an older genuine installer
 cannot be passed off as a newer release.
 
+## Docs to update for every release
+
+A release is not done until the documents describe the version that ships. Before tagging, go
+through this list against everything that changed since the last release (`git log clasp-vPREVIOUS..main`):
+
+- **`docs/release-notes/vX.Y.Z.md`** and a **`CHANGELOG.md`** entry, in plain words for users.
+- **`README.md`**: the feature list, what Clasp can and can't do, the supported-devices table
+  (what has been tested on real hardware), privacy (anything new over Bluetooth or the internet),
+  install requirements and the FAQ.
+- **The signature checker tag** in `README.md` and `docs/INSTALLING-AND-UPDATING.md`: point it at
+  the new `clasp-vX.Y.Z` tag, and update the "currently" tag below.
+- **`windows/hub/README.md`** and **`docs/ARCHITECTURE.md`**, when how the app works has changed
+  (new components, new Windows APIs, new data flows).
+- **`docs/BUILDING.md`**: new or changed command-line arguments and Demo-mode options
+  (compare with the argument comment at the top of `App.xaml.cs`).
+- **`docs/INSTALLING-AND-UPDATING.md`** and this file, when installing, updating or releasing changed.
+- **`docs/PAIRING-MODES.md`**, when pairing steps or models changed.
+- **Screenshots in `assets/screenshots/`**: retake any whose window looks different now, in Demo
+  mode (`--transport=demo` with `--show=...`), so they never show an older version.
+
+If something on the list doesn't need a change, that's fine; check it anyway.
+
 ## The signing key
 
 The private key is `%APPDATA%\Clasp-release\update-signing-key.pem` on the maintainer's
@@ -59,7 +81,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools\Verify-ClaspInstal
 ```
 
 The README's one-line command downloads that script from the source repo at a fixed tag
-(currently `clasp-v0.3.0`), so when the script changes, update the tag in `README.md`,
+(currently `clasp-v0.4.2`), so when the script changes, update the tag in `README.md`,
 and `docs/INSTALLING-AND-UPDATING.md`. If the public key ever
 changes, update the fingerprint printed in those files too.
 

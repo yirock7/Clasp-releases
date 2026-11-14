@@ -6,7 +6,7 @@ Download the installer from the [latest release](https://github.com/yirock7/Clas
 
 Windows 11, 64-bit (build 22000 or later), and Bluetooth. Windows Server and Windows on ARM are not supported, and the installer refuses them. You do not need the .NET SDK or any other tool to run Clasp.
 
-Clasp is driver-free. Setup installs the app for your Windows account and does not install a Bluetooth driver, change pairing, enable Test Mode, or touch Secure Boot or any other security setting. Pair your earbuds in Windows Settings before using Clasp.
+Clasp is driver-free. Setup installs the app for your Windows account and does not install a Bluetooth driver, change pairing, enable Test Mode, or touch Secure Boot or any other security setting. After installing, you can pair your earbuds in Clasp's welcome guide, or in Windows Settings as before.
 
 
 ## Check the download first
@@ -17,7 +17,7 @@ Download the installer and its `.sig` file from the Releases page into the same 
 
 ```powershell
 cd $env:USERPROFILE\Downloads
-Invoke-WebRequest https://raw.githubusercontent.com/yirock7/Clasp-releases/clasp-v0.3.0/windows/hub/tools/Verify-ClaspInstaller.ps1 -OutFile Verify-ClaspInstaller.ps1
+Invoke-WebRequest https://raw.githubusercontent.com/yirock7/Clasp-releases/clasp-v0.4.2/windows/hub/tools/Verify-ClaspInstaller.ps1 -OutFile Verify-ClaspInstaller.ps1
 powershell -ExecutionPolicy Bypass -File .\Verify-ClaspInstaller.ps1 -Installer .\Clasp-X.Y.Z-win-x64-setup.exe
 ```
 
