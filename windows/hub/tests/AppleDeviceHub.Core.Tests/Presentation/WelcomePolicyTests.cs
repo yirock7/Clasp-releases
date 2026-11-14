@@ -34,7 +34,8 @@ public class WelcomePolicyTests
     [InlineData("--welcome-page=1", 0)]
     [InlineData("--welcome-page=3", 2)]
     [InlineData("--welcome-page=0", 0)]
-    [InlineData("--welcome-page=4", 0)]
+    [InlineData("--welcome-page=4", 3)]
+    [InlineData("--welcome-page=5", 0)]
     [InlineData("--welcome-page=x", 0)]
     public void The_screenshot_page_argument_is_read_safely(string argument, int expected)
         => Assert.Equal(expected, WelcomePolicy.ParseStartPage(new[] { "--show=welcome", argument }));

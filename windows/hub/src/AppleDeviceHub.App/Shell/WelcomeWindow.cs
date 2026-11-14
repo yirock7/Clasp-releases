@@ -1,6 +1,7 @@
 using AppleDeviceHub.App.Companion;
 using AppleDeviceHub.App.Design;
 using AppleDeviceHub.App.Views;
+using AppleDeviceHub.Core.Pairing;
 using AppleDeviceHub.Core.Presentation;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
@@ -25,12 +26,13 @@ internal sealed class WelcomeWindow : Window
     private bool _placed;
     private bool _isOpen;
 
-    public WelcomeWindow(HubViewModel viewModel, HubSettings settings, CompanionConnectionViewModel? connection, CompanionHost? companion)
+    public WelcomeWindow(HubViewModel viewModel, HubSettings settings, CompanionConnectionViewModel? connection, CompanionHost? companion,
+        IPairingDiscovery? pairingDiscovery)
     {
         _settings = settings;
         _isDemo = viewModel.IsDemo;
         _view = new WelcomeView();
-        _view.Setup(viewModel, settings, connection, companion);
+        _view.Setup(viewModel, settings, connection, companion, pairingDiscovery);
         _view.Finished += (_, completed) => End();
         Content = _view;
         Title = viewModel.IsDemo ? "Welcome to Clasp (Demo)" : "Welcome to Clasp";
@@ -70,7 +72,7 @@ internal sealed class WelcomeWindow : Window
         ApplyCaptionButtonColors();
     }
 
-    /// <summary>Opens the guide on <paramref name="page"/> (0 to 2) and brings it to the front.</summary>
+    /// <summary>Opens the guide on <paramref name="page"/> (0 to 3) and brings it to the front.</summary>
     public void ShowAndFocus(int page = 0)
     {
         _view.Restart(page);

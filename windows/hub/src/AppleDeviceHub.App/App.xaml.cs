@@ -14,6 +14,7 @@ using AppleDeviceHub.Core.Contracts;
 using AppleDeviceHub.Core.Engine;
 using AppleDeviceHub.Core.Interop;
 using AppleDeviceHub.Core.Media;
+using AppleDeviceHub.Core.Pairing;
 using AppleDeviceHub.Core.Presentation;
 using AppleDeviceHub.Core.Updates;
 using Microsoft.UI.Dispatching;
@@ -33,7 +34,7 @@ namespace AppleDeviceHub.App;
 /// the reason and never falls back to the demo. --transport=ble (opt-in) observes nearby Apple
 /// proximity broadcasts read-only, and listens automatically while nearby detection is on (the default).
 ///
-/// Optional arguments for manual review: --show=flyout | --show=card (the flyout peek) | --show=settings | --show=welcome (with --welcome-page=1..3), and
+/// Optional arguments for manual review: --show=flyout | --show=card (the flyout peek) | --show=settings | --show=welcome (with --welcome-page=1..4), and
 /// (demo transport only) --demo=nearby | --demo=connecting to start in that connection state, and
 /// --demo-model=&lt;hex&gt; (for example --demo-model=0x1720) to show that model id's artwork and battery layout.
 ///
@@ -70,6 +71,7 @@ public partial class App : Application
     private FlyoutWindow? _flyout;
     private SettingsWindow? _settingsWindow;
     private WelcomeWindow? _welcomeWindow;
+    private IPairingDiscovery? _pairingDiscovery;
     private IAirPodsTransport? _transport;
     private PlaybackViewModel? _playbackViewModel;
     private AudioOutputViewModel? _audioOutput;
@@ -147,8 +149,14 @@ public partial class App : Application
             deviceId,
             action => queue.TryEnqueue(() => action()),
             _cardPolicy);
-        if (transport.Info.Origin != DataOrigin.Demo)
+        if (transport.Info.Origin == DataOrigin.Demo)
         {
+            _pairingDiscovery = new DemoPairingDiscovery();
+        }
+        else
+        {
+            try { _pairingDiscovery = new WindowsPairingDiscovery(); }
+            catch (Exception ex) { LocalLog.Write($"Pairing search unavailable ({ex.GetType().Name})."); }
             if (transport is BroadcastObservationTransport broadcasts)
             {
                 _broadcastTransport = broadcasts;
@@ -497,13 +505,13 @@ public partial class App : Application
         _settingsWindow.ShowAndFocus();
     }
 
-    /// <summary>Opens the welcome guide (first run, About > Show welcome guide, or --show=welcome) on page 0 to 2.</summary>
+    /// <summary>Opens the welcome guide (first run, About > Show welcome guide, or --show=welcome) on page 0 to 3.</summary>
     private void ShowWelcome(int page)
     {
         if (_viewModel is null) return;
         if (_welcomeWindow is null)
         {
-            _welcomeWindow = new WelcomeWindow(_viewModel, _settings, _connectionViewModel, _host);
+            _welcomeWindow = new WelcomeWindow(_viewModel, _settings, _connectionViewModel, _host, _pairingDiscovery);
             _welcomeWindow.SetTheme(WindowChrome.ToElementTheme(_settings.Theme));
         }
         _welcomeWindow.ShowAndFocus(page);
@@ -706,6 +714,8 @@ public partial class App : Application
         _nearbyPromptTimer = null;
         if (_broadcastTransport is not null) _broadcastTransport.SourcesChanged -= OnNearbySourcesChanged;
         if (_audioOutput is not null) _audioOutput.PropertyChanged -= OnAudioOutputPropertyChanged;
+        _pairingDiscovery?.Dispose();
+        _pairingDiscovery = null;
         _connectionViewModel?.Dispose();
         _connectionViewModel = null;
         _connectionController?.Dispose();
