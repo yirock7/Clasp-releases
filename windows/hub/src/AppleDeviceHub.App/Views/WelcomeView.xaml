@@ -30,8 +30,9 @@
         </Grid.RowDefinitions>
 
         <design:GlassSurface Style="{StaticResource GlassReadableSurfaceStyle}" Padding="24,20,24,20">
-            <ScrollViewer x:Name="PageScroller" VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled" SizeChanged="OnPageScrollerSizeChanged">
-            <Grid x:Name="PageHost">
+            <!-- 8 DIP gutter each side (margin out, padding back in): buttons on the content edge keep room for the hover lift and focus ring instead of being clipped by the scroller. -->
+            <ScrollViewer x:Name="PageScroller" Margin="-8,0,-8,0" VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled" SizeChanged="OnPageScrollerSizeChanged">
+            <Grid x:Name="PageHost" Padding="8,0,8,0">
 
                 <!-- ===== Page 1: Welcome to Clasp ===== -->
                 <StackPanel x:Name="Page1" Spacing="{StaticResource GlassSpace12}" VerticalAlignment="Center">
