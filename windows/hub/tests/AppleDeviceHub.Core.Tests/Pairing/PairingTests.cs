@@ -42,12 +42,12 @@ public class PairingTests
 
     private static readonly PairingCandidate Pods = new("id1", "Sam's AirPods Pro", -50);
 
-    private static (PairingSessionViewModel Vm, FakeDiscovery Discovery, List<string> Adopted, FakeTimeProvider Time) Make(bool adoptResult = true)
+    private static (PairingSessionViewModel Vm, FakeDiscovery Discovery, List<PairingCandidate> Adopted, FakeTimeProvider Time) Make(bool adoptResult = true)
     {
         var discovery = new FakeDiscovery();
-        var adopted = new List<string>();
+        var adopted = new List<PairingCandidate>();
         var time = new FakeTimeProvider();
-        var vm = new PairingSessionViewModel(discovery, a => a(), (name, _) => { adopted.Add(name); return Task.FromResult(adoptResult); }, time);
+        var vm = new PairingSessionViewModel(discovery, a => a(), (candidate, _) => { adopted.Add(candidate); return Task.FromResult(adoptResult); }, time);
         discovery.SetCandidates(Pods);
         return (vm, discovery, adopted, time);
     }
@@ -111,10 +111,52 @@ public class PairingTests
         await task;
 
         Assert.Equal(new[] { PairingState.Searching, PairingState.Pairing, PairingState.Connecting, PairingState.Paired }, states);
-        Assert.Equal(new[] { "Sam's AirPods Pro" }, adopted);
+        Assert.Equal(new[] { Pods }, adopted);
         Assert.Equal("Sam's AirPods Pro is paired and ready.", vm.StatusText);
         Assert.False(discovery.IsRunning);
         Assert.True(vm.CanPair);
+    }
+
+    [Fact]
+    public async Task Adopter_receives_the_candidate_that_was_paired()
+    {
+        var (vm, discovery, adopted, _) = Make();
+        vm.Activate();
+        var task = vm.PairAsync("id1");
+        discovery.Pending.SetResult(PairingOutcome.Paired);
+        await task;
+        var received = Assert.Single(adopted);
+        Assert.Equal("id1", received.Id);
+        Assert.Equal("Sam's AirPods Pro", received.Name);
+    }
+
+    [Fact]
+    public async Task Adoption_timeout_cancels_the_adopter_token_and_ends_paired_with_the_refresh_hint()
+    {
+        var discovery = new FakeDiscovery();
+        var time = new FakeTimeProvider();
+        CancellationToken seen = default;
+        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var vm = new PairingSessionViewModel(discovery, a => a(), async (_, token) =>
+        {
+            seen = token;
+            started.SetResult();
+            await Task.Delay(Timeout.Infinite, token);
+            return true;
+        }, time);
+        discovery.SetCandidates(Pods);
+        vm.Activate();
+        var task = vm.PairAsync("id1");
+        discovery.Pending.SetResult(PairingOutcome.Paired);
+        await started.Task;
+        Assert.False(seen.IsCancellationRequested);
+
+        time.Advance(PairingSessionViewModel.AdoptTimeout + TimeSpan.FromSeconds(1));
+        await task;
+
+        Assert.True(seen.IsCancellationRequested);
+        Assert.Equal(PairingState.Paired, vm.State);
+        Assert.Contains("click Refresh", vm.StatusText);
     }
 
     [Fact]

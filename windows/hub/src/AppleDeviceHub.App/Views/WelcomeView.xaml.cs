@@ -402,20 +402,24 @@ public sealed partial class WelcomeView : UserControl
     /// After pairing: refreshes Clasp's paired list until the device shows up with an audio endpoint, selects it, and
     /// connects it when Windows has not already. The caller applies the overall timeout by cancelling the token.
     /// </summary>
-    private async Task<bool> AdoptPairedDeviceAsync(string name, CancellationToken token)
+    private async Task<bool> AdoptPairedDeviceAsync(PairingCandidate candidate, CancellationToken token)
     {
         var connection = _connection;
         if (connection is null) return false;
+        var address = BluetoothAddressParser.TryParse(candidate.Id);
+        if (address is null) return false;
         while (true)
         {
             token.ThrowIfCancellationRequested();
             await connection.RefreshAsync();
             var device = connection.Devices.FirstOrDefault(d =>
-                d.HasAvailableAudioEndpoint && string.Equals(d.Name, name, StringComparison.OrdinalIgnoreCase));
+                d.HasAvailableAudioEndpoint && BluetoothAddressParser.TryParse(d.Id) == address);
             if (device is not null)
             {
+                token.ThrowIfCancellationRequested();
                 connection.SelectedDeviceId = device.Id;
                 for (int i = 0; i < 10 && !connection.IsConnected; i++) await Task.Delay(500, token);
+                token.ThrowIfCancellationRequested();
                 if (!connection.IsConnected && connection.CanConnect) await connection.ConnectAsync();
                 return true;
             }
