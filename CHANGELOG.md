@@ -2,6 +2,14 @@
 
 What changed in each version of Clasp, written for people who use it. Each version's full release (with the installer) is on the [releases page](https://github.com/yirock7/Clasp-releases/releases).
 
+## 0.4.2
+
+Finishes a fix from 0.4.1.
+
+### Fixed
+
+- **The "Pair in Windows Settings instead" button in the welcome guide no longer looks cut off** when you point at it. The guide's page was trimming the edge of buttons that grow slightly under the pointer; it now leaves room for them and for keyboard focus outlines.
+
 ## 0.4.1
 
 Fixes for three things you could see in 0.4.0.
