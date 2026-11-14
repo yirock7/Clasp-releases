@@ -7,7 +7,7 @@ A short tour of how Clasp is put together, for people who want to read or change
 Three things are kept separate on purpose, because mixing them is how apps end up lying to you:
 
 1. **Nearby observation.** Bluetooth broadcasts from Apple devices, read passively. This gives battery estimates in 10% steps and "a case was opened nearby" prompts. Broadcasts can be heard from anyone's AirPods and can be faked, so they never decide which device is *yours*.
-2. **Your paired device.** The device you picked from the ones paired in Windows. Its identity comes from Windows Bluetooth metadata. Clasp calls it connected only once Windows shows an active audio endpoint for it.
+2. **Your paired device.** The device you picked from the ones paired in Windows, or the one you just paired from the welcome guide. Its identity comes from Windows Bluetooth metadata, never from a broadcast. Clasp calls it connected only once Windows shows an active audio endpoint for it.
 3. **Audio routing.** Which output Windows is currently using. Tracked separately, so choosing a device never silently changes your sound output.
 
 ```mermaid
@@ -18,6 +18,8 @@ flowchart LR
     UI --> Pair[Connection view model]
     Pair --> WinAudio[Windows paired-device controller<br/>explicit reconnect request]
     WinAudio --> Endpoint[Device audio endpoint]
+    UI --> Pairing[Welcome guide pairing<br/>Windows device search, pair on click]
+    Pairing --> WinAudio
     BLE -. "unmatched nearby source" .-> Estimate[Approximate battery estimate]
     UI --> Output[Windows audio output state]
 ```
