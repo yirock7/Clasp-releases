@@ -59,6 +59,13 @@ public sealed record BroadcastObservationOptions
     /// </summary>
     public TimeSpan AgeRefreshInterval { get; init; } = TimeSpan.FromSeconds(60);
 
+    /// <summary>
+    /// While identical packets keep arriving and the shown message carries ear placement, the state is republished this often so the
+    /// placement's observation time stays inside the artwork's freshness window (15 s). Without it the buds drew as "in the case"
+    /// once the last published placement aged out, although the same worn state was still being heard.
+    /// </summary>
+    public TimeSpan EarRefreshInterval { get; init; } = TimeSpan.FromSeconds(5);
+
     /// <summary>Minimum time between two "why broadcasts are refused" diagnostics, so a noisy area cannot flood the log.</summary>
     public TimeSpan DiagnosticInterval { get; init; } = TimeSpan.FromSeconds(5);
 
@@ -92,6 +99,7 @@ public sealed record BroadcastObservationOptions
         if (WatchdogAfter <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(WatchdogAfter));
         if (RestartRetryInterval <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(RestartRetryInterval));
         if (AgeRefreshInterval <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(AgeRefreshInterval));
+        if (EarRefreshInterval <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(EarRefreshInterval));
         if (DiagnosticInterval < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(DiagnosticInterval));
     }
 }
@@ -741,7 +749,9 @@ public sealed class BroadcastObservationTransport : IAirPodsTransport, IHardware
                 {
                     _valuesAt = now;
                     // A steady stream of identical packets is still live: republish now and then so the shown age does not run on.
-                    if (identityChanged || now - _publishedAt >= Options.AgeRefreshInterval) PublishLocked();
+                    // Ear placement is only trusted for a few seconds, so a heard-again placement is republished well before that lapses.
+                    bool earsDue = _last!.HasEarBits && now - _publishedAt >= Options.EarRefreshInterval;
+                    if (identityChanged || earsDue || now - _publishedAt >= Options.AgeRefreshInterval) PublishLocked();
                     PublishSourcesLocked();
                     EarSightingObserved?.Invoke(this, BuildState(now));
                     return;
