@@ -24,10 +24,10 @@ Click the tray icon and a small panel opens with the battery level of each earbu
 - **Battery for every part.** Left earbud, right earbud and case, each with its own ring. When you take earbuds out of the case, they move out over their own rings.
 - **Sound stays where you want it.** Clasp can remember the output you were using and switch back when your AirPods disconnect.
 - **Play and pause.** Optionally, it presses Play when your AirPods connect and pause when they leave. It can also pause when you take them out of your ears. That last one is an estimate from nearby signals, so it can lag or miss a change, and it is off by default.
-- **Battery history.** A chart for the last 24 hours or 7 days.
+- **Battery history.** A chart for the last 24 hours or 7 days. If you only use your AirPods with this PC now and then, the long gaps shrink so the times you did use them stay readable.
 - **Heads-up notices.** Optionally, it tells you when the battery is low, when you open the case, or when your AirPods have moved to another device.
 - **Your actual model.** Each of the 21 supported AirPods and Beats models has its own picture. If your model comes in more than one finish, **Settings > AirPods > Device color** lets you pick yours.
-- **Pairing help.** A welcome guide and pairing help walk you through pairing a model for the first time, with the right button presses for each one.
+- **Pair from Clasp.** The welcome guide lists AirPods and Beats that are in pairing mode, each with a **Pair** button, then connects the ones you pick. It also shows the right button presses to put your model into pairing mode, and a last page sets your main options before you finish.
 
 <p align="center">
   <img src="assets/screenshots/battery-history.png" alt="Settings page showing a battery history chart for the left earbud, right earbud and case" width="520">
@@ -36,10 +36,10 @@ Click the tray icon and a small panel opens with the battery level of each earbu
 <p align="center">
   <img src="assets/screenshots/welcome.png" alt="Clasp's welcome page" width="260">
   &nbsp;
-  <img src="assets/screenshots/pairing-help.png" alt="Clasp's pairing help, showing the steps for the chosen AirPods model" width="260">
+  <img src="assets/screenshots/pairing-help.png" alt="Clasp's welcome guide pairing page, with the chosen AirPods, a search for AirPods in pairing mode, and pairing steps" width="260">
 </p>
 
-Clasp does not pair devices for you. Pair your AirPods once in Windows Settings, then choose them in Clasp.
+You can pair new AirPods right in the welcome guide, or in Windows Settings as before. Nothing pairs until you click **Pair**, so someone else's AirPods in pairing mode nearby are never picked up by accident. Pairing in Clasp is tested with AirPods Pro 3. Headphones that ask for a code still need Windows Settings, and the guide has a link to it.
 
 ### How accurate is the battery?
 
@@ -65,7 +65,7 @@ The model information comes from other open-source projects (LibrePods, CAPod an
 
 ## Download and install
 
-**You need:** Windows 11, 64-bit, and Bluetooth. Pair your AirPods in Windows Settings first.
+**You need:** Windows 11, 64-bit, and Bluetooth. You can pair your AirPods in Clasp's welcome guide after installing, or in Windows Settings.
 
 Download the latest `Clasp-X.Y.Z-win-x64-setup.exe` from the [releases page](https://github.com/yirock7/Clasp-releases/releases/latest), together with its `.sig` file, and keep both in the same folder (your Downloads folder is fine).
 
@@ -73,7 +73,7 @@ Download the latest `Clasp-X.Y.Z-win-x64-setup.exe` from the [releases page](htt
 
 ```powershell
 cd $env:USERPROFILE\Downloads
-Invoke-WebRequest https://raw.githubusercontent.com/yirock7/Clasp-releases/clasp-v0.3.0/windows/hub/tools/Verify-ClaspInstaller.ps1 -OutFile Verify-ClaspInstaller.ps1
+Invoke-WebRequest https://raw.githubusercontent.com/yirock7/Clasp-releases/clasp-v0.4.2/windows/hub/tools/Verify-ClaspInstaller.ps1 -OutFile Verify-ClaspInstaller.ps1
 powershell -ExecutionPolicy Bypass -File .\Verify-ClaspInstaller.ps1 -Installer .\Clasp-X.Y.Z-win-x64-setup.exe
 ```
 
@@ -99,7 +99,7 @@ Clasp has no accounts and no telemetry. Here is everything it stores and sends, 
 
 - **On your PC**, in `%LOCALAPPDATA%\AppleDeviceHub`: your settings, your battery history, and a small log (`hub.log`, kept under 512 KB, written without device names or Bluetooth addresses). Nothing in that folder is uploaded.
 - **Over the internet**: only the update check, which asks GitHub for the list of releases, and the download if you choose to update. GitHub can see your IP address like any website you visit. Clasp sends no identifiers of its own. By default it does not check on its own; it asks you once whether you want automatic checks (daily, weekly or monthly), and you can change that in Settings.
-- **Over Bluetooth**: Clasp listens to the broadcasts that nearby Apple devices send out, to read battery levels. It never pairs with or connects to anything without you asking. You can turn nearby detection off in Settings.
+- **Over Bluetooth**: Clasp listens to the broadcasts that nearby Apple devices send out, to read battery levels. While the welcome guide's pairing page is open, it also looks for headphones in pairing mode, the same search Windows Settings runs. It never pairs with or connects to anything without you asking. You can turn nearby detection off in Settings.
 
 Because the source is public, you do not have to take my word for any of this. You can read it.
 
@@ -123,7 +123,7 @@ Clasp is made by me, [yirock7](https://github.com/yirock7), on my own in my spar
 
 **Where are my settings?** In `%LOCALAPPDATA%\AppleDeviceHub\settings.json`.
 
-**It says it can't find my AirPods.** Pair them in Windows Settings first, open the case near your PC, and make sure Bluetooth is on. The welcome guide has model-specific pairing steps, and you can also read them in [docs/PAIRING-MODES.md](docs/PAIRING-MODES.md).
+**It says it can't find my AirPods.** Make sure Bluetooth is on and open the case near your PC. If they have never been paired with this PC, pair them first: open the welcome guide (Settings, About, **Show welcome guide**), put them in pairing mode and click **Pair**, or use Windows Settings. The guide has model-specific pairing steps, and you can also read them in [docs/PAIRING-MODES.md](docs/PAIRING-MODES.md).
 
 **I found a bug.** Please [open an issue](https://github.com/yirock7/Clasp-releases/issues/new/choose). Your Clasp version (Settings, About), Windows version and AirPods model help a lot.
 
