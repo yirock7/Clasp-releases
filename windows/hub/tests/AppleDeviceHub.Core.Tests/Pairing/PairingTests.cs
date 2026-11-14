@@ -88,6 +88,65 @@ public class PairingTests
         }
     }
 
+    private static List<(System.Collections.Specialized.NotifyCollectionChangedAction Action, int Count, List<string> Ids)> Record(PairingSessionViewModel vm)
+    {
+        var log = new List<(System.Collections.Specialized.NotifyCollectionChangedAction, int, List<string>)>();
+        vm.Candidates.CollectionChanged += (_, e) => log.Add((e.Action, vm.Candidates.Count, vm.Candidates.Select(c => c.Id).ToList()));
+        return log;
+    }
+
+    [Fact]
+    public void Signal_only_change_replaces_in_place_without_emptying_the_list()
+    {
+        var (vm, discovery, _, _) = Make();
+        discovery.SetCandidates(Pods, new PairingCandidate("id2", "Other AirPods", -70));
+        vm.Activate();
+        var log = Record(vm);
+
+        discovery.SetCandidates(Pods with { SignalStrength = -45 }, new PairingCandidate("id2", "Other AirPods", -75));
+
+        Assert.NotEmpty(log);
+        Assert.All(log, e =>
+        {
+            Assert.Equal(System.Collections.Specialized.NotifyCollectionChangedAction.Replace, e.Action);
+            Assert.Equal(2, e.Count);
+        });
+        Assert.Equal(-45, vm.Candidates[0].SignalStrength);
+        Assert.Equal(-75, vm.Candidates[1].SignalStrength);
+    }
+
+    [Fact]
+    public void Reorder_keeps_every_device_present_at_each_notification()
+    {
+        var (vm, discovery, _, _) = Make();
+        var b = new PairingCandidate("id2", "Other AirPods", -70);
+        var c = new PairingCandidate("id3", "Third AirPods", -80);
+        discovery.SetCandidates(Pods, b, c);
+        vm.Activate();
+        var log = Record(vm);
+
+        discovery.SetCandidates(Pods with { SignalStrength = -90 }, b, c);
+
+        Assert.NotEmpty(log);
+        Assert.All(log, e => Assert.Equal(3, e.Ids.Distinct().Count()));
+        Assert.Equal(new[] { "id2", "id3", "id1" }, vm.Candidates.Select(x => x.Id));
+    }
+
+    [Fact]
+    public void Removed_device_is_removed_and_new_one_inserted()
+    {
+        var (vm, discovery, _, _) = Make();
+        var b = new PairingCandidate("id2", "Other AirPods", -70);
+        discovery.SetCandidates(Pods, b);
+        vm.Activate();
+
+        var fresh = new PairingCandidate("id9", "Fresh AirPods", -60);
+        discovery.SetCandidates(b, fresh);
+
+        Assert.Equal(new[] { "id9", "id2" }, vm.Candidates.Select(x => x.Id));
+        Assert.DoesNotContain(vm.Candidates, x => x.Id == "id1");
+    }
+
     [Fact]
     public async Task Happy_path_goes_searching_pairing_connecting_paired_and_stops_discovery()
     {
