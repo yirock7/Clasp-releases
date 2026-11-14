@@ -428,7 +428,10 @@ public sealed partial class WelcomeView : UserControl
                 token.ThrowIfCancellationRequested();
                 if (!string.Equals(connection.SelectedDeviceId, device.Id, StringComparison.Ordinal)) return false;
                 if (!connection.IsConnected && connection.CanConnect) await connection.ConnectAsync();
-                return true;
+                // ConnectAsync returns normally when the attempt fails, so report success only when the paired
+                // device is still the selected one and is actually connected.
+                return connection.IsConnected
+                    && string.Equals(connection.SelectedDeviceId, device.Id, StringComparison.Ordinal);
             }
             await Task.Delay(1000, token);
         }
