@@ -2,6 +2,15 @@
 
 What changed in each version of Clasp, written for people who use it. Each version's full release (with the installer) is on the [releases page](https://github.com/yirock7/Clasp-releases/releases).
 
+## 0.4.0
+
+Easier first-time setup.
+
+### New
+
+- **Pair from the welcome guide.** While the pairing page is open, Clasp lists AirPods and Beats that are in pairing mode, each with a **Pair** button. Nothing pairs until you click. After pairing, Clasp selects your AirPods and connects them if Windows hasn't already. Headphones that ask for a code still pair through Windows Settings, and the link to it is still there.
+- **Quick settings in the welcome guide.** A new last page sets your low-battery alert level and what happens when your AirPods connect: connect automatically when nearby, switch sound to them, play music when they connect, pause when they disconnect. The defaults haven't changed, and all of these are still in Settings.
+
 ## 0.3.0
 
 The first release with the source code public, plus a new tray icon and some security hardening.
