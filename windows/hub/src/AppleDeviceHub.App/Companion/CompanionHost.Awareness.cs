@@ -277,7 +277,9 @@ internal sealed partial class CompanionHost
     /// <summary>Recorded readings for the selected AirPods (empty when none).</summary>
     public IReadOnlyList<BatterySample> BatterySamples()
         => AppleDeviceHub.App.Battery.DemoBatteryHistory.Enabled
-            ? AppleDeviceHub.App.Battery.DemoBatteryHistory.Generate(DateTimeOffset.Now)
+            ? (AppleDeviceHub.App.Battery.DemoBatteryHistory.Sparse
+                ? AppleDeviceHub.App.Battery.DemoBatteryHistory.GenerateSparse(DateTimeOffset.Now)
+                : AppleDeviceHub.App.Battery.DemoBatteryHistory.Generate(DateTimeOffset.Now))
             : _history is null || string.IsNullOrEmpty(_settings.AirPodsDeviceId)
             ? Array.Empty<BatterySample>()
             : _history.Samples(_settings.AirPodsDeviceId);

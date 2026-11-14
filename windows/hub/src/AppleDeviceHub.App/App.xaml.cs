@@ -41,7 +41,8 @@ namespace AppleDeviceHub.App;
 /// --settings-section=general|airpods|history|sound|shortcuts|advanced|about (with --show=settings) jumps to that section (screenshots only).
 /// --demo-battery=low|unknown|stale (demo transport only) starts with that battery situation (screenshots only).
 /// --demo-ears=in|out|left|case (demo transport only) reports that ear placement once connected: buds in ears, out of the case and ears, only the left bud out, or both in the case (screenshots only).
-/// --demo-history (demo transport only) shows made-up battery history in Settings (screenshots only; never saved).
+/// --demo-history (demo transport only) shows made-up battery history in Settings (screenshots only; never saved);
+/// --demo-history=sparse shows an irregular-use week instead, to check how the chart handles long silent stretches.
 /// --startup (the sign-in entry) starts quietly to the tray: no flyout, case peek or settings window.
 /// A launch from a clasp:// link (--uri= / --command=) ignores every other argument, so a crafted
 /// link cannot smuggle options such as --transport=hardware or --engine-path into the command
@@ -387,7 +388,9 @@ public partial class App : Application
                 }
             }
             // Dev-only, for screenshots: made-up battery history (in memory only, never saved).
-            AppleDeviceHub.App.Battery.DemoBatteryHistory.Enabled = argv.Any(a => string.Equals(a, "--demo-history", StringComparison.OrdinalIgnoreCase));
+            AppleDeviceHub.App.Battery.DemoBatteryHistory.Sparse = argv.Any(a => string.Equals(a, "--demo-history=sparse", StringComparison.OrdinalIgnoreCase));
+            AppleDeviceHub.App.Battery.DemoBatteryHistory.Enabled = AppleDeviceHub.App.Battery.DemoBatteryHistory.Sparse
+                || argv.Any(a => string.Equals(a, "--demo-history", StringComparison.OrdinalIgnoreCase));
             return (new DemoAirPodsTransport(scenario), DemoAirPodsTransport.DemoDeviceId);
         }
         if (modelArg is not null) LocalLog.Write("--demo-model= ignored: the demo transport is not active.");
