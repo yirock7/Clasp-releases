@@ -78,7 +78,7 @@ Download the latest `Clasp-X.Y.Z-win-x64-setup.exe` from the [releases page](htt
 
 ```powershell
 cd $env:USERPROFILE\Downloads
-Invoke-WebRequest https://raw.githubusercontent.com/yirock7/Clasp-releases/clasp-v0.6.0/windows/hub/tools/Verify-ClaspInstaller.ps1 -OutFile Verify-ClaspInstaller.ps1
+Invoke-WebRequest https://raw.githubusercontent.com/yirock7/Clasp-releases/clasp-v0.6.1/windows/hub/tools/Verify-ClaspInstaller.ps1 -OutFile Verify-ClaspInstaller.ps1
 powershell -ExecutionPolicy Bypass -File .\Verify-ClaspInstaller.ps1 -Installer .\Clasp-X.Y.Z-win-x64-setup.exe
 ```
 
