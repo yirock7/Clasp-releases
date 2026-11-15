@@ -503,7 +503,9 @@ public class NtpodsDaemonTransportTests
 
         await TestSupport.WaitUntil(() => t.UnavailableReason is not null);
         await TestSupport.WaitUntil(() => engine.ConnectionsEnded > ended); // the client closed its end
-        Assert.False(t.Current!.Link.ProtocolSession.Value);
+        // The reason is visible as soon as OnClosed updates it under the lock, but the new state is
+        // published (Current) just after, outside the lock: wait for it rather than assert at once.
+        await TestSupport.WaitUntil(() => t.Current?.Link.ProtocolSession.Value == false);
         var result = await t.SendAsync(new SetListeningModeCommand(Guid.NewGuid(), ListeningMode.Transparency)).WaitAsync(Prompt);
         Assert.Equal(CommandOutcome.TransportUnavailable, result.Outcome);
     }
