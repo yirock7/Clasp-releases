@@ -29,9 +29,9 @@ public enum DataFolderMigrationOutcome
 /// Where Clasp keeps its data (settings, battery history, hub.log, crash marker, update downloads) and the one-time move from the
 /// folder it used before the rename (<c>%LOCALAPPDATA%\AppleDeviceHub</c> to <c>%LOCALAPPDATA%\Clasp</c>).
 /// The rules favour never losing anything: a rename is tried first; if that fails (for example a setup program that has just
-/// finished an update is still running from the old <c>updates</c> folder) the state files are copied without overwriting
-/// anything already in the new folder, the old folder is deleted only once everything is safely across, and a deletion that
-/// fails is retried on a later launch. Download caches (<c>updates</c>) are never carried over.
+/// finished an update is still running from the old <c>updates</c> folder) the state files are copied over (replacing any
+/// partial copy from an earlier attempt), the old folder is deleted only once everything is safely across, a run whose copy was
+/// incomplete keeps using the old folder, and a deletion that fails is retried on a later launch. Download caches (<c>updates</c>) are never carried over.
 /// </summary>
 public static class AppDataFolder
 {
@@ -47,12 +47,36 @@ public static class AppDataFolder
 
     public static string LegacyRoot { get; } = LegacyRootUnder(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
 
+    private static volatile string? _current;
+
+    /// <summary>
+    /// The folder this run reads and writes its data in. It is <see cref="DefaultRoot"/> unless startup decided otherwise (see
+    /// <see cref="ChooseRoot"/>); set it once, right after the migration, and read it lazily everywhere else.
+    /// </summary>
+    public static string Current
+    {
+        get => _current ?? DefaultRoot;
+        set => _current = value;
+    }
+
+    /// <summary>
+    /// Which folder a run should use after a migration. Until a migration is confirmed complete the old folder is the single
+    /// source of truth, so an incomplete copy means this run keeps using the old folder; every other outcome uses the new one.
+    /// </summary>
+    public static string ChooseRoot(DataFolderMigrationOutcome outcome, string root, string legacyRoot) =>
+        outcome == DataFolderMigrationOutcome.CopyIncomplete ? legacyRoot : root;
+
     public static string RootUnder(string localAppData) => Path.Combine(localAppData, FolderName);
 
     public static string LegacyRootUnder(string localAppData) => Path.Combine(localAppData, LegacyFolderName);
 
     /// <summary>Migrates from the default old folder to the default new one. Never throws.</summary>
-    public static DataFolderMigrationOutcome MigrateDefault(Action<string>? log = null) => Migrate(DefaultRoot, LegacyRoot, log);
+    public static DataFolderMigrationOutcome MigrateDefault(Action<string>? log = null)
+    {
+        var outcome = Migrate(DefaultRoot, LegacyRoot, log);
+        Current = ChooseRoot(outcome, DefaultRoot, LegacyRoot);
+        return outcome;
+    }
 
     /// <summary>
     /// Brings the old folder's state into <paramref name="root"/>. Call it once at startup, after the single-instance check and
@@ -92,11 +116,12 @@ public static class AppDataFolder
                 }
             }
 
-            // The new folder may already exist (for example a log line from a second launch), so copy only what is missing.
+            // The new folder may already exist (a log line from a second launch, or a partial copy from an earlier failed attempt).
+            // The old folder is the source of truth until the marker is written, so its files overwrite whatever is there.
             Directory.CreateDirectory(root);
-            if (!CopyMissingFiles(legacyRoot, root))
+            if (!CopyStateFiles(legacyRoot, root))
             {
-                Say(log, "Some data files could not be copied from the old folder; nothing was deleted and the next launch will try again.");
+                Say(log, "Some data files could not be copied from the old folder; nothing was deleted; this session keeps using the old folder and the next launch will try again.");
                 return DataFolderMigrationOutcome.CopyIncomplete;
             }
 
@@ -117,8 +142,8 @@ public static class AppDataFolder
         }
     }
 
-    /// <summary>Copies every file under <paramref name="from"/> (except the download cache) that does not already exist under <paramref name="to"/>. False if any file failed.</summary>
-    private static bool CopyMissingFiles(string from, string to)
+    /// <summary>Copies every file under <paramref name="from"/> (except the download cache) to <paramref name="to"/>, overwriting copies already there. The diagnostics log is not state, so an existing one is left alone. False if any file failed.</summary>
+    private static bool CopyStateFiles(string from, string to)
     {
         var complete = true;
         var options = new EnumerationOptions
@@ -135,9 +160,9 @@ public static class AppDataFolder
             var destination = Path.Combine(to, relative);
             try
             {
-                if (File.Exists(destination)) continue;
+                if (relative.StartsWith("hub.log", StringComparison.OrdinalIgnoreCase) && File.Exists(destination)) continue;
                 Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
-                File.Copy(source, destination, overwrite: false);
+                File.Copy(source, destination, overwrite: true);
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {

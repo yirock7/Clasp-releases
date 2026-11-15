@@ -98,7 +98,7 @@ public partial class App : Application
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
     }
 
-    private static string DataFolder => AppDataFolder.DefaultRoot;
+    private static string DataFolder => AppDataFolder.Current;
 
     /// <summary>
     /// Leaves a trace of a fatal crash: a line in hub.log (type, HRESULT and stack, never the message) and a small

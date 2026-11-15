@@ -12,7 +12,7 @@ internal static class LocalLog
     private static readonly object Gate = new();
     private static string? _lastFailure;
 
-    public static string PathOnDisk { get; } = System.IO.Path.Combine(AppleDeviceHub.Core.Storage.AppDataFolder.DefaultRoot, "hub.log");
+    public static string PathOnDisk => System.IO.Path.Combine(AppleDeviceHub.Core.Storage.AppDataFolder.Current, "hub.log");
 
     /// <summary>Used only when hub.log cannot be written, so such a run still leaves a trace and its reason.</summary>
     public static string FallbackPathOnDisk { get; } = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "Clasp-hub-fallback.log");

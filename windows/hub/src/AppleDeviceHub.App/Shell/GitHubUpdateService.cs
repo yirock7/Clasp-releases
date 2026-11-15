@@ -30,7 +30,7 @@ internal sealed class GitHubUpdateService : IUpdateService
     public ClaspVersion? CurrentVersion { get; } = ClaspVersion.FromInformationalVersion(
         typeof(GitHubUpdateService).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion);
 
-    private static string UpdatesFolder => Path.Combine(AppDataFolder.DefaultRoot, "updates");
+    private static string UpdatesFolder => Path.Combine(AppDataFolder.Current, "updates");
 
     private static HttpClient CreateClient()
     {

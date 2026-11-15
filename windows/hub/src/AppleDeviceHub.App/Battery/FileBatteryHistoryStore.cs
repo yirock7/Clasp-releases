@@ -15,7 +15,7 @@ internal sealed class FileBatteryHistoryStore : IBatteryHistoryStore
     private readonly string _folder;
 
     public FileBatteryHistoryStore(string? folder = null) =>
-        _folder = folder ?? AppDataFolder.DefaultRoot;
+        _folder = folder ?? AppDataFolder.Current;
 
     private string PathFor(string name)
     {

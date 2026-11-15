@@ -157,12 +157,27 @@ begin
   RegWriteStringValue(HKCU, RunKey, 'Clasp', '"' + ExpandConstant('{app}\Clasp.exe') + '"' + Rest);
 end;
 
+{ The same problem for the clasp: link: its open command (the default value of HKCU\Software\Classes\clasp\shell\open\command)
+  still runs the deleted AppleDeviceHub.exe until the app has started once. If it is exactly the command the old program wrote
+  for this install folder, point it at Clasp.exe. Any other value is not ours and is left as is. }
+procedure RepairLegacyProtocolCommand;
+var
+  CommandKey, Current, OldCommand: String;
+begin
+  CommandKey := 'Software\Classes\clasp\shell\open\command';
+  if not RegQueryStringValue(HKCU, CommandKey, '', Current) then Exit;
+  OldCommand := '"' + ExpandConstant('{app}\AppleDeviceHub.exe') + '" --uri="%1"';
+  if CompareText(Current, OldCommand) <> 0 then Exit;
+  RegWriteStringValue(HKCU, CommandKey, '', '"' + ExpandConstant('{app}\Clasp.exe') + '" --uri="%1"');
+end;
+
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then
   begin
     FilesInstalled := True;
     RepairLegacyRunEntry;
+    RepairLegacyProtocolCommand;
   end;
 end;
 
