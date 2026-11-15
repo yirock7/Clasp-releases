@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using AppleDeviceHub.Core.Audio;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.App.Audio;
 
@@ -38,7 +39,7 @@ public sealed class PerAppRouting : IPerAppRouting
     private SetFn? _set;
     private GetFn? _get;
     private bool _probed;
-    private string _probeDetail = "Not checked yet.";
+    private string _probeDetail = Strings.WinPerApp_Support_NotCheckedYet;
     private bool _disposed;
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
@@ -170,7 +171,7 @@ public sealed class PerAppRouting : IPerAppRouting
         {
             const string className = "Windows.Media.Internal.AudioPolicyConfig";
             var created = WindowsCreateString(className, (uint)className.Length, out classId);
-            if (created < 0) { _probeDetail = "Per-app output isn't available on this PC."; return false; }
+            if (created < 0) { _probeDetail = Strings.WinPerApp_Support_NotAvailable; return false; }
 
             var lastHr = 0;
             foreach (var known in KnownInterfaceIds)
@@ -181,7 +182,7 @@ public sealed class PerAppRouting : IPerAppRouting
             }
             if (_factory == IntPtr.Zero)
             {
-                _probeDetail = "This version of Windows doesn't support per-app output.";
+                _probeDetail = Strings.WinPerApp_Support_WindowsVersionUnsupported;
                 return false;
             }
 
@@ -193,16 +194,16 @@ public sealed class PerAppRouting : IPerAppRouting
             var probe = ReadLocked(Environment.ProcessId);
             if (!probe.Succeeded)
             {
-                _probeDetail = "Per-app output didn't pass Clasp's safety check, so it's off.";
+                _probeDetail = Strings.WinPerApp_Support_SafetyCheckFailed;
                 ReleaseFactory();
                 return false;
             }
-            _probeDetail = "Available. This relies on an experimental Windows feature.";
+            _probeDetail = Strings.WinPerApp_Support_Available;
             return true;
         }
         catch (Exception exception) when (exception is COMException or InvalidCastException or MarshalDirectiveException or SEHException or DllNotFoundException or EntryPointNotFoundException)
         {
-            _probeDetail = "Per-app output isn't available on this PC.";
+            _probeDetail = Strings.WinPerApp_Support_NotAvailable;
             ReleaseFactory();
             return false;
         }

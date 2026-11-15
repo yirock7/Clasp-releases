@@ -42,7 +42,7 @@ public sealed partial class PairingHelpView : UserControl
         catch (Exception ex)
         {
             _illustration = null;
-            Shell.LocalLog.Write("Pairing illustration unavailable: " + ex.Message);
+            Shell.LocalLog.Write("Pairing illustration unavailable: " + AppleDeviceHub.Core.Presentation.LogText.ExceptionKind(ex));
         }
         _loading = true;
         try
@@ -144,6 +144,6 @@ public sealed partial class PairingHelpView : UserControl
     {
         _illustration = null;
         IllustrationHost.Child = null;
-        Shell.LocalLog.Write("Pairing illustration disabled: " + ex.Message);
+        Shell.LocalLog.Write("Pairing illustration disabled: " + AppleDeviceHub.Core.Presentation.LogText.ExceptionKind(ex));
     }
 }

@@ -1,6 +1,8 @@
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using AppleDeviceHub.Core.Commands;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.App.Shell;
 
@@ -17,7 +19,7 @@ internal sealed record HotkeyRegistrationResult(ClaspCommand Command, HotkeyBind
 /// </summary>
 internal sealed class Hotkeys : IDisposable
 {
-    private const string WindowClass = "AppleDeviceHub.HotkeyWindow";
+    private const string WindowClass = "Clasp.HotkeyWindow";
     private const uint WM_HOTKEY = 0x0312;
     private const uint MOD_NOREPEAT = 0x4000;
     private const int ERROR_HOTKEY_ALREADY_REGISTERED = 1409;
@@ -67,7 +69,7 @@ internal sealed class Hotkeys : IDisposable
 
             var validation = binding.Validate();
             if (!validation.IsValid) { results.Add(new(command, binding, false, validation.Reason)); continue; }
-            if (!taken.Add(binding)) { results.Add(new(command, binding, false, "Already assigned to another Clasp action.")); continue; }
+            if (!taken.Add(binding)) { results.Add(new(command, binding, false, Strings.Hotkey_Problem_AlreadyAssigned)); continue; }
 
             var id = _nextId++;
             if (HotkeyNative.RegisterHotKey(_hwnd, id, (uint)binding.Modifiers | MOD_NOREPEAT, binding.VirtualKey))
@@ -79,8 +81,8 @@ internal sealed class Hotkeys : IDisposable
             {
                 var error = Marshal.GetLastWin32Error();
                 var problem = error == ERROR_HOTKEY_ALREADY_REGISTERED
-                    ? "Another program already uses this shortcut."
-                    : $"Windows refused this shortcut ({new Win32Exception(error).Message}).";
+                    ? Strings.Hotkey_Problem_UsedByOtherProgram
+                    : string.Format(CultureInfo.CurrentCulture, Strings.Hotkey_Problem_WindowsRefused, new Win32Exception(error).Message);
                 results.Add(new(command, binding, false, problem));
                 LocalLog.Write($"Hotkey for '{ClaspCommandText.CanonicalName(command)}' not registered (error {error}).");
             }

@@ -1,3 +1,6 @@
+using System.Globalization;
+using AppleDeviceHub.Core.Resources;
+
 namespace AppleDeviceHub.Core.Media;
 
 /// <summary>
@@ -79,10 +82,10 @@ public sealed class ManualPlaybackCoordinator : IPlaybackController
         lock (_gate)
         {
             if (_disposed)
-                return Result(PlaybackCommandStatus.Cancelled, "Playback controls were closed.");
+                return Result(PlaybackCommandStatus.Cancelled, Strings.Playback_Status_ControlsClosed);
             if (_busy)
                 return Result(PlaybackCommandStatus.Busy,
-                    "Windows is still working on the last request. If it stays stuck, turn Show playback controls off and on in Settings.");
+                    Strings.Media_Playback_WindowsStillWorking);
 
             snapshot = _current;
             if (!snapshot.HasPlayer)
@@ -109,11 +112,11 @@ public sealed class ManualPlaybackCoordinator : IPlaybackController
         }
         catch (OperationCanceledException)
         {
-            nativeOperation = Task.FromResult(Result(PlaybackCommandStatus.Cancelled, "The request was canceled."));
+            nativeOperation = Task.FromResult(Result(PlaybackCommandStatus.Cancelled, Strings.Media_Playback_RequestCanceled));
         }
         catch (Exception)
         {
-            nativeOperation = Task.FromResult(Result(PlaybackCommandStatus.Failed, "Windows couldn't complete that."));
+            nativeOperation = Task.FromResult(Result(PlaybackCommandStatus.Failed, Strings.Media_Playback_WindowsCouldntComplete));
         }
 
         var settledOperation = ObserveOperationAsync(nativeOperation, action, snapshot.SessionId!, generation, commandCancellation);
@@ -131,10 +134,10 @@ public sealed class ManualPlaybackCoordinator : IPlaybackController
 
         TryCancel(commandCancellation);
         if (completed == cancelled)
-            return Result(PlaybackCommandStatus.Cancelled, "The request was canceled or the player changed.");
+            return Result(PlaybackCommandStatus.Cancelled, Strings.Media_Playback_CanceledOrPlayerChanged);
 
         return Result(PlaybackCommandStatus.TimedOut,
-            "Windows hasn't responded yet. Clasp will wait before sending another request. If it stays stuck, turn Show playback controls off and on in Settings.");
+            Strings.Media_Playback_NoResponseYet);
     }
 
     private async Task<PlaybackCommandResult> ObserveOperationAsync(
@@ -151,11 +154,11 @@ public sealed class ManualPlaybackCoordinator : IPlaybackController
         }
         catch (OperationCanceledException)
         {
-            result = Result(PlaybackCommandStatus.Cancelled, "The request was canceled.");
+            result = Result(PlaybackCommandStatus.Cancelled, Strings.Media_Playback_RequestCanceled);
         }
         catch (Exception)
         {
-            result = Result(PlaybackCommandStatus.Failed, "Windows couldn't complete that.");
+            result = Result(PlaybackCommandStatus.Failed, Strings.Media_Playback_WindowsCouldntComplete);
         }
 
         bool becameStale;
@@ -173,12 +176,12 @@ public sealed class ManualPlaybackCoordinator : IPlaybackController
 
         commandCancellation.Dispose();
         if (becameStale)
-            result = Result(PlaybackCommandStatus.Cancelled, "The player changed before the request finished.");
+            result = Result(PlaybackCommandStatus.Cancelled, Strings.Media_Playback_PlayerChangedBefore);
 
         // The action is included in the wording because a successful WinRT Boolean means that
         // Windows accepted the request; it does not mean the player visibly changed state.
         if (!becameStale && result.Status == PlaybackCommandStatus.Sent && string.IsNullOrWhiteSpace(result.Message))
-            result = Result(PlaybackCommandStatus.Sent, $"{ActionName(action)} request sent.");
+            result = Result(PlaybackCommandStatus.Sent, string.Format(CultureInfo.CurrentCulture, Strings.Media_Playback_RequestSent, ActionName(action)));
         return result;
     }
 
@@ -254,17 +257,18 @@ public sealed class ManualPlaybackCoordinator : IPlaybackController
 
     private static string ActionName(PlaybackAction action) => action switch
     {
-        PlaybackAction.Play => "Play",
-        PlaybackAction.Pause => "Pause",
-        PlaybackAction.Next => "Next",
-        PlaybackAction.Previous => "Previous",
-        _ => "Playback",
+        PlaybackAction.Play => Strings.Media_Action_Play,
+        PlaybackAction.Pause => Strings.Media_Action_Pause,
+        PlaybackAction.Next => Strings.Media_Action_Next,
+        PlaybackAction.Previous => Strings.Media_Action_Previous,
+        _ => Strings.Media_Action_Playback,
     };
 
     private static string UnsupportedMessage(string? playerName, PlaybackAction action)
     {
-        var target = string.IsNullOrWhiteSpace(playerName) ? "The current player" : $"{playerName}";
-        return $"{target} doesn't support {ActionName(action)}.";
+        return string.IsNullOrWhiteSpace(playerName)
+            ? string.Format(CultureInfo.CurrentCulture, Strings.Media_Playback_CurrentPlayerUnsupported, ActionName(action))
+            : string.Format(CultureInfo.CurrentCulture, Strings.Media_Playback_NamedPlayerUnsupported, playerName, ActionName(action));
     }
 
     /// <inheritdoc />

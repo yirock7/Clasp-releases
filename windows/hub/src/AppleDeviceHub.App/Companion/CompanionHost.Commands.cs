@@ -2,6 +2,7 @@ using AppleDeviceHub.App.Shell;
 using AppleDeviceHub.Core.Automation;
 using AppleDeviceHub.Core.Commands;
 using AppleDeviceHub.Core.Media;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.App.Companion;
 
@@ -70,7 +71,7 @@ internal sealed partial class CompanionHost
             CommandDispatchResult result;
             try { result = await _commandDispatcher.DispatchAsync(command); }
             finally { _commandOrigin = ConnectionOrigin.None; }
-            LocalLog.Write($"Command '{ClaspCommandText.CanonicalName(command)}' from {origin}: {result.Status}. {result.Message}");
+            LocalLog.Write($"Command '{ClaspCommandText.CanonicalName(command)}' from {origin}: {result.Status}.");
         }
         catch (Exception ex)
         {
@@ -100,8 +101,8 @@ internal sealed partial class CompanionHost
             var exe = Environment.ProcessPath;
             var registered = !string.IsNullOrEmpty(exe) && (ProtocolRegistration.IsRegistered(exe) || ProtocolRegistration.Register(exe));
             Status.LinksText = registered
-                ? "Links are on. Open clasp://connect to try one."
-                : "Couldn't turn on links. clasp:// links won't open Clasp.";
+                ? Strings.CompHost_Links_On
+                : Strings.CompHost_Links_CouldntTurnOn;
             LocalLog.Write(registered ? "clasp: links turned on." : "clasp: links could not be registered.");
             StartRouter();
         }
@@ -176,7 +177,7 @@ internal sealed partial class CompanionHost
             LocalLog.Write($"Shortcuts unavailable ({ex.GetType().Name}).");
             Status.HotkeyProblems = Enum.GetValues<ClaspCommand>()
                 .Where(command => bindings[command] is not null)
-                .ToDictionary(command => command, _ => "Windows wouldn't allow these shortcuts.");
+                .ToDictionary(command => command, _ => Strings.Hotkey_Problem_ShortcutsUnavailable);
         }
     }
 

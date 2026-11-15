@@ -2,6 +2,21 @@
 
 What changed in each version of Clasp, written for people who use it. Each version's full release (with the installer) is on the [releases page](https://github.com/yirock7/Clasp-releases/releases).
 
+## Unreleased
+
+### Changed
+
+- **The program is now called Clasp.exe, and its data folder is `%LOCALAPPDATA%\Clasp`.** Both used to carry an older internal name. The first time the new version starts it moves your settings, battery history and log across from the old `AppleDeviceHub` folder. If something in the old folder is still in use (for example the installer of the update that just ran), it copies your files instead and removes the old folder on a later start. Your settings are never deleted before they are safely in the new folder. Your "Start Clasp when I sign in" setting and the `clasp:` link setting carry over.
+
+### New
+
+- **If Clasp crashes, it now says so the next time it starts.** A notification tells you that Clasp closed unexpectedly and where `hub.log` is. The log records what kind of error it was, but not its message.
+
+### Fixed
+
+- **`hub.log` no longer contains the name of your sound output or other error text.** It never contained Bluetooth addresses, and it is now also free of device names.
+- **Starting Clasp.exe directly no longer shows made-up Demo battery numbers.** Demo mode now needs `--transport=demo`. The Start menu, desktop and sign-in entries are unchanged.
+
 ## 0.4.2
 
 Finishes a fix from 0.4.1.

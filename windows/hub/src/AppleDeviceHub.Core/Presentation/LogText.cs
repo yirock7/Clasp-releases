@@ -46,4 +46,45 @@ public static class LogText
         var hash = SHA256.HashData(Encoding.UTF8.GetBytes(value));
         return "ref:" + Convert.ToHexString(hash, 0, 4).ToLowerInvariant();
     }
+
+    /// <summary>
+    /// Describes an exception for the log without its message: exception messages can carry device names,
+    /// Bluetooth addresses or file paths. Gives "Type (0xHRESULT)" for the exception and, for each inner
+    /// exception, the same again; the outer exception also gets its stack trace (method names only).
+    /// </summary>
+    public static string Exception(Exception? exception)
+    {
+        if (exception is null) return "no exception";
+        var builder = new StringBuilder();
+        AppendKind(builder, exception);
+        if (exception.StackTrace is { Length: > 0 } trace) builder.Append(" at ").Append(trace);
+        int depth = 0;
+        for (var inner = exception.InnerException; inner is not null && depth < 8; inner = inner.InnerException, depth++)
+        {
+            builder.Append(" <- ");
+            AppendKind(builder, inner);
+        }
+        if (exception is AggregateException aggregate)
+        {
+            foreach (var child in aggregate.InnerExceptions.Take(8))
+            {
+                builder.Append(" | ");
+                AppendKind(builder, child);
+            }
+        }
+        return builder.ToString();
+    }
+
+    /// <summary>Just "Type (0xHRESULT)": a short, message-free description for one-line outcomes.</summary>
+    public static string ExceptionKind(Exception? exception)
+    {
+        if (exception is null) return "no exception";
+        var builder = new StringBuilder();
+        AppendKind(builder, exception);
+        return builder.ToString();
+    }
+
+    private static void AppendKind(StringBuilder builder, Exception exception) =>
+        builder.Append(exception.GetType().FullName ?? exception.GetType().Name)
+            .Append(" (0x").Append(exception.HResult.ToString("X8", CultureInfo.InvariantCulture)).Append(')');
 }

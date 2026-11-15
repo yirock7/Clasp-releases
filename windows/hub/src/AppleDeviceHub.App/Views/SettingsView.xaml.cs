@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using AppleDeviceHub.App.Audio;
 using AppleDeviceHub.App.Companion;
 using AppleDeviceHub.App.Design;
@@ -9,6 +10,7 @@ using AppleDeviceHub.Core.Battery;
 using AppleDeviceHub.Core.Commands;
 using AppleDeviceHub.Core.Connection;
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
 using AppleDeviceHub.Core.Startup;
 using AppleDeviceHub.Core.Updates;
 using Microsoft.UI.Dispatching;
@@ -84,17 +86,18 @@ public sealed partial class SettingsView : UserControl
             ? Audio?.Outputs.FirstOrDefault(output => string.Equals(output.Id, settings.EarRemovedOutputEndpointId, StringComparison.OrdinalIgnoreCase))
             : null;
 
-    public static string PercentText(double value) => $"{Math.Round(value):0}%";
+    public static string PercentText(double value)
+        => string.Format(CultureInfo.CurrentCulture, Strings.Settings_Format_Percent, Math.Round(value).ToString("0", CultureInfo.CurrentCulture));
 
     public static string HandsfreeDescription(int modeIndex) => modeIndex switch
     {
-        1 => "Best sound quality all the time. Your AirPods microphone isn't used, so apps use another microphone.",
-        2 => "Best sound quality normally. The AirPods microphone turns on only while an app like Teams or Zoom uses a microphone.",
-        _ => "Windows manages the microphone as usual, and Clasp changes nothing. Sound drops to call quality while an app uses the microphone.",
+        1 => Strings.Settings_Handsfree_Description_AlwaysOff,
+        2 => Strings.Settings_Handsfree_Description_Smart,
+        _ => Strings.Settings_Handsfree_Description_AlwaysOn,
     };
 
     /// <summary>Every clasp:// link and what it does, for copying into Stream Deck or PowerToys.</summary>
-    public static string LinkListText { get; } = string.Join(
+    public static string LinkListText => string.Join(
         "\n",
         Enum.GetValues<ClaspCommand>().Select(command => $"{ClaspCommandText.Link(command)}  \u2013  {ClaspCommandText.DisplayName(command)}"));
 
@@ -107,8 +110,8 @@ public sealed partial class SettingsView : UserControl
         return rejected.Count switch
         {
             0 => "",
-            1 => "1 line was ignored. Use the form app.exe=airpods.",
-            var count => $"{count} lines were ignored. Use the form app.exe=airpods.",
+            1 => Strings.Settings_PerApp_IgnoredRules_One,
+            var count => string.Format(CultureInfo.CurrentCulture, Strings.Settings_PerApp_IgnoredRules_Many, count),
         };
     }
 
@@ -197,26 +200,26 @@ public sealed partial class SettingsView : UserControl
             });
 
             Heading("Clasp");
-            Line("Clasp is free software under the GNU General Public License, version 3 (GPL-3.0). The licence text is installed beside the app as LICENSE.");
+            Line(Strings.Settings_Licenses_Line_ClaspLicense);
             Link("gnu.org/licenses/gpl-3.0", "https://www.gnu.org/licenses/gpl-3.0.html");
-            Line("The source code is at https://github.com/yirock7/Clasp-releases, and the full list of third-party components is in THIRD-PARTY-NOTICES.md there.");
+            Line(Strings.Settings_Licenses_Line_Source);
             Line("© 2026 yirock7");
 
-            Heading("Third-party notices");
-            Line("Portions derived from NTPods by arctumn (GPL-3.0).");
+            Heading(Strings.Settings_Licenses_Heading_ThirdParty);
+            Line(Strings.Settings_Licenses_Line_NtPods);
             Link("github.com/arctumn/ntpods", "https://github.com/arctumn/ntpods");
-            Line("Windows App SDK and WinUI 3 (Microsoft). Distributed under the Microsoft Software License Terms for the Windows App SDK package.");
+            Line(Strings.Settings_Licenses_Line_WindowsAppSdk);
             Link("github.com/microsoft/WindowsAppSDK", "https://github.com/microsoft/WindowsAppSDK");
-            Line(".NET runtime and Native AOT runtime, compiled into Clasp (Microsoft, MIT licence).");
+            Line(Strings.Settings_Licenses_Line_DotNetRuntime);
             Link("github.com/dotnet/runtime", "https://github.com/dotnet/runtime");
-            Line("Microsoft WebView2 loader (Microsoft, BSD-style licence).");
+            Line(Strings.Settings_Licenses_Line_WebView2);
             Link("aka.ms/webview2", "https://aka.ms/webview2");
 
             var dialog = new ContentDialog
             {
-                Title = "Open-source licenses",
+                Title = Strings.Settings_Licenses_Title,
                 Content = new ScrollViewer { Content = panel, MaxHeight = 420 },
-                CloseButtonText = "Close",
+                CloseButtonText = Strings.Settings_Licenses_Close,
                 DefaultButton = ContentDialogButton.Close,
                 XamlRoot = XamlRoot,
             };
@@ -264,16 +267,16 @@ public sealed partial class SettingsView : UserControl
     public ConnectionDevice? SelectedPairedDevice => PairedDevices.FirstOrDefault(device => device.Id == Connection?.SelectedDeviceId);
     public string PairedDeviceStatusText => Connection switch
     {
-        { IsConnected: true, IsCurrentOutput: true } => "Connected · Sound output",
-        { IsConnected: true } => "Connected · Sound is going elsewhere",
+        { IsConnected: true, IsCurrentOutput: true } => Strings.Settings_Paired_Status_ConnectedOutput,
+        { IsConnected: true } => Strings.Settings_Paired_Status_ConnectedElsewhere,
         { } connection => connection.StatusText,
-        _ => "Can't check the connection right now.",
+        _ => Strings.Settings_Paired_Status_Unknown,
     };
     public string PairedDeviceDetailText => Connection switch
     {
         { DetailText: not null } connection => connection.DetailText,
         { IsConnected: true } => "",
-        _ => "Windows couldn't read this device's details.",
+        _ => Strings.Settings_Paired_Detail_Unreadable,
     };
     public bool HasConnectionController => Connection is not null;
     public bool CanRefreshPairedDevices => Connection is not null;
@@ -281,8 +284,8 @@ public sealed partial class SettingsView : UserControl
     public bool CanObserveNearbyAirPods => ViewModel?.IsBroadcastObservation == true;
     public bool CanAutoConnectNearby => CanObserveNearbyAirPods && Settings?.ObserveNearbyAirPods == true;
     public string NearbyObservationHelpText => CanObserveNearbyAirPods
-        ? "On by default. Listens for nearby AirPods to estimate battery and case levels. Turn it off to stop listening and lose those estimates. It doesn't pair or connect to anything, and the AirPods it hears might not be yours."
-        : "Nearby detection isn't available right now.";
+        ? Strings.Settings_Nearby_Help_Available
+        : Strings.Settings_Nearby_Help_Unavailable;
 
     public bool IsAudioAvailable => Audio is not null;
     public bool CanUseAudioTarget => Audio?.SelectedTarget is { IsAvailable: true };
@@ -290,7 +293,7 @@ public sealed partial class SettingsView : UserControl
     public bool HasAudioFallback => Audio?.SelectedFallback is not null;
     public bool HasSelectedOutputVolume => DisplayedVolumeScalar is not null;
     public double OutputVolumePercent => DisplayedVolumeScalar is float value ? value * 100d : 0d;
-    public string OutputVolumePercentText => DisplayedVolumeScalar is float value ? $"{Math.Round(value * 100):0}%" : "";
+    public string OutputVolumePercentText => DisplayedVolumeScalar is float value ? PercentText(value * 100) : "";
     public bool CanUsePlaybackControls => ViewModel?.IsDemo != true;
     private float? DisplayedVolumeScalar => PendingVolumeScalarForSelectedTarget ?? Audio?.SelectedOutputVolume;
 
@@ -309,8 +312,8 @@ public sealed partial class SettingsView : UserControl
     }
 
     public string AudioAvailabilityText => ViewModel?.IsDemo == true
-        ? "Sound output controls aren't available in demo mode."
-        : "Clasp can't reach your Windows sound outputs right now.";
+        ? Strings.Settings_Audio_Unavailable_Demo
+        : Strings.Settings_Audio_Unavailable_Unreachable;
 
     private void OnAudioTargetSelected(object sender, SelectionChangedEventArgs e)
     {
@@ -529,7 +532,9 @@ public sealed partial class SettingsView : UserControl
         finally { _projectingArtworkColorway = false; }
     }
 
-    public static string SecondsText(int seconds) => seconds == 1 ? "1 second" : $"{seconds} seconds";
+    public static string SecondsText(int seconds) => seconds == 1
+        ? Strings.Settings_Seconds_One
+        : string.Format(CultureInfo.CurrentCulture, Strings.Settings_Seconds_Many, seconds);
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
@@ -558,7 +563,8 @@ public sealed partial class SettingsView : UserControl
 
     private void OnEffectsChanged(object? sender, EventArgs e) => UpdateEffectsText();
 
-    private void UpdateEffectsText() => EffectsText.Text = "Details: " + EffectsPolicy.Describe();
+    private void UpdateEffectsText()
+        => EffectsText.Text = string.Format(CultureInfo.CurrentCulture, Strings.Settings_Effects_Details, EffectsPolicy.Describe());
 
     private void OnNavClick(object sender, RoutedEventArgs e)
     {
@@ -834,10 +840,10 @@ public sealed partial class SettingsView : UserControl
         {
             var dialog = new ContentDialog
             {
-                Title = "Clear history",
-                Content = "Clear battery history? This can't be undone.",
-                PrimaryButtonText = "Clear",
-                CloseButtonText = "Cancel",
+                Title = Strings.Settings_History_Clear_Title,
+                Content = Strings.Settings_History_Clear_Content,
+                PrimaryButtonText = Strings.Settings_History_Clear_Confirm,
+                CloseButtonText = Strings.Settings_History_Clear_Cancel,
                 DefaultButton = ContentDialogButton.Close, // Enter must not delete by accident
                 XamlRoot = XamlRoot,
             };
@@ -896,7 +902,7 @@ public sealed partial class SettingsView : UserControl
         if (_companion is null || ViewModel?.IsDemo == true)
         {
             RunOnStartupToggle.IsEnabled = false;
-            RunOnStartupStatus.Text = ViewModel?.IsDemo == true ? "The sign-in setting isn't available in demo mode." : "";
+            RunOnStartupStatus.Text = ViewModel?.IsDemo == true ? Strings.Settings_Startup_Unavailable_Demo : "";
             return;
         }
         RunOnStartupToggle.IsEnabled = true;
@@ -906,7 +912,7 @@ public sealed partial class SettingsView : UserControl
         finally { _startupRefreshing = false; }
         RunOnStartupStatus.Text = status is { } known
             ? StartupMessages.Describe(known)
-            : "Couldn't read the sign-in setting from Windows.";
+            : Strings.Settings_Startup_ReadFailed;
     }
 
     private void OnRunOnStartupToggled(object sender, RoutedEventArgs e)
@@ -979,10 +985,10 @@ public sealed partial class SettingsView : UserControl
         var demo = ViewModel?.IsDemo == true;
         var state = _companion?.Status.PhoneState ?? PhoneStreamingStates.Idle();
         PhoneStatusText.Text = demo
-            ? "Phone search isn't available in demo mode."
+            ? Strings.Settings_Phone_Unavailable_Demo
             : state.Phase == PhoneStreamingPhase.Idle && _phoneNote is not null ? _phoneNote : state.Message;
         PhoneRefreshButton.IsEnabled = _companion is not null && !demo;
-        PhoneConnectButton.Content = state.IsActive ? "Disconnect" : "Connect";
+        PhoneConnectButton.Content = state.IsActive ? Strings.Settings_Phone_Disconnect : Strings.Settings_Phone_Connect;
         PhoneConnectButton.IsEnabled = _companion is not null && !demo && (state.IsActive || PhoneStreamingStates.CanConnect(state, SelectedPhoneId));
         PhoneConnectButton.IsPending = state.Phase == PhoneStreamingPhase.Connecting;
     }
@@ -1017,13 +1023,13 @@ public sealed partial class SettingsView : UserControl
             var box = new TextBox
             {
                 Text = settings.GetHotkey(command),
-                PlaceholderText = "Not set",
+                PlaceholderText = Strings.Settings_Hotkey_NotSet,
                 Width = 136,
                 MaxLength = 64,
             };
-            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(box, $"Shortcut for {name}");
-            var clear = new GlassButton { Content = "Clear" };
-            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(clear, $"Clear the shortcut for {name}");
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(box, string.Format(CultureInfo.CurrentCulture, Strings.Settings_Hotkey_BoxAutomationName, name));
+            var clear = new GlassButton { Content = Strings.Settings_Hotkey_ClearButton };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(clear, string.Format(CultureInfo.CurrentCulture, Strings.Settings_Hotkey_ClearAutomationName, name));
             var message = new TextBlock
             {
                 Style = (Style)Application.Current.Resources["GlassCaptionTextStyle"],
@@ -1089,7 +1095,7 @@ public sealed partial class SettingsView : UserControl
         }
         if (!HotkeyBinding.TryParse(text, out var binding, out var reason) || binding is null)
         {
-            ShowHotkeyMessage(command, $"{reason} Try something like Ctrl+Alt+A.");
+            ShowHotkeyMessage(command, string.Format(CultureInfo.CurrentCulture, Strings.Settings_Hotkey_ParseFailed, reason));
             return;
         }
         var validation = binding.Validate();

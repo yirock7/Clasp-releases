@@ -1,0 +1,3 @@
+# Justified exceptions for tools\Check-Localization.ps1 (see its header for the rules).
+# One entry per line:  <file name>:<line number | exact literal | resource key>
+# Lines starting with # are comments. Keep this list short, and say why next to every entry.

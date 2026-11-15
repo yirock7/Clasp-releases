@@ -594,10 +594,11 @@ public class AudioOutputRestorationTests
         Assert.Equal(3, logs.Count);
         Assert.All(logs, line =>
         {
-            Assert.Contains("expectedCurrent=monitor", line);
-            Assert.Contains("restoreTarget=speakers", line);
+            Assert.Contains("expectedCurrent=" + LogText.OpaqueRef("monitor"), line);
+            Assert.DoesNotContain("monitor", line);
+            Assert.Contains("restoreTarget=" + LogText.OpaqueRef("speakers"), line);
             Assert.Contains("applied=False", line);
-            Assert.Contains("newer choice preserved", line);
+            Assert.DoesNotContain("newer choice preserved", line); // the log carries outcomes, not user-facing text
         });
         Assert.Contains(logs, line => line.Contains("role=Console", StringComparison.Ordinal));
         Assert.Contains(logs, line => line.Contains("role=Multimedia", StringComparison.Ordinal));

@@ -1,5 +1,6 @@
 using System.Globalization;
 using AppleDeviceHub.Core.Contracts;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.Presentation;
 
@@ -21,9 +22,9 @@ public sealed record TrayBadge(string? Text, bool Dimmed, bool Charging, string 
 public static class TrayBadgeModel
 {
     /// <summary>Tooltip used when no earbud battery has been reported. Claims no value.</summary>
-    public const string UnknownTooltip = "AirPods: battery unknown";
+    public static string UnknownTooltip => UnknownTooltipFor("AirPods");
 
-    private static string UnknownTooltipFor(string noun) => noun == "AirPods" ? UnknownTooltip : $"{noun}: battery unknown";
+    private static string UnknownTooltipFor(string noun) => string.Format(CultureInfo.CurrentCulture, Strings.Hub_Tray_Tooltip_BatteryUnknown, noun);
 
     /// <param name="state">The current device state, or null when there is none.</param>
     /// <param name="outputIsAirPods">True when Windows is currently playing sound to the AirPods.</param>
@@ -47,7 +48,8 @@ public static class TrayBadgeModel
         if (average is null) return new TrayBadge(null, dimmed, false, WithDim(UnknownTooltipFor(noun), dimmed), glyph, null);
 
         var charging = left?.Charging == true || right?.Charging == true;
-        var tooltip = $"{noun}: {average.Value.ToString(CultureInfo.InvariantCulture)}%" + (charging ? ", charging" : "");
+        var level = average.Value.ToString(CultureInfo.InvariantCulture);
+        var tooltip = string.Format(CultureInfo.CurrentCulture, charging ? Strings.Hub_Tray_Tooltip_LevelCharging : Strings.Hub_Tray_Tooltip_Level, noun, level);
         var text = showPercentage ? average.Value.ToString(CultureInfo.InvariantCulture) : null;
         return new TrayBadge(text, dimmed, charging, WithDim(tooltip, dimmed), glyph, average.Value);
     }
@@ -60,12 +62,12 @@ public static class TrayBadgeModel
     {
         var dimmed = dimWhenNotOutput && !outputIsAirPods;
         var value = Math.Clamp(percent, 0, 100);
-        var tooltip = $"{noun}: {value.ToString(CultureInfo.InvariantCulture)}% (from Windows)";
+        var tooltip = string.Format(CultureInfo.CurrentCulture, Strings.Hub_Tray_Tooltip_LevelFromWindows, noun, value.ToString(CultureInfo.InvariantCulture));
         var text = showPercentage ? value.ToString(CultureInfo.InvariantCulture) : null;
         return new TrayBadge(text, dimmed, false, WithDim(tooltip, dimmed), glyph, value);
     }
 
-    private static string WithDim(string text, bool dimmed) => dimmed ? text + ", sound is going to another device" : text;
+    private static string WithDim(string text, bool dimmed) => dimmed ? string.Format(CultureInfo.CurrentCulture, Strings.Hub_Tray_Tooltip_SoundElsewhere, text) : text;
 
     private static (int Level, bool Charging)? Reported(BatteryComponent? part)
     {

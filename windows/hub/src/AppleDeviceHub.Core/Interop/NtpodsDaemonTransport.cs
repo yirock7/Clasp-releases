@@ -1,3 +1,4 @@
+using AppleDeviceHub.Core.Presentation;
 using AppleDeviceHub.Core.Contracts;
 using AppleDeviceHub.Core.Engine;
 
@@ -251,7 +252,7 @@ public sealed class NtpodsDaemonTransport : IAirPodsTransport, IHardwareTranspor
         }
         catch (EngineUnavailableException ex)
         {
-            Log($"engine unavailable: {ex.Message}");
+            Log($"engine unavailable: {LogText.ExceptionKind(ex)}");
             SetConnectionReason(ex.Message);
             return null;
         }

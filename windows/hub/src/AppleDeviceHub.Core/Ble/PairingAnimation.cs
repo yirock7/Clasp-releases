@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+using System.Globalization;
+using AppleDeviceHub.Core.Resources;
+
 namespace AppleDeviceHub.Core.Ble;
 
 /// <summary>Which small animation illustrates a pairing guide.</summary>
@@ -70,7 +73,7 @@ public enum PairingGesture
 public sealed record PairingCue(PairingLocation Location, PairingGesture Gesture, int? HoldSeconds, int Taps, string Caption, string LightText)
 {
     /// <summary>The chip's full text, as read by screen readers: the caption, then what the light does.</summary>
-    public string Spoken => $"{Caption}. {LightText}.";
+    public string Spoken => string.Format(CultureInfo.CurrentCulture, Strings.PairingAnimation_Spoken, Caption, LightText);
 }
 
 /// <summary>
@@ -90,7 +93,7 @@ public static class PairingAnimations
         var kind = KindOf(guide.Key);
         ushort? modelId = guide.IsFallback || guide.ModelIds.Count == 0 ? null : guide.ModelIds[0];
         var cue = CueOf(guide.Key);
-        var description = cue is null ? DescribeKind(kind) : DescribeKind(kind) + ". " + cue.Spoken;
+        var description = cue is null ? DescribeKind(kind) : string.Format(CultureInfo.CurrentCulture, Strings.PairingAnimation_DescriptionWithCue, DescribeKind(kind), cue.Spoken);
         return new PairingAnimationPlan(kind, AppleModelCatalog.ArtworkOf(modelId), description, modelId, cue);
     }
 
@@ -109,15 +112,15 @@ public static class PairingAnimations
 
     public static string DescribeKind(PairingAnimationKind kind) => kind switch
     {
-        PairingAnimationKind.CaseSetupButton => "Open the lid, then press and hold the button on the back of the case until the light flashes white",
-        PairingAnimationKind.CaseDoubleTap => "Open the lid, then double-tap the front of the case until the light flashes white",
-        PairingAnimationKind.MaxButton => "Press and hold the noise control button until the light flashes white",
-        PairingAnimationKind.CaseButton => "Open the lid, then press and hold the button on the case until the light flashes",
-        PairingAnimationKind.EarbudButton => "With the earbuds in the open case, press and hold the button on an earbud until a tone repeats",
-        PairingAnimationKind.EarcupButton => "Press and hold the button on the earcup until the light flashes",
-        PairingAnimationKind.ModuleButton => "Press and hold the power button on the control module until the light flashes",
-        PairingAnimationKind.RearEarcupButton => "Press and hold the power button on the back of the earcup until the light flashes",
-        _ => "Your headphones or earbuds",
+        PairingAnimationKind.CaseSetupButton => Strings.PairingAnimation_Kind_CaseSetupButton,
+        PairingAnimationKind.CaseDoubleTap => Strings.PairingAnimation_Kind_CaseDoubleTap,
+        PairingAnimationKind.MaxButton => Strings.PairingAnimation_Kind_MaxButton,
+        PairingAnimationKind.CaseButton => Strings.PairingAnimation_Kind_CaseButton,
+        PairingAnimationKind.EarbudButton => Strings.PairingAnimation_Kind_EarbudButton,
+        PairingAnimationKind.EarcupButton => Strings.PairingAnimation_Kind_EarcupButton,
+        PairingAnimationKind.ModuleButton => Strings.PairingAnimation_Kind_ModuleButton,
+        PairingAnimationKind.RearEarcupButton => Strings.PairingAnimation_Kind_RearEarcupButton,
+        _ => Strings.PairingAnimation_Kind_None,
     };
 
     /// <summary>
@@ -127,27 +130,27 @@ public static class PairingAnimations
     public static PairingCue? CueOf(string guideKey) => guideKey switch
     {
         "airpods-setup-button" => new(PairingLocation.Back, PairingGesture.PressAndHold, 5, 0,
-            "Hold the setup button on the back of the case \u00B7 5 s", "The light flashes white"),
+            Strings.PairingAnimation_Cue_AirpodsSetupButton_Caption, Strings.PairingAnimation_Light_FlashesWhite),
         "airpods-double-tap" => new(PairingLocation.CaseFront, PairingGesture.DoubleTap, null, 2,
-            "Double-tap the front of the case", "The light flashes white"),
+            Strings.PairingAnimation_Cue_AirpodsDoubleTap_Caption, Strings.PairingAnimation_Light_FlashesWhite),
         "airpods-max" => new(PairingLocation.EarCup, PairingGesture.PressAndHold, 5, 0,
-            "Hold the noise control button \u00B7 5 s", "The light flashes white"),
+            Strings.PairingAnimation_Cue_AirpodsMax_Caption, Strings.PairingAnimation_Light_FlashesWhite),
         "beats-case-system-button" => new(PairingLocation.InsideCase, PairingGesture.PressAndHold, null, 0,
-            "Hold the system button on the case", "The light flashes white"),
+            Strings.PairingAnimation_Cue_BeatsCaseSystemButton_Caption, Strings.PairingAnimation_Light_FlashesWhite),
         "beats-studio-buds" => new(PairingLocation.InsideCase, PairingGesture.PressAndHold, null, 0,
-            "Hold the small round button on the case", "The light flashes"),
+            Strings.PairingAnimation_Cue_BeatsStudioBuds_Caption, Strings.PairingAnimation_Light_Flashes),
         "beats-solo-buds" => new(PairingLocation.Earbud, PairingGesture.PressAndHold, null, 0,
-            "Hold the button above the b on a bud", "A tone repeats"),
+            Strings.PairingAnimation_Cue_BeatsSoloBuds_Caption, Strings.PairingAnimation_Light_ToneRepeats),
         "beats-flex" => new(PairingLocation.Module, PairingGesture.PressAndHold, null, 0,
-            "Hold the power button on the right module", "The light flashes"),
+            Strings.PairingAnimation_Cue_BeatsFlex_Caption, Strings.PairingAnimation_Light_Flashes),
         "beats-solo-4" => new(PairingLocation.EarCup, PairingGesture.PressAndHold, null, 0,
-            "Hold the power button on the right earcup", "The light flashes"),
+            Strings.PairingAnimation_Cue_BeatsSolo4_Caption, Strings.PairingAnimation_Light_Flashes),
         "beats-studio-pro" => new(PairingLocation.EarCup, PairingGesture.PressAndHold, null, 0,
-            "Hold the system button on the right earcup", "The light flashes"),
+            Strings.PairingAnimation_Cue_BeatsStudioPro_Caption, Strings.PairingAnimation_Light_Flashes),
         "beats-360" => new(PairingLocation.Back, PairingGesture.PressAndHold, null, 0,
-            "Hold the power button on the back of the left earcup", "The light flashes"),
+            Strings.PairingAnimation_Cue_Beats360_Caption, Strings.PairingAnimation_Light_Flashes),
         "beats-solo-3" => new(PairingLocation.EarCup, PairingGesture.PressAndHold, 5, 0,
-            "Hold the power button \u00B7 5 s", "The Fuel Gauge lights flash"),
+            Strings.PairingAnimation_Cue_BeatsSolo3_Caption, Strings.PairingAnimation_Light_FuelGaugeFlash),
         _ => null,
     };
 }

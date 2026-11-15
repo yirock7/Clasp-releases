@@ -104,8 +104,8 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "dotnet publish failed with exit code $LASTEXITCODE."
     }
-    if (-not (Test-Path -LiteralPath (Join-Path $publishPath 'AppleDeviceHub.exe') -PathType Leaf)) {
-        throw "Publish completed without AppleDeviceHub.exe in '$publishPath'."
+    if (-not (Test-Path -LiteralPath (Join-Path $publishPath 'Clasp.exe') -PathType Leaf)) {
+        throw "Publish completed without Clasp.exe in '$publishPath'."
     }
 
     Write-Host 'Checking the self-contained publish contract and required XAML resources...'
@@ -122,7 +122,7 @@ try {
     & $payloadGuardTests -SourcePublishDirectory $publishPath
 
     Write-Host 'Running the offline Demo-mode startup smoke...'
-    $smokeArguments = @{ ExePath = (Join-Path $publishPath 'AppleDeviceHub.exe') }
+    $smokeArguments = @{ ExePath = (Join-Path $publishPath 'Clasp.exe') }
     if ($env:GITHUB_ACTIONS -eq 'true') {
         # GitHub's hosted Windows runner is not a qualified Windows 11 client desktop.
         # Still launch Demo and fail on crashes/XAML errors; a missing visible desktop is UNVERIFIED.
@@ -187,7 +187,7 @@ This smoke uses Demo transport with Bluetooth disabled. It is not a clean-machin
 
     $criticalPayloadFiles = @(
         Get-ChildItem -LiteralPath $publishPath -Recurse -File -Filter '*.xbf'
-        Get-Item -LiteralPath (Join-Path $publishPath 'AppleDeviceHub.pri')
+        Get-Item -LiteralPath (Join-Path $publishPath 'Clasp.pri')
     )
     $compressLines = @($compilerOutputLines | Where-Object { $_ -match '^\s*Compressing:\s+' })
     foreach ($criticalFile in $criticalPayloadFiles) {

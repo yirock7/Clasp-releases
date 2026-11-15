@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using AppleDeviceHub.Core.Audio;
+using AppleDeviceHub.Core.Resources;
+using System.Globalization;
 
 namespace AppleDeviceHub.Core.Presentation;
 
@@ -19,14 +21,17 @@ public sealed class AudioOutputChoice : ObservableObject
         ContainerId = endpoint.ContainerId;
         _name = endpoint.Name;
         IsAvailable = endpoint.IsAvailable;
-        Label = _name + (IsAvailable ? "" : " (disconnected)");
+        Label = IsAvailable ? _name : DisconnectedLabel(_name);
     }
 
     internal void MarkUnavailable()
     {
         IsAvailable = false;
-        Label = _name + " (disconnected)";
+        Label = DisconnectedLabel(_name);
     }
+
+    private static string DisconnectedLabel(string name)
+        => string.Format(CultureInfo.CurrentCulture, Strings.AudioOutput_Choice_Disconnected, name);
 
     // Picker items show this text; it is also the name screen readers announce for the item.
     public override string ToString() => Label;
@@ -44,16 +49,16 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
     private bool _disposed;
     private long _historyEpoch;
     private long _appliedHistoryEpoch;
-    private string _statusText = "Not started";
+    private string _statusText = Strings.AudioOutput_Status_NotStarted;
     private string _lastActionText = "";
-    private string _selectedTargetStatusText = "Choose an output.";
-    private string _volumeStatusText = "Choose an output to adjust its volume.";
+    private string _selectedTargetStatusText = Strings.AudioOutput_Target_ChooseOutputInitial;
+    private string _volumeStatusText = Strings.AudioOutput_Volume_ChooseOutputToAdjust;
     private float? _selectedOutputVolume;
     private string? _currentWindowsOutputId;
     private string _currentWindowsOutputName = "";
     private float? _currentWindowsOutputVolume;
     private bool _canAdjustCurrentOutput;
-    private string _currentWindowsOutputVolumeStatusText = "Volume isn't available right now.";
+    private string _currentWindowsOutputVolumeStatusText = Strings.AudioOutput_Volume_NotAvailableNow;
     private long _currentWindowsOutputGeneration;
     private readonly TimeProvider _timeProvider;
     private readonly Action<string>? _log;
@@ -164,7 +169,7 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
         var target = Outputs.FirstOrDefault(output => output.Id == endpointId);
         if (target is null || !target.IsAvailable)
         {
-            LastActionText = "That output is disconnected, so nothing was changed.";
+            LastActionText = Strings.AudioOutput_Action_OutputDisconnected;
             return;
         }
         try
@@ -179,7 +184,7 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
         }
         catch (Exception)
         {
-            LastActionText = "Couldn't switch the sound output.";
+            LastActionText = Strings.AudioOutput_Action_SwitchFailed;
         }
     }
 
@@ -189,18 +194,18 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
         if (_disposed) return;
         if (!float.IsFinite(scalar) || scalar < 0f || scalar > 1f)
         {
-            VolumeStatusText = "Choose a volume from 0% to 100%.";
+            VolumeStatusText = Strings.AudioOutput_Volume_ChooseRange;
             return;
         }
         if (!string.Equals(endpointId, _settings.AudioTargetEndpointId, StringComparison.OrdinalIgnoreCase))
         {
-            VolumeStatusText = "Choose this output first, then adjust its volume.";
+            VolumeStatusText = Strings.AudioOutput_Volume_ChooseOutputFirst;
             return;
         }
         if (SelectedOutputVolume is float current && Math.Abs(current - scalar) < 0.001f) return;
         if (SelectedTarget is not { IsAvailable: true })
         {
-            VolumeStatusText = "This output is disconnected, so its volume wasn't changed.";
+            VolumeStatusText = Strings.AudioOutput_Volume_OutputDisconnectedNotChanged;
             return;
         }
         try
@@ -215,14 +220,14 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
                     CurrentWindowsOutputVolume = SelectedOutputVolume;
                     CanAdjustCurrentOutput = CurrentWindowsOutputVolume is not null;
                     CurrentWindowsOutputVolumeStatusText = CurrentWindowsOutputVolume is null
-                        ? "Can't read the volume for this output."
+                        ? Strings.AudioOutput_Volume_CannotReadForOutput
                         : result.Detail;
                 }
             }
         }
         catch (Exception)
         {
-            VolumeStatusText = "Volume isn't available right now.";
+            VolumeStatusText = Strings.AudioOutput_Volume_NotAvailableNow;
             SelectedOutputVolume = null;
         }
     }
@@ -238,12 +243,12 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
         if (_disposed) return;
         if (!float.IsFinite(scalar) || scalar < 0f || scalar > 1f)
         {
-            CurrentWindowsOutputVolumeStatusText = "Choose a volume from 0% to 100%.";
+            CurrentWindowsOutputVolumeStatusText = Strings.AudioOutput_Volume_ChooseRange;
             return;
         }
         if (string.IsNullOrWhiteSpace(expectedEndpointId))
         {
-            CurrentWindowsOutputVolumeStatusText = "No sound output to adjust.";
+            CurrentWindowsOutputVolumeStatusText = Strings.AudioOutput_Volume_NoOutputToAdjust;
             return;
         }
 
@@ -256,25 +261,25 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
         }
         catch (Exception)
         {
-            ClearCurrentWindowsOutput("Volume isn't available right now.");
+            ClearCurrentWindowsOutput(Strings.AudioOutput_Volume_NotAvailableNow);
             return;
         }
 
         try { UpdateCurrentWindowsOutput(snapshot); }
         catch (Exception)
         {
-            ClearCurrentWindowsOutput("Volume isn't available right now.");
+            ClearCurrentWindowsOutput(Strings.AudioOutput_Volume_NotAvailableNow);
             return;
         }
         if (!string.Equals(expectedEndpointId, CurrentWindowsOutputId, StringComparison.OrdinalIgnoreCase)
             || expectedGeneration != CurrentWindowsOutputGeneration)
         {
-            CurrentWindowsOutputVolumeStatusText = "The output changed, so the volume wasn't adjusted.";
+            CurrentWindowsOutputVolumeStatusText = Strings.AudioOutput_Volume_OutputChangedNotAdjusted;
             return;
         }
         if (!CanAdjustCurrentOutput)
         {
-            CurrentWindowsOutputVolumeStatusText = "Volume can't be adjusted for this output.";
+            CurrentWindowsOutputVolumeStatusText = Strings.AudioOutput_Volume_CannotAdjustForOutput;
             return;
         }
         if (CurrentWindowsOutputVolume is float current && Math.Abs(current - scalar) < 0.001f) return;
@@ -294,12 +299,12 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
                     VolumeStatusText = result.Detail;
                 }
                 if (readback is null)
-                    CurrentWindowsOutputVolumeStatusText = "Volume changed, but Windows can't confirm the new level.";
+                    CurrentWindowsOutputVolumeStatusText = Strings.AudioOutput_Volume_ChangedUnconfirmed;
             }
         }
         catch (Exception)
         {
-            CurrentWindowsOutputVolumeStatusText = "Volume isn't available right now.";
+            CurrentWindowsOutputVolumeStatusText = Strings.AudioOutput_Volume_NotAvailableNow;
         }
     }
 
@@ -349,9 +354,9 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
                     old.MarkUnavailable();
                 else Outputs.Remove(old);
             }
-            AddSavedUnavailableChoice(_settings.AudioTargetEndpointId, "Saved output", _settings.AudioTargetContainerId, snapshot);
-            AddSavedUnavailableChoice(_settings.AudioFallbackEndpointId, "Saved return output", null, snapshot);
-            AddSavedUnavailableChoice(_settings.EarRemovedOutputEndpointId, "Saved speaker output", null, snapshot);
+            AddSavedUnavailableChoice(_settings.AudioTargetEndpointId, Strings.AudioOutput_Saved_Output, _settings.AudioTargetContainerId, snapshot);
+            AddSavedUnavailableChoice(_settings.AudioFallbackEndpointId, Strings.AudioOutput_Saved_ReturnOutput, null, snapshot);
+            AddSavedUnavailableChoice(_settings.EarRemovedOutputEndpointId, Strings.AudioOutput_Saved_SpeakerOutput, null, snapshot);
             foreach (var endpoint in visibleEndpoints)
             {
                 var item = Outputs.FirstOrDefault(output => output.Id == endpoint.Id);
@@ -381,7 +386,7 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
                     }
                     catch (Exception)
                     {
-                        result = new(false, "Couldn't restore the previous output.");
+                        result = new(false, Strings.AudioOutput_Action_RestoreFailed);
                     }
 
                     outcomes.Add($"{request.Role}: {result.Detail}");
@@ -389,17 +394,17 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
                 }
                 LastActionText = string.Join("\n", outcomes);
             }
-            StatusText = !_settings.RestorePreviousAudioOutput ? "Automatic restore is off."
-                : string.IsNullOrWhiteSpace(_settings.AudioTargetEndpointId) ? "Choose your AirPods output below."
-                : _policy.HasRememberedOutput ? "Your previous output is saved. Clasp switches back when your AirPods disconnect."
-                : "Watching for your AirPods. If they're already your output, choose where sound should return.";
+            StatusText = !_settings.RestorePreviousAudioOutput ? Strings.AudioOutput_Status_RestoreOff
+                : string.IsNullOrWhiteSpace(_settings.AudioTargetEndpointId) ? Strings.AudioOutput_Status_ChooseAirPodsOutputBelow
+                : _policy.HasRememberedOutput ? Strings.AudioOutput_Status_PreviousOutputSaved
+                : Strings.AudioOutput_Status_WatchingForAirPods;
         }
         catch (Exception)
         {
-            StatusText = "Automatic restore isn't available right now.";
+            StatusText = Strings.AudioOutput_Status_RestoreUnavailable;
             SelectedOutputVolume = null;
-            VolumeStatusText = "Volume isn't available right now.";
-            ClearCurrentWindowsOutput("Volume isn't available right now.");
+            VolumeStatusText = Strings.AudioOutput_Volume_NotAvailableNow;
+            ClearCurrentWindowsOutput(Strings.AudioOutput_Volume_NotAvailableNow);
         }
     }
 
@@ -413,7 +418,7 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
         }
         catch (Exception)
         {
-            ClearCurrentWindowsOutput("Volume isn't available right now.");
+            ClearCurrentWindowsOutput(Strings.AudioOutput_Volume_NotAvailableNow);
         }
     }
 
@@ -422,8 +427,8 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
         try
         {
             _restorationLog?.Invoke(
-                $"Audio restore role={request.Role}; expectedCurrent={request.ExpectedCurrentEndpointId ?? "<none>"}; " +
-                $"restoreTarget={request.RestoreEndpointId}; applied={result.Applied}; result={result.Detail}");
+                $"Audio restore role={request.Role}; expectedCurrent={LogText.OpaqueRef(request.ExpectedCurrentEndpointId)}; " +
+                $"restoreTarget={LogText.OpaqueRef(request.RestoreEndpointId)}; applied={result.Applied}");
         }
         catch (Exception)
         {
@@ -437,13 +442,13 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
         if (target is null)
         {
             SelectedTargetStatusText = string.IsNullOrWhiteSpace(_settings.AudioTargetEndpointId)
-                ? "Choose your AirPods output."
-                : "Your saved output isn't available right now.";
+                ? Strings.AudioOutput_Target_ChooseAirPodsOutput
+                : Strings.AudioOutput_Target_SavedUnavailable;
             return;
         }
         if (!target.IsAvailable)
         {
-            SelectedTargetStatusText = "This output is disconnected. Your choice is saved.";
+            SelectedTargetStatusText = Strings.AudioOutput_Target_DisconnectedChoiceSaved;
             return;
         }
 
@@ -452,8 +457,8 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
             || (target.ContainerId is not null && string.Equals(endpoint.ContainerId, target.ContainerId, StringComparison.OrdinalIgnoreCase)))
             .Select(endpoint => endpoint.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
         SelectedTargetStatusText = snapshot.Defaults.Values.Any(id => id is not null && targetEndpointIds.Contains(id))
-            ? "Ready, and currently in use."
-            : "Ready, but not currently in use.";
+            ? Strings.AudioOutput_Target_ReadyInUse
+            : Strings.AudioOutput_Target_ReadyNotInUse;
     }
 
     private void AddSavedUnavailableChoice(string id, string label, string? containerId, AudioOutputSnapshot snapshot)
@@ -481,20 +486,20 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
         if (target is not { IsAvailable: true })
         {
             SelectedOutputVolume = null;
-            VolumeStatusText = "Choose an output to adjust its volume.";
+            VolumeStatusText = Strings.AudioOutput_Volume_ChooseOutputToAdjust;
             return;
         }
         try
         {
             SelectedOutputVolume = ReadClampedVolume(target.Id);
             VolumeStatusText = SelectedOutputVolume is null
-                ? "Volume can't be adjusted for this output."
-                : "Volume for this output.";
+                ? Strings.AudioOutput_Volume_CannotAdjustForOutput
+                : Strings.AudioOutput_Volume_ForThisOutput;
         }
         catch (Exception)
         {
             SelectedOutputVolume = null;
-            VolumeStatusText = "Volume isn't available right now.";
+            VolumeStatusText = Strings.AudioOutput_Volume_NotAvailableNow;
         }
     }
 
@@ -520,11 +525,11 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
         TrackVolumeSettling(outputChanged, available, isReread, previousVolume, volume, readMs);
         CurrentWindowsOutputVolumeStatusText = !available
             ? string.IsNullOrWhiteSpace(endpointId)
-                ? "No sound output is set."
-                : "The current output isn't available."
+                ? Strings.AudioOutput_Volume_NoOutputSet
+                : Strings.AudioOutput_Volume_CurrentOutputUnavailable
             : volume is null
-                ? "Volume can't be adjusted for this output."
-                : "Volume for this output.";
+                ? Strings.AudioOutput_Volume_CannotAdjustForOutput
+                : Strings.AudioOutput_Volume_ForThisOutput;
     }
 
     /// <summary>
@@ -670,6 +675,6 @@ public sealed class AudioOutputViewModel : ObservableObject, IDisposable
         _settings.PropertyChanged -= OnSettingChanged;
         _policy.Forget();
         try { _controller.Dispose(); }
-        catch (Exception) { StatusText = "Couldn't finish cleaning up audio."; }
+        catch (Exception) { StatusText = Strings.AudioOutput_Status_CleanupFailed; }
     }
 }

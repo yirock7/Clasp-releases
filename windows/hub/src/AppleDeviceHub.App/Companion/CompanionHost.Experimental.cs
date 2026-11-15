@@ -1,8 +1,10 @@
+using System.Globalization;
 using AppleDeviceHub.App.Audio;
 using AppleDeviceHub.App.Media;
 using AppleDeviceHub.App.Shell;
 using AppleDeviceHub.Core.Audio;
 using AppleDeviceHub.Core.Media;
+using AppleDeviceHub.Core.Resources;
 using AppleDeviceHub.Core.Startup;
 
 namespace AppleDeviceHub.App.Companion;
@@ -90,13 +92,15 @@ internal sealed partial class CompanionHost
         }
         else if (_stemHook is not { } hook)
         {
-            Status.StemText = "Clasp can't watch for stem presses, so stem actions are off.";
+            Status.StemText = Strings.CompHost_Stem_HookUnavailable;
         }
         else
         {
             Status.StemText = hook.MediaKeysSeen == 0
-                ? "Waiting for a stem press. If this doesn't change when you press the stem, stem actions may not work on this PC."
-                : $"Heard {hook.MediaKeysSeen} stem press{(hook.MediaKeysSeen == 1 ? "" : "es")} since this was turned on.";
+                ? Strings.CompHost_Stem_Waiting
+                : string.Format(CultureInfo.CurrentCulture,
+                    hook.MediaKeysSeen == 1 ? Strings.CompHost_Stem_HeardOne : Strings.CompHost_Stem_HeardMany,
+                    hook.MediaKeysSeen);
         }
     }
 
@@ -119,7 +123,7 @@ internal sealed partial class CompanionHost
         catch (Exception ex)
         {
             Status.PerAppSupported = false;
-            Status.PerAppSupportText = "Couldn't check whether this PC supports per-app output.";
+            Status.PerAppSupportText = Strings.CompHost_PerApp_CheckFailed;
             LocalLog.Write($"Per-app output check failed ({ex.GetType().Name}).");
         }
     }
@@ -143,7 +147,7 @@ internal sealed partial class CompanionHost
             {
                 Status.PerAppSupported = false;
                 Status.PerAppSupportText = _perApp.SupportDetail;
-                LocalLog.Write($"Per-app output is on but not supported here: {_perApp.SupportDetail}");
+                LocalLog.Write("Per-app output is on but not supported here.");
                 return;
             }
             Status.PerAppSupported = true;
@@ -196,7 +200,7 @@ internal sealed partial class CompanionHost
     {
         foreach (var outcome in outcomes)
             if (!outcome.Result.Succeeded)
-                LocalLog.Write($"Per-app output {outcome.Action.Kind} process={outcome.Action.ProcessId}: {outcome.Result.Status} {outcome.Result.Detail}");
+                LocalLog.Write($"Per-app output {outcome.Action.Kind} process={outcome.Action.ProcessId}: {outcome.Result.Status}");
     }
 
     private void StopSessionWatcher()

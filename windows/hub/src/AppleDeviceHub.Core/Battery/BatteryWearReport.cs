@@ -1,4 +1,5 @@
 using System.Globalization;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.Battery;
 
@@ -11,7 +12,7 @@ public enum WearReportKind
 /// <summary>Result of comparing early and recent drain. Rates are percent of battery per hour.</summary>
 public sealed record BatteryWearReport(WearReportKind Kind, double? EarlyRatePerHour, double? RecentRatePerHour, int? ChangePercent, string Text)
 {
-    public const string NotEnoughDataText = "Not enough history yet to compare battery drain over time";
+    public static string NotEnoughDataText => Strings.Battery_Wear_NotEnoughData;
 
     /// <summary>Difference below which the two periods are called about the same.</summary>
     public const double SameBand = 0.15;
@@ -40,13 +41,12 @@ public sealed record BatteryWearReport(WearReportKind Kind, double? EarlyRatePer
 
     private static string Describe(double change, int rounded)
     {
-        const string caveat = " Drain also depends on volume, calls and how you use them, so this is a hint, not a diagnosis.";
         if (Math.Abs(change) < SameBand)
-            return "Battery drain looks about the same as in your first two weeks of recording." + caveat;
+            return Strings.Battery_Wear_AboutTheSame;
         string amount = Math.Abs(rounded).ToString(CultureInfo.InvariantCulture);
         return change > 0
-            ? $"Your AirPods now drain about {amount}% faster than in your first two weeks of recording, which can be a sign of battery wear." + caveat
-            : $"Your AirPods now drain about {amount}% slower than in your first two weeks of recording, probably because of how you use them." + caveat;
+            ? string.Format(CultureInfo.CurrentCulture, Strings.Battery_Wear_Faster, amount)
+            : string.Format(CultureInfo.CurrentCulture, Strings.Battery_Wear_Slower, amount);
     }
 
     private static double Median(List<double> values)

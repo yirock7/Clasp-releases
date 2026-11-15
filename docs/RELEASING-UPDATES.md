@@ -97,7 +97,7 @@ SignPath), which would also quiet the Windows SmartScreen warning.
   schedule whether one is due. It only reads the release list; nothing about the user or their
   devices is sent.
 - **Installing:** clicking **Update** downloads the installer into
-  `%LOCALAPPDATA%\AppleDeviceHub\updates`, verifies it, starts it with
+  `%LOCALAPPDATA%\Clasp\updates`, verifies it, starts it with
   `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /RELAUNCH`, and quits. Setup
   upgrades in place and reopens Clasp to the tray (`Clasp.iss`, `[Run]` with `RelaunchRequested`).
 - **Development builds** (version `0.0.0` or no version) never check.

@@ -69,6 +69,27 @@ public static class StartupRegistration
         }
     }
 
+    /// <summary>
+    /// After the rename from AppleDeviceHub.exe to Clasp.exe: if the sign-in value still points at the old program in this
+    /// folder, point it at the running one (arguments kept). Never creates the value and never touches one that names anything
+    /// else, so the user's choice to have it off (or on) is kept. Returns true when it rewrote the value.
+    /// </summary>
+    public static bool RepairLegacyEntry(string? exePath)
+    {
+        try
+        {
+            using var run = Registry.CurrentUser.OpenSubKey(StartupRegistrationPolicy.RunKeyPath, writable: true);
+            if (run?.GetValue(StartupRegistrationPolicy.ValueName) is not string current) return false;
+            if (LegacyExecutable.Rewrite(current, exePath) is not { } repaired) return false;
+            run.SetValue(StartupRegistrationPolicy.ValueName, repaired, RegistryValueKind.String);
+            return true;
+        }
+        catch (Exception ex) when (IsRegistryFailure(ex))
+        {
+            return false;
+        }
+    }
+
     private static byte[]? ReadApproval()
     {
         using var approval = Registry.CurrentUser.OpenSubKey(StartupRegistrationPolicy.ApprovalKeyPath, writable: false);

@@ -476,8 +476,7 @@ public static partial class HubSettingsStore
     [JsonSerializable(typeof(Dto))]
     private sealed partial class SettingsJson : JsonSerializerContext;
 
-    public static string DefaultPath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AppleDeviceHub", "settings.json");
+    public static string DefaultPath => Path.Combine(AppDataFolder.DefaultRoot, "settings.json");
 
     /// <summary>
     /// Loads <paramref name="path"/>. A missing or unreadable file falls back to <c>path + ".bak"</c> (the copy

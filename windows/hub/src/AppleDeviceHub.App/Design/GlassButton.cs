@@ -1,4 +1,5 @@
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
@@ -231,7 +232,7 @@ public partial class GlassButton : Button
     {
         string state = IsPending ? "Pending" : HasError ? "Error" : "Idle";
         VisualStateManager.GoToState(this, state, useTransitions);
-        AutomationProperties.SetItemStatus(this, IsPending ? "Waiting for confirmation" : HasError ? "Failed" : string.Empty);
+        AutomationProperties.SetItemStatus(this, IsPending ? Strings.Design_Button_StatusPending : HasError ? Strings.Design_Button_StatusFailed : string.Empty);
     }
 
     /// <summary>

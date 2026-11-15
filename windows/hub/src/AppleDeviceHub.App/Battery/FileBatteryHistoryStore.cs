@@ -15,7 +15,7 @@ internal sealed class FileBatteryHistoryStore : IBatteryHistoryStore
     private readonly string _folder;
 
     public FileBatteryHistoryStore(string? folder = null) =>
-        _folder = folder ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AppleDeviceHub");
+        _folder = folder ?? AppDataFolder.DefaultRoot;
 
     private string PathFor(string name)
     {

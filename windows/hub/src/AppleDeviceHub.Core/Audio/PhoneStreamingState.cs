@@ -1,3 +1,6 @@
+using AppleDeviceHub.Core.Resources;
+using System.Globalization;
+
 namespace AppleDeviceHub.Core.Audio;
 
 /// <summary>Where the phone-to-PC audio stream is in its life cycle.</summary>
@@ -41,39 +44,39 @@ public sealed record PhoneStreamingState(PhoneStreamingPhase Phase, string? Devi
 /// <summary>Plain-language states for phone audio. Every method is pure, so the wording is tested.</summary>
 public static class PhoneStreamingStates
 {
-    private const string UnnamedPhone = "your phone";
+    private static string UnnamedPhone => Strings.Audio_Phone_UnnamedPhone;
 
     public static PhoneStreamingState Idle()
-        => new(PhoneStreamingPhase.Idle, null, "Not streaming. Pick your phone, then press Connect.");
+        => new(PhoneStreamingPhase.Idle, null, Strings.Audio_Phone_Idle);
 
     public static PhoneStreamingState NoPhonesFound()
         => new(PhoneStreamingPhase.Idle, null,
-            "No phones found. Turn on Bluetooth on your phone, bring it close to this PC, then try again.");
+            Strings.Audio_Phone_NoPhonesFound);
 
     public static PhoneStreamingState Unavailable()
         => new(PhoneStreamingPhase.Unavailable, null,
-            "Phone audio isn't available on this PC. Windows didn't offer a way to receive audio from phones.");
+            Strings.Audio_Phone_Unavailable);
 
     public static PhoneStreamingState NotSupportedByDevice(string? deviceName)
         => new(PhoneStreamingPhase.Failed, DisplayName(deviceName),
-            $"{DisplayName(deviceName)} can't stream audio to this PC.");
+            string.Format(CultureInfo.CurrentCulture, Strings.Audio_Phone_NotSupportedByDevice, DisplayName(deviceName)));
 
     public static PhoneStreamingState Connecting(string? deviceName)
     {
         var name = DisplayName(deviceName);
-        return new(PhoneStreamingPhase.Connecting, name, $"Connecting to {name}…");
+        return new(PhoneStreamingPhase.Connecting, name, string.Format(CultureInfo.CurrentCulture, Strings.Audio_Phone_Connecting, name));
     }
 
     public static PhoneStreamingState Streaming(string? deviceName)
     {
         var name = DisplayName(deviceName);
-        return new(PhoneStreamingPhase.Streaming, name, $"Streaming from {name}");
+        return new(PhoneStreamingPhase.Streaming, name, string.Format(CultureInfo.CurrentCulture, Strings.Audio_Phone_Streaming, name));
     }
 
     /// <summary>The phone or Windows ended a stream that was running. Not an error the user caused.</summary>
     public static PhoneStreamingState Ended(string? deviceName)
         => new(PhoneStreamingPhase.Idle, null,
-            $"Streaming from {DisplayName(deviceName)} ended. Press Connect to start again.");
+            string.Format(CultureInfo.CurrentCulture, Strings.Audio_Phone_Ended, DisplayName(deviceName)));
 
     public static PhoneStreamingState Rejected(string? deviceName, PhoneOpenOutcome outcome)
     {
@@ -81,10 +84,10 @@ public static class PhoneStreamingStates
         var message = outcome switch
         {
             PhoneOpenOutcome.DeniedBySystem =>
-                "Windows blocked this connection. Check that Bluetooth is on, then try again.",
+                Strings.Audio_Phone_Rejected_DeniedBySystem,
             PhoneOpenOutcome.TimedOut =>
-                "The connection timed out. Make sure the phone is nearby and Bluetooth is on, then try again.",
-            _ => "Your phone didn't accept the connection. Make sure Bluetooth is on and the phone is nearby.",
+                Strings.Audio_Phone_Rejected_TimedOut,
+            _ => Strings.Audio_Phone_Rejected_Other,
         };
         return new(PhoneStreamingPhase.Failed, name, message);
     }

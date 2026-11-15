@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Numerics;
 using AppleDeviceHub.App.Companion;
 using AppleDeviceHub.App.Design;
@@ -6,6 +7,7 @@ using AppleDeviceHub.Core.Ble;
 using AppleDeviceHub.Core.Connection;
 using AppleDeviceHub.Core.Pairing;
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
 using AppleDeviceHub.Core.Startup;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
@@ -27,7 +29,15 @@ public sealed partial class WelcomeView : UserControl
 {
     public const int PageCount = 4;
 
-    private static readonly string[] PageNames = { "Welcome to Clasp", "Choose your AirPods", "Find Clasp in the tray", "Quick settings" };
+    private static string PageName(int page) => page switch
+    {
+        0 => Strings.Welcome_PageTitle_Welcome,
+        1 => Strings.Welcome_PageTitle_ChooseAirPods,
+        2 => Strings.Welcome_PageTitle_FindInTray,
+        _ => Strings.Welcome_PageTitle_QuickSettings,
+    };
+
+    private static string StepText(int page) => string.Format(CultureInfo.CurrentCulture, Strings.Welcome_Step_Format, page + 1, PageCount);
 
     private readonly FrameworkElement[] _pages;
     private readonly FrameworkElement[] _dots;
@@ -49,6 +59,13 @@ public sealed partial class WelcomeView : UserControl
     public WelcomeView()
     {
         InitializeComponent();
+        Title1.Text = PageName(0);
+        Title2.Text = PageName(1);
+        Title3.Text = PageName(2);
+        Title4.Text = PageName(3);
+        AutomationProperties.SetName(Dots, StepText(0));
+        NextButton.Content = Strings.Welcome_Button_Next;
+        WaitingStatus.Text = Strings.Welcome_Waiting_Looking;
         // Page 2 is hidden until it is shown, so nothing animates until then.
         HeroWaiting.Pause();
         PairingHelp.SetActive(false);
@@ -152,8 +169,8 @@ public sealed partial class WelcomeView : UserControl
 
         BackButton.Visibility = page > 0 ? Visibility.Visible : Visibility.Collapsed;
         SkipButton.Visibility = page < PageCount - 1 ? Visibility.Visible : Visibility.Collapsed;
-        NextButton.Content = page == PageCount - 1 ? "Done" : "Next";
-        string step = $"Step {page + 1} of {PageCount}";
+        NextButton.Content = page == PageCount - 1 ? Strings.Welcome_Button_Done : Strings.Welcome_Button_Next;
+        string step = StepText(page);
         AutomationProperties.SetName(Dots, step);
         UpdateDots();
 
@@ -170,7 +187,7 @@ public sealed partial class WelcomeView : UserControl
         if (animate && IsLoaded) Transition(_pages[page], direction);
         // A hidden Back button cannot keep focus: hand it to the primary button.
         if (page == 0 && !first) FocusPrimary();
-        if (announce) Announce($"{step}: {PageNames[page]}");
+        if (announce) Announce(string.Format(CultureInfo.CurrentCulture, Strings.Welcome_Announce_PageChanged, step, PageName(page)));
     }
 
     /// <summary>Slide in from the side with the existing spring tokens; reduced motion only fades briefly.</summary>
@@ -273,7 +290,7 @@ public sealed partial class WelcomeView : UserControl
         bool live = hub is { Connection: AppleDeviceHub.Core.Contracts.ConnectionSummary.Connected or AppleDeviceHub.Core.Contracts.ConnectionSummary.Nearby };
         var found = DeviceDetection.Decide(_connection?.SelectedDeviceName, hub?.ModelName, live);
         HeroWaiting.Update(found);
-        string text = found is null ? "Looking for your AirPods" : $"Found {found.Name}";
+        string text = found is null ? Strings.Welcome_Waiting_Looking : string.Format(CultureInfo.CurrentCulture, Strings.Welcome_Waiting_Found, found.Name);
         if (WaitingStatus.Text != text) WaitingStatus.Text = text;
     }
 
@@ -292,14 +309,14 @@ public sealed partial class WelcomeView : UserControl
         PairingHelp.SetInAppPairing(_hasDiscovery);
         if (_hasDiscovery)
         {
-            OpenBluetoothButton.Content = "Pair in Windows Settings instead";
+            OpenBluetoothButton.Content = Strings.Welcome_Pair_InWindowsSettingsInstead;
             OpenBluetoothButton.IsFlat = true;
             OpenBluetoothButton.Padding = new Thickness(10, 4, 10, 4);
             OpenBluetoothButton.MinHeight = 32;
         }
         else
         {
-            OpenBluetoothButton.Content = "Open Bluetooth settings";
+            OpenBluetoothButton.Content = Strings.Welcome_Pair_OpenBluetoothSettings;
             OpenBluetoothButton.IsFlat = false;
             OpenBluetoothButton.ClearValue(Control.PaddingProperty);
             OpenBluetoothButton.ClearValue(FrameworkElement.MinHeightProperty);
@@ -376,8 +393,8 @@ public sealed partial class WelcomeView : UserControl
                 VerticalAlignment = VerticalAlignment.Center,
                 TextWrapping = TextWrapping.WrapWholeWords,
             };
-            var button = new GlassButton { Content = "Pair", Tag = candidate.Id, MinWidth = 72 };
-            AutomationProperties.SetName(button, $"Pair {candidate.Name}");
+            var button = new GlassButton { Content = Strings.Welcome_Pair_Button, Tag = candidate.Id, MinWidth = 72 };
+            AutomationProperties.SetName(button, string.Format(CultureInfo.CurrentCulture, Strings.Welcome_Pair_ButtonName, candidate.Name));
             button.Click += OnPairClick;
             var row = new Grid { ColumnSpacing = 8 };
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -485,10 +502,10 @@ public sealed partial class WelcomeView : UserControl
         // With in-app pairing the link is always there as a fallback; without it, only when nothing is paired.
         OpenBluetoothButton.Visibility = _hasDiscovery || !hasDevices ? Visibility.Visible : Visibility.Collapsed;
         RefreshButton.IsEnabled = connection is not null;
-        EmptyTitle.Text = _hasDiscovery ? "Put your AirPods in pairing mode" : "Pair your AirPods in Windows first";
+        EmptyTitle.Text = _hasDiscovery ? Strings.Welcome_Empty_TitlePairingMode : Strings.Welcome_Empty_TitlePairInWindows;
         EmptyDetail.Text = connection is null
-            ? "Clasp can't check your paired devices right now."
-            : _hasDiscovery ? "They'll appear above with a Pair button." : "Once they're paired, they'll show up here.";
+            ? Strings.Welcome_Empty_DetailNoConnection
+            : _hasDiscovery ? Strings.Welcome_Empty_DetailInApp : Strings.Welcome_Empty_DetailAfterPairing;
 
         // The pairing help opens by itself when nothing is paired, and closes once something is. Between those
         // changes it stays however the user left it.
@@ -508,8 +525,8 @@ public sealed partial class WelcomeView : UserControl
 
         PickerStatus.Text = connection switch
         {
-            { IsConnected: true, IsCurrentOutput: true } => "Connected · Sound output",
-            { IsConnected: true } => "Connected · Sound is going elsewhere",
+            { IsConnected: true, IsCurrentOutput: true } => Strings.Welcome_Picker_ConnectedSoundOutput,
+            { IsConnected: true } => Strings.Welcome_Picker_ConnectedSoundElsewhere,
             _ => connection.StatusText,
         };
     }
@@ -550,7 +567,7 @@ public sealed partial class WelcomeView : UserControl
             {
                 RunOnStartupToggle.IsEnabled = false;
                 RunOnStartupToggle.IsOn = false;
-                SetStartupMessage(demo ? "The sign-in setting isn't available in demo mode." : "");
+                SetStartupMessage(demo ? Strings.Welcome_Startup_DemoUnavailable : "");
             }
             else
             {
@@ -559,15 +576,15 @@ public sealed partial class WelcomeView : UserControl
                 RunOnStartupToggle.IsOn = status is StartupStatus.On or StartupStatus.OffInTaskManager;
                 SetStartupMessage(status is { } known && known != StartupStatus.On && known != StartupStatus.Off
                     ? StartupMessages.Describe(known)
-                    : status is null ? "Couldn't read the sign-in setting from Windows." : "");
+                    : status is null ? Strings.Welcome_Startup_CouldNotRead : "");
             }
 
             bool canObserve = _viewModel?.IsBroadcastObservation == true;
             NearbyToggle.IsEnabled = canObserve && _settings is not null;
             NearbyToggle.IsOn = _settings?.ObserveNearbyAirPods == true;
             NearbyHelp.Text = canObserve || _settings is null
-                ? "Listens for nearby AirPods to show their battery. It never pairs or connects to anything."
-                : "Nearby detection isn't available right now.";
+                ? Strings.Welcome_Nearby_Help
+                : Strings.Welcome_Nearby_Unavailable;
         }
         finally { _updatingToggles = false; }
     }
@@ -613,8 +630,8 @@ public sealed partial class WelcomeView : UserControl
             AutoPlayToggle.IsOn = settings.AutoPlayOnConnect;
             AutoPauseToggle.IsOn = settings.AutoPauseOnDisconnect;
             AutoConnectHelp.Text = settings.ObserveNearbyAirPods
-                ? "Clasp tries once to connect your AirPods when it notices the case opening nearby. That could be someone else's AirPods."
-                : "Needs nearby detection (on the previous page).";
+                ? Strings.Welcome_AutoConnect_Help
+                : Strings.Welcome_AutoConnect_NeedsNearby;
         }
         finally { _updatingToggles = false; }
     }

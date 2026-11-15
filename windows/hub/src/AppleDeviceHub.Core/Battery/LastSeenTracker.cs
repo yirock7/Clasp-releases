@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using AppleDeviceHub.Core.Ble;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.Battery;
 
@@ -90,27 +91,26 @@ public sealed class LastSeenTracker
 
     public static string Describe(LastSeen seen, DateTimeOffset now)
     {
-        var text = "Last seen " + Ago(now - seen.Time);
-        return seen.Signal switch
+        var ago = Ago(now - seen.Time);
+        var template = seen.Signal switch
         {
-            SignalBucket.Near => text + " · near",
-            SignalBucket.InRange => text + " · in range",
-            SignalBucket.Far => text + " · far away",
-            _ => text,
+            SignalBucket.Near => Strings.Battery_LastSeen_Near,
+            SignalBucket.InRange => Strings.Battery_LastSeen_InRange,
+            SignalBucket.Far => Strings.Battery_LastSeen_Far,
+            _ => Strings.Battery_LastSeen_Plain,
         };
+        return string.Format(CultureInfo.CurrentCulture, template, ago);
     }
 
     /// <summary>"just now", "12 min ago", "3 hr ago", "2 days ago".</summary>
     public static string Ago(TimeSpan age)
     {
-        if (age < TimeSpan.FromMinutes(1)) return "just now";
-        if (age < TimeSpan.FromHours(1)) return Unit((int)age.TotalMinutes, "min", plural: "min");
-        if (age < TimeSpan.FromDays(1)) return Unit((int)age.TotalHours, "hr", plural: "hr");
-        return Unit((int)age.TotalDays, "day", plural: "days");
+        if (age < TimeSpan.FromMinutes(1)) return Strings.Battery_LastSeen_AgoJustNow;
+        if (age < TimeSpan.FromHours(1)) return string.Format(CultureInfo.CurrentCulture, Strings.Battery_LastSeen_AgoMinutes, (int)age.TotalMinutes);
+        if (age < TimeSpan.FromDays(1)) return string.Format(CultureInfo.CurrentCulture, Strings.Battery_LastSeen_AgoHours, (int)age.TotalHours);
+        int days = (int)age.TotalDays;
+        return string.Format(CultureInfo.CurrentCulture, days == 1 ? Strings.Battery_LastSeen_AgoDayOne : Strings.Battery_LastSeen_AgoDayMany, days);
     }
-
-    private static string Unit(int n, string singular, string plural) =>
-        string.Create(CultureInfo.InvariantCulture, $"{n} {(n == 1 ? singular : plural)} ago");
 
     public void Load()
     {

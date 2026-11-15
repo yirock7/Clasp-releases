@@ -1,0 +1,1059 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+  -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="FlyoutBatteryHistoryButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Battery history</value>
+    <comment>Screen-reader name of the flyout header icon button that opens the battery history. 1-3 words.</comment>
+  </data>
+  <data name="FlyoutBatteryHistoryButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Battery history</value>
+    <comment>Tooltip of the flyout header icon button that opens the battery history. 1-3 words.</comment>
+  </data>
+  <data name="FlyoutBluetoothSettingsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Open Windows Bluetooth settings</value>
+    <comment>Screen-reader name of the flyout header icon button that opens the Windows Bluetooth settings page. Short phrase, not shown on screen.</comment>
+  </data>
+  <data name="FlyoutBluetoothSettingsButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Windows Bluetooth settings</value>
+    <comment>Tooltip of the flyout header icon button that opens the Windows Bluetooth settings page. Short phrase, one line.</comment>
+  </data>
+  <data name="FlyoutSettingsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Settings</value>
+    <comment>Screen-reader name of the flyout header gear icon button that opens Clasp settings. One word.</comment>
+  </data>
+  <data name="FlyoutSettingsButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Settings</value>
+    <comment>Tooltip of the flyout header gear icon button that opens Clasp settings. One word.</comment>
+  </data>
+  <data name="FlyoutUnavailableChip.Text" xml:space="preserve">
+    <value>Unavailable</value>
+    <comment>Small status chip in the flyout, left of the reason the Bluetooth hardware is unavailable. One word, at most 14 characters.</comment>
+  </data>
+  <data name="FlyoutUpdateConsentText.Text" xml:space="preserve">
+    <value>Check for updates automatically? Clasp checks once a day. You can change this in Settings.</value>
+    <comment>One-time question in the flyout asking whether Clasp may check for updates. Wraps to 3 lines at 380 DIP wide.</comment>
+  </data>
+  <data name="FlyoutUpdateConsentYesButton.Content" xml:space="preserve">
+    <value>Check daily</value>
+    <comment>Button under the update question: accept automatic update checks. At most 16 characters.</comment>
+  </data>
+  <data name="FlyoutUpdateConsentNoButton.Content" xml:space="preserve">
+    <value>No thanks</value>
+    <comment>Button under the update question: decline automatic update checks. At most 16 characters.</comment>
+  </data>
+  <data name="FlyoutInstallUpdateButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.HelpText" xml:space="preserve">
+    <value>Updates Clasp and reopens it.</value>
+    <comment>Screen-reader help text of the flyout button that installs a downloaded update (the button label comes from the update view model). One sentence.</comment>
+  </data>
+  <data name="FlyoutPairNewAirPodsButton.Content" xml:space="preserve">
+    <value>Pair new AirPods</value>
+    <comment>Flyout button that opens Windows Bluetooth pairing. At most 24 characters.</comment>
+  </data>
+  <data name="FlyoutPairNewAirPodsButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.HelpText" xml:space="preserve">
+    <value>Opens Windows Bluetooth pairing. Hold the button on the AirPods case until the light flashes white.</value>
+    <comment>Screen-reader help text of the Pair new AirPods button in the flyout. Two short sentences.</comment>
+  </data>
+  <data name="FlyoutSoundOutputHeading.Text" xml:space="preserve">
+    <value>Sound output</value>
+    <comment>Flyout section heading above the current Windows sound output name and volume slider. At most 20 characters.</comment>
+  </data>
+  <data name="FlyoutNowPlayingHeading.Text" xml:space="preserve">
+    <value>Now Playing</value>
+    <comment>Flyout section heading above the media playback controls. At most 20 characters.</comment>
+  </data>
+  <data name="FlyoutPlaybackPreviousButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Previous track</value>
+    <comment>Screen-reader name of the previous-track button in the flyout media controls. 1-3 words.</comment>
+  </data>
+  <data name="FlyoutPlaybackPreviousButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Previous track</value>
+    <comment>Tooltip of the previous-track button in the flyout media controls. 1-3 words.</comment>
+  </data>
+  <data name="FlyoutPlaybackNextButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Next track</value>
+    <comment>Screen-reader name of the next-track button in the flyout media controls. 1-3 words.</comment>
+  </data>
+  <data name="FlyoutPlaybackNextButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Next track</value>
+    <comment>Tooltip of the next-track button in the flyout media controls. 1-3 words.</comment>
+  </data>
+  <data name="FlyoutBroadcastSourcePicker.PlaceholderText" xml:space="preserve">
+    <value>Choose nearby AirPods</value>
+    <comment>Placeholder of the dropdown in the flyout that lists nearby AirPods heard over Bluetooth, shown until one is chosen. One line, about 30 characters.</comment>
+  </data>
+  <data name="FlyoutBroadcastSourcePicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nearby device, not confirmed</value>
+    <comment>Screen-reader name of the nearby-AirPods dropdown in the flyout; says the device is an unconfirmed Bluetooth estimate. Short phrase.</comment>
+  </data>
+  <data name="FlyoutNearbyEstimateNote.Text" xml:space="preserve">
+    <value>Nearby estimate from a Bluetooth signal. It may be a different pair of AirPods.</value>
+    <comment>Caption in the expanded nearby-device details of the flyout. Wraps to 2-3 lines.</comment>
+  </data>
+  <data name="FlyoutListeningModeHeading.Text" xml:space="preserve">
+    <value>Listening mode</value>
+    <comment>Flyout heading above the Off / Noise Cancellation / Transparency / Adaptive selector. At most 20 characters.</comment>
+  </data>
+  <data name="FlyoutListeningModeSelector.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Listening mode</value>
+    <comment>Screen-reader name of the listening mode selector in the flyout. 1-3 words.</comment>
+  </data>
+  <data name="FlyoutConversationAwarenessLabel.Text" xml:space="preserve">
+    <value>Conversation Awareness</value>
+    <comment>Flyout label of the Conversation Awareness toggle row (an AirPods feature name). One line, at most 28 characters.</comment>
+  </data>
+  <data name="FlyoutAwarenessPendingText.Text" xml:space="preserve">
+    <value>Waiting for confirmation…</value>
+    <comment>Flyout caption shown with a spinner under Conversation Awareness while the AirPods confirm the change. One line, about 28 characters.</comment>
+  </data>
+  <data name="FlyoutAdaptiveStrengthLabel.Text" xml:space="preserve">
+    <value>Adaptive strength</value>
+    <comment>Flyout label of the Adaptive mode strength slider row. One line, at most 20 characters.</comment>
+  </data>
+  <data name="FlyoutStrengthLessLabel.Text" xml:space="preserve">
+    <value>Less</value>
+    <comment>Flyout label at the left end of the Adaptive strength slider (low strength). One word, at most 8 characters.</comment>
+  </data>
+  <data name="FlyoutStrengthMoreLabel.Text" xml:space="preserve">
+    <value>More</value>
+    <comment>Flyout label at the right end of the Adaptive strength slider (high strength). One word, at most 8 characters.</comment>
+  </data>
+  <data name="FlyoutErrorChip.Text" xml:space="preserve">
+    <value>Didn't work</value>
+    <comment>Small error chip in the flyout, left of the last error message. At most 14 characters.</comment>
+  </data>
+  <data name="SettingsRailTitle.Text" xml:space="preserve">
+    <value>Settings</value>
+    <comment>Small heading above the navigation list on the left of the Settings window. One word, ~12 characters.</comment>
+  </data>
+  <data name="SettingsNavGeneral.Content" xml:space="preserve">
+    <value>General</value>
+    <comment>Navigation button on the left of the Settings window: jumps to the General section. One word, ~14 characters (rail is 184 px wide).</comment>
+  </data>
+  <data name="SettingsNavAirPods.Content" xml:space="preserve">
+    <value>AirPods</value>
+    <comment>Navigation button in the Settings window: jumps to the AirPods section. Product name AirPods, keep as is. ~14 characters.</comment>
+  </data>
+  <data name="SettingsNavSound.Content" xml:space="preserve">
+    <value>Sound</value>
+    <comment>Navigation button in the Settings window: jumps to the Sound section. One word, ~14 characters.</comment>
+  </data>
+  <data name="SettingsNavShortcuts.Content" xml:space="preserve">
+    <value>Shortcuts</value>
+    <comment>Navigation button in the Settings window: jumps to the Shortcuts section (links and keyboard shortcuts). One word, ~14 characters.</comment>
+  </data>
+  <data name="SettingsNavAdvanced.Content" xml:space="preserve">
+    <value>Advanced</value>
+    <comment>Navigation button in the Settings window: jumps to the Advanced section. One word, ~14 characters.</comment>
+  </data>
+  <data name="SettingsNavAbout.Content" xml:space="preserve">
+    <value>About</value>
+    <comment>Navigation button in the Settings window: jumps to the About section (version, updates, licences). One word, ~14 characters.</comment>
+  </data>
+  <data name="SettingsGeneralTitle.Text" xml:space="preserve">
+    <value>General</value>
+    <comment>Section title (large) of the General section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsAppearanceHeading.Text" xml:space="preserve">
+    <value>Appearance</value>
+    <comment>Subheading inside the General section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsThemePicker.Header" xml:space="preserve">
+    <value>Theme</value>
+    <comment>Header above the Theme radio buttons (System / Light / Dark) in Settings &gt; General. One word.</comment>
+  </data>
+  <data name="SettingsReduceMotionToggle.Header" xml:space="preserve">
+    <value>Reduce motion</value>
+    <comment>Label of a toggle switch in Settings &gt; General. One line, up to ~50 characters visible (wraps if longer).</comment>
+  </data>
+  <data name="SettingsReduceTransparencyToggle.Header" xml:space="preserve">
+    <value>Reduce transparency</value>
+    <comment>Label of a toggle switch in Settings &gt; General. One line, up to ~50 characters visible (wraps if longer).</comment>
+  </data>
+  <data name="SettingsEffectsNote.Text" xml:space="preserve">
+    <value>When these are off, Clasp follows your Windows settings for animations, transparency and contrast.</value>
+    <comment>Explanation text under a control in Settings &gt; General. Wraps over several lines; about 2 to 4 lines at ~480 px wide. Describes the Reduce motion and Reduce transparency toggles.</comment>
+  </data>
+  <data name="SettingsStartupHeading.Text" xml:space="preserve">
+    <value>Startup</value>
+    <comment>Subheading inside the General section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsRunOnStartupToggle.Header" xml:space="preserve">
+    <value>Start Clasp when I sign in</value>
+    <comment>Label of a toggle switch in Settings &gt; General. One line, up to ~50 characters visible (wraps if longer). Turns on starting Clasp when the user signs in to Windows.</comment>
+  </data>
+  <data name="SettingsRunOnStartupNote.Text" xml:space="preserve">
+    <value>Clasp starts quietly in the tray. No window opens.</value>
+    <comment>Explanation text under a control in Settings &gt; General. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsNoticesHeading.Text" xml:space="preserve">
+    <value>Notices &amp; tray</value>
+    <comment>Subheading inside the General section of the Settings page. One line, short. The ampersand means 'and'.</comment>
+  </data>
+  <data name="SettingsCaseCardToggle.Header" xml:space="preserve">
+    <value>Show Clasp when the AirPods case opens</value>
+    <comment>Label of a toggle switch in Settings &gt; General. One line, up to ~50 characters visible (wraps if longer). The case card is the small panel Clasp shows when the AirPods case opens.</comment>
+  </data>
+  <data name="SettingsCaseCardNote.Text" xml:space="preserve">
+    <value>Clasp appears for a few seconds when you open your AirPods case, without taking focus. Needs nearby detection. AirPods that belong to someone else nearby might trigger it.</value>
+    <comment>Explanation text under a control in Settings &gt; General. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsCaseHideAfterLabel.Text" xml:space="preserve">
+    <value>Hide after</value>
+    <comment>Label to the left of the seconds value above the 'hide after' slider in Settings &gt; General. One line, short.</comment>
+  </data>
+  <data name="SettingsCaseSecondsSlider.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Seconds before Clasp hides</value>
+    <comment>Accessible name read by screen readers for a slider in Settings &gt; General. Not shown on screen. Sets how many seconds the case card stays visible.</comment>
+  </data>
+  <data name="SettingsHandoffToggle.Header" xml:space="preserve">
+    <value>Tell me when my AirPods move to another device</value>
+    <comment>Label of a toggle switch in Settings &gt; General. One line, up to ~50 characters visible (wraps if longer). Handoff notice: the AirPods connected to a different device nearby.</comment>
+  </data>
+  <data name="SettingsHandoffNote.Text" xml:space="preserve">
+    <value>If your AirPods disconnect from this PC but are still nearby, Clasp lets you know and offers to take them back. Clasp can only say probably, because it can't know which device has them. Needs nearby detection.</value>
+    <comment>Explanation text under a control in Settings &gt; General. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsTrayColourToggle.Header" xml:space="preserve">
+    <value>Colour the tray icon by battery level</value>
+    <comment>Label of a toggle switch in Settings &gt; General. One line, up to ~50 characters visible (wraps if longer). 'Colour' is the British spelling in English.</comment>
+  </data>
+  <data name="SettingsTrayColourNote.Text" xml:space="preserve">
+    <value>Amber when low, red at your low-battery level, green while charging. Hover for the exact percentage.</value>
+    <comment>Explanation text under a control in Settings &gt; General. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsTrayDimToggle.Header" xml:space="preserve">
+    <value>Dim the tray icon when sound isn't on your AirPods</value>
+    <comment>Label of a toggle switch in Settings &gt; General. One line, up to ~50 characters visible (wraps if longer).</comment>
+  </data>
+  <data name="SettingsTrayDimNote.Text" xml:space="preserve">
+    <value>Helps you see at a glance when sound is going somewhere else.</value>
+    <comment>Explanation text under a control in Settings &gt; General. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsAirPodsTitle.Text" xml:space="preserve">
+    <value>AirPods</value>
+    <comment>Section title (large) of the AirPods section of the Settings page. Product name AirPods, keep as is.</comment>
+  </data>
+  <data name="SettingsYourAirPodsHeading.Text" xml:space="preserve">
+    <value>Your AirPods</value>
+    <comment>Subheading inside the AirPods section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsYourAirPodsNote.Text" xml:space="preserve">
+    <value>Choose AirPods you've already paired in Windows. Clasp uses them when you connect from Clasp.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsPairedDevicePicker.Header" xml:space="preserve">
+    <value>AirPods</value>
+    <comment>Header (label above the control) of a drop-down or text box in Settings &gt; AirPods. One line, up to ~45 characters. Product name AirPods, keep as is. Lists AirPods already paired in Windows.</comment>
+  </data>
+  <data name="SettingsPairedDevicePicker.PlaceholderText" xml:space="preserve">
+    <value>Choose your AirPods</value>
+    <comment>Placeholder shown in the paired-AirPods drop-down in Settings &gt; AirPods when nothing is chosen. One line, up to ~35 characters.</comment>
+  </data>
+  <data name="SettingsColorwayPicker.Header" xml:space="preserve">
+    <value>Device color</value>
+    <comment>Header (label above the control) of a drop-down or text box in Settings &gt; AirPods. One line, up to ~45 characters. Chooses the colour of the AirPods picture; only shown when the model has several colours.</comment>
+  </data>
+  <data name="SettingsRefreshPairedDevicesButton.Content" xml:space="preserve">
+    <value>Refresh list</value>
+    <comment>Button label in Settings &gt; AirPods. One line, up to ~24 characters. Reloads the list of paired AirPods.</comment>
+  </data>
+  <data name="SettingsOpenBluetoothButton.Content" xml:space="preserve">
+    <value>Open Bluetooth settings</value>
+    <comment>Button label in Settings &gt; AirPods. One line, up to ~24 characters. Opens the Windows Bluetooth settings page.</comment>
+  </data>
+  <data name="SettingsClearPairedDeviceButton.Content" xml:space="preserve">
+    <value>Clear choice</value>
+    <comment>Button label in Settings &gt; AirPods. One line, up to ~24 characters. Forgets the chosen AirPods in Clasp (does not unpair them from Windows).</comment>
+  </data>
+  <data name="SettingsPairedOutputNote.Text" xml:space="preserve">
+    <value>Choosing AirPods here doesn't change your sound output. Use Sound for that.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide. 'Sound' refers to the Sound section of this window.</comment>
+  </data>
+  <data name="SettingsConnectingHeading.Text" xml:space="preserve">
+    <value>Connecting</value>
+    <comment>Subheading inside the AirPods section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsNearbyDetectionToggle.Header" xml:space="preserve">
+    <value>Nearby detection</value>
+    <comment>Label of a toggle switch in Settings &gt; AirPods. One line, up to ~50 characters visible (wraps if longer).</comment>
+  </data>
+  <data name="SettingsAutoConnectToggle.Header" xml:space="preserve">
+    <value>Connect automatically when nearby</value>
+    <comment>Label of a toggle switch in Settings &gt; AirPods. One line, up to ~50 characters visible (wraps if longer).</comment>
+  </data>
+  <data name="SettingsAutoConnectNote.Text" xml:space="preserve">
+    <value>Off by default. When on, Clasp tries once to connect your chosen AirPods after it notices a case opening nearby. That could be someone else's AirPods. Clasp never starts or resumes your music.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsAutoConnectUnverifiedNote.Text" xml:space="preserve">
+    <value>Nearby readings can't be verified, so someone else's AirPods, or a fake signal, could trigger these.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide. Same sentence as the one under Ear detection.</comment>
+  </data>
+  <data name="SettingsConnectDisconnectHeading.Text" xml:space="preserve">
+    <value>When AirPods connect or disconnect</value>
+    <comment>Subheading inside the AirPods section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsAutoPlayToggle.Header" xml:space="preserve">
+    <value>Play music when AirPods connect</value>
+    <comment>Label of a toggle switch in Settings &gt; AirPods. One line, up to ~50 characters visible (wraps if longer).</comment>
+  </data>
+  <data name="SettingsAutoPlayNote.Text" xml:space="preserve">
+    <value>Clasp presses Play shortly after your AirPods connect, but only when they're your sound output. It doesn't do this if they were already connected when Clasp opened.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsAutoPauseToggle.Header" xml:space="preserve">
+    <value>Pause music when AirPods disconnect</value>
+    <comment>Label of a toggle switch in Settings &gt; AirPods. One line, up to ~50 characters visible (wraps if longer).</comment>
+  </data>
+  <data name="SettingsAutoPauseNote.Text" xml:space="preserve">
+    <value>Keeps sound from suddenly playing through your PC speakers. Windows sometimes does this on its own.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsDefaultVolumeToggle.Header" xml:space="preserve">
+    <value>Set volume when AirPods connect</value>
+    <comment>Label of a toggle switch in Settings &gt; AirPods. One line, up to ~50 characters visible (wraps if longer).</comment>
+  </data>
+  <data name="SettingsDefaultVolumeNote.Text" xml:space="preserve">
+    <value>Sets the volume each time your AirPods connect. When off, the volume stays as it was.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsVolumeOnConnectLabel.Text" xml:space="preserve">
+    <value>Volume on connect</value>
+    <comment>Label to the left of the percent value above the volume slider in Settings &gt; AirPods. One line, short.</comment>
+  </data>
+  <data name="SettingsVolumeOnConnectSlider.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Volume when AirPods connect, percent</value>
+    <comment>Accessible name read by screen readers for a slider in Settings &gt; AirPods. Not shown on screen. Sets the volume applied when the AirPods connect.</comment>
+  </data>
+  <data name="SettingsSwitchOutputToggle.Header" xml:space="preserve">
+    <value>Switch sound to AirPods when they connect</value>
+    <comment>Label of a toggle switch in Settings &gt; AirPods. One line, up to ~50 characters visible (wraps if longer).</comment>
+  </data>
+  <data name="SettingsSwitchOutputNote.Text" xml:space="preserve">
+    <value>Makes your AirPods the sound output when they connect. Skipped if you just chose an output yourself, or while Clasp is switching back to your previous one.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsEarDetectionHeading.Text" xml:space="preserve">
+    <value>Ear detection</value>
+    <comment>Subheading inside the AirPods section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsEarDetectionToggle.Header" xml:space="preserve">
+    <value>Ear detection (nearby estimate)</value>
+    <comment>Label of a toggle switch in Settings &gt; AirPods. One line, up to ~50 characters visible (wraps if longer). Another note quotes this label by name: keep it identical to the quote in SettingsPauseOnRemovalNote.</comment>
+  </data>
+  <data name="SettingsEarDetectionNote.Text" xml:space="preserve">
+    <value>Pauses when you take your AirPods out and resumes when you put them back. This is an estimate from nearby signals, so it can be slow or miss changes, especially on AirPods with the H2 chip. Off by default. It works together with "Pause media when AirPods are removed" in Sound, and only when the signal is probably your AirPods.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide. Contains the quoted name of another setting, 'Pause media when AirPods are removed': keep it identical to SettingsPauseOnRemovalToggle.Header. 'H2' is a chip name, keep as is.</comment>
+  </data>
+  <data name="SettingsEarDetectionUnverifiedNote.Text" xml:space="preserve">
+    <value>Nearby readings can't be verified, so someone else's AirPods, or a fake signal, could trigger these.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide. Same sentence as the one under Connect automatically.</comment>
+  </data>
+  <data name="SettingsEarOutputPicker.Header" xml:space="preserve">
+    <value>When both AirPods are out, play through:</value>
+    <comment>Header (label above the control) of a drop-down or text box in Settings &gt; AirPods. One line, up to ~45 characters. Ends with a colon. Chooses the sound output used while both AirPods are out of the ears.</comment>
+  </data>
+  <data name="SettingsEarOutputPicker.PlaceholderText" xml:space="preserve">
+    <value>Don't switch</value>
+    <comment>Placeholder shown in the ear-removed output drop-down in Settings &gt; AirPods when no output is chosen. One line, ~20 characters.</comment>
+  </data>
+  <data name="SettingsEarOutputPicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sound output to use while both AirPods are out</value>
+    <comment>Accessible name read by screen readers for the ear-removed output drop-down in Settings &gt; AirPods. Not shown on screen.</comment>
+  </data>
+  <data name="SettingsEarOutputClearButton.Content" xml:space="preserve">
+    <value>Don't switch</value>
+    <comment>Button label in Settings &gt; AirPods. One line, up to ~24 characters. Clears the chosen output so Clasp does not switch. Same wording as the drop-down placeholder.</comment>
+  </data>
+  <data name="SettingsEarOutputNote.Text" xml:space="preserve">
+    <value>Clasp switches back to your AirPods when you put one in, unless you changed the output yourself.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsMicHeading.Text" xml:space="preserve">
+    <value>Microphone and sound quality</value>
+    <comment>Subheading inside the AirPods section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsHandsfreePicker.Header" xml:space="preserve">
+    <value>AirPods microphone (Handsfree)</value>
+    <comment>Header (label above the control) of a drop-down or text box in Settings &gt; AirPods. One line, up to ~45 characters. 'Handsfree' is the Bluetooth profile name.</comment>
+  </data>
+  <data name="SettingsHandsfreeAlwaysOnItem.Content" xml:space="preserve">
+    <value>Always on (Windows default)</value>
+    <comment>Choice in the AirPods microphone drop-down in Settings &gt; AirPods. One line, up to ~35 characters.</comment>
+  </data>
+  <data name="SettingsHandsfreeAlwaysOffItem.Content" xml:space="preserve">
+    <value>Always off</value>
+    <comment>Choice in the AirPods microphone drop-down in Settings &gt; AirPods. One line, short.</comment>
+  </data>
+  <data name="SettingsHandsfreeSmartItem.Content" xml:space="preserve">
+    <value>Smart</value>
+    <comment>Choice in the AirPods microphone drop-down in Settings &gt; AirPods (the microphone turns on only while an app uses it). One word, short.</comment>
+  </data>
+  <data name="SettingsLowLatencyToggle.Header" xml:space="preserve">
+    <value>Low audio latency</value>
+    <comment>Label of a toggle switch in Settings &gt; AirPods. One line, up to ~50 characters visible (wraps if longer).</comment>
+  </data>
+  <data name="SettingsLowLatencyNote.Text" xml:space="preserve">
+    <value>Keeps the audio connection awake so sounds start right away. Uses a little more battery.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsBatteryHeading.Text" xml:space="preserve">
+    <value>Battery</value>
+    <comment>Subheading inside the AirPods section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsLowBatteryPicker.Header" xml:space="preserve">
+    <value>Low battery notification</value>
+    <comment>Header (label above the control) of a drop-down or text box in Settings &gt; AirPods. One line, up to ~45 characters.</comment>
+  </data>
+  <data name="SettingsLowBatteryOffItem.Content" xml:space="preserve">
+    <value>Off</value>
+    <comment>Choice in the Low battery notification drop-down in Settings &gt; AirPods: notification turned off. One word.</comment>
+  </data>
+  <data name="SettingsLowBatteryAt10Item.Content" xml:space="preserve">
+    <value>At 10%</value>
+    <comment>Choice in the Low battery notification drop-down in Settings &gt; AirPods: notify when an earbud reaches 10 percent. Short.</comment>
+  </data>
+  <data name="SettingsLowBatteryAt20Item.Content" xml:space="preserve">
+    <value>At 20%</value>
+    <comment>Choice in the Low battery notification drop-down in Settings &gt; AirPods: notify when an earbud reaches 20 percent. Short.</comment>
+  </data>
+  <data name="SettingsLowBatteryAt30Item.Content" xml:space="preserve">
+    <value>At 30%</value>
+    <comment>Choice in the Low battery notification drop-down in Settings &gt; AirPods: notify when an earbud reaches 30 percent. Short.</comment>
+  </data>
+  <data name="SettingsLowBatteryNote.Text" xml:space="preserve">
+    <value>Shows a notification when an earbud reaches this level. Battery updates in 10% steps. Needs nearby detection, and only when the signal is probably your AirPods.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsFixConnectionHeading.Text" xml:space="preserve">
+    <value>Fix connection</value>
+    <comment>Subheading inside the AirPods section of the Settings page. One line, short. Heading of the Fix connection card.</comment>
+  </data>
+  <data name="SettingsFixConnectionNote.Text" xml:space="preserve">
+    <value>Turns Bluetooth off and on, then reconnects your AirPods. Other Bluetooth devices, like a mouse or keyboard, disconnect for a few seconds.</value>
+    <comment>Explanation text under a control in Settings &gt; AirPods. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsFixConnectionButton.Content" xml:space="preserve">
+    <value>Fix connection</value>
+    <comment>Button label in Settings &gt; AirPods. One line, up to ~24 characters. Starts the Fix connection repair.</comment>
+  </data>
+  <data name="SettingsFixConnectionCancelButton.Content" xml:space="preserve">
+    <value>Cancel</value>
+    <comment>Button label in Settings &gt; AirPods. One line, up to ~24 characters. Cancels a running Fix connection repair.</comment>
+  </data>
+  <data name="SettingsBatteryHistoryRefreshButton.Content" xml:space="preserve">
+    <value>Refresh</value>
+    <comment>Button label in Settings &gt; AirPods. One line, up to ~24 characters. Under the battery history chart; reloads the chart.</comment>
+  </data>
+  <data name="SettingsBatteryHistoryClearButton.Content" xml:space="preserve">
+    <value>Clear history</value>
+    <comment>Button label in Settings &gt; AirPods. One line, up to ~24 characters. Under the battery history chart; opens a confirmation to delete the history.</comment>
+  </data>
+  <data name="SettingsBatteryHistoryClearButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Clear battery history</value>
+    <comment>Accessible name read by screen readers for the Clear history button in Settings &gt; AirPods. Not shown on screen.</comment>
+  </data>
+  <data name="SettingsSoundTitle.Text" xml:space="preserve">
+    <value>Sound</value>
+    <comment>Section title (large) of the Sound section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsAudioOutputHeading.Text" xml:space="preserve">
+    <value>Audio output</value>
+    <comment>Subheading inside the Sound section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsRestoreOutputToggle.Header" xml:space="preserve">
+    <value>Restore previous sound output after disconnect</value>
+    <comment>Label of a toggle switch in Settings &gt; Sound. One line, up to ~50 characters visible (wraps if longer).</comment>
+  </data>
+  <data name="SettingsRestoreOutputNote.Text" xml:space="preserve">
+    <value>Clasp remembers the sound output you used before your AirPods connected and switches back when they disconnect. Changes you make yourself come first. Microphones aren't changed.</value>
+    <comment>Explanation text under a control in Settings &gt; Sound. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsAudioTargetPicker.Header" xml:space="preserve">
+    <value>AirPods sound output</value>
+    <comment>Header (label above the control) of a drop-down or text box in Settings &gt; Sound. One line, up to ~45 characters. Chooses which Windows sound output is the AirPods.</comment>
+  </data>
+  <data name="SettingsAudioTargetPicker.PlaceholderText" xml:space="preserve">
+    <value>Choose your AirPods sound output</value>
+    <comment>Placeholder shown in the AirPods sound output drop-down in Settings &gt; Sound when nothing is chosen. One line, up to ~40 characters.</comment>
+  </data>
+  <data name="SettingsAudioTargetPicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>AirPods sound output to watch</value>
+    <comment>Accessible name read by screen readers for the AirPods sound output drop-down in Settings &gt; Sound. Not shown on screen.</comment>
+  </data>
+  <data name="SettingsUseAudioTargetButton.Content" xml:space="preserve">
+    <value>Use this sound output now</value>
+    <comment>Button label in Settings &gt; Sound. One line, up to ~24 characters. Switches Windows sound to the chosen output right now.</comment>
+  </data>
+  <data name="SettingsAudioTargetNote.Text" xml:space="preserve">
+    <value>Plays media and calls through this sound output. Your microphone doesn't change.</value>
+    <comment>Explanation text under a control in Settings &gt; Sound. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsFallbackPicker.Header" xml:space="preserve">
+    <value>Fallback sound output</value>
+    <comment>Header (label above the control) of a drop-down or text box in Settings &gt; Sound. One line, up to ~45 characters. Output Clasp falls back to when it does not know the previous one.</comment>
+  </data>
+  <data name="SettingsFallbackPicker.PlaceholderText" xml:space="preserve">
+    <value>Optional: your speakers or another headset</value>
+    <comment>Placeholder shown in the fallback sound output drop-down in Settings &gt; Sound when nothing is chosen. One line, up to ~45 characters.</comment>
+  </data>
+  <data name="SettingsFallbackPicker.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Fallback sound output when the previous output is unknown</value>
+    <comment>Accessible name read by screen readers for the fallback sound output drop-down in Settings &gt; Sound. Not shown on screen.</comment>
+  </data>
+  <data name="SettingsUseFallbackButton.Content" xml:space="preserve">
+    <value>Use fallback now</value>
+    <comment>Button label in Settings &gt; Sound. One line, up to ~24 characters. Switches Windows sound to the fallback output right now.</comment>
+  </data>
+  <data name="SettingsClearFallbackButton.Content" xml:space="preserve">
+    <value>Clear fallback</value>
+    <comment>Button label in Settings &gt; Sound. One line, up to ~24 characters. Removes the chosen fallback output.</comment>
+  </data>
+  <data name="SettingsFallbackNote.Text" xml:space="preserve">
+    <value>Used when your AirPods are already the sound output as Clasp starts, so there's no earlier one to go back to. Normally Clasp switches back to the sound output you used before.</value>
+    <comment>Explanation text under a control in Settings &gt; Sound. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsOutputVolumeLabel.Text" xml:space="preserve">
+    <value>AirPods output volume</value>
+    <comment>Label to the left of the percent value above the output volume slider in Settings &gt; Sound. One line, short.</comment>
+  </data>
+  <data name="SettingsOutputVolumeSlider.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>AirPods output volume</value>
+    <comment>Accessible name read by screen readers for a slider in Settings &gt; Sound. Not shown on screen. Sets the volume of the AirPods sound output.</comment>
+  </data>
+  <data name="SettingsRefreshAudioButton.Content" xml:space="preserve">
+    <value>Refresh list</value>
+    <comment>Button label in Settings &gt; Sound. One line, up to ~24 characters. Reloads the list of Windows sound outputs.</comment>
+  </data>
+  <data name="SettingsMediaHeading.Text" xml:space="preserve">
+    <value>Media controls</value>
+    <comment>Subheading inside the Sound section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsPlaybackControlsToggle.Header" xml:space="preserve">
+    <value>Show playback controls in Clasp</value>
+    <comment>Label of a toggle switch in Settings &gt; Sound. One line, up to ~50 characters visible (wraps if longer). Shows Play/Pause/Previous/Next in the Clasp panel.</comment>
+  </data>
+  <data name="SettingsPlaybackControlsNote.Text" xml:space="preserve">
+    <value>Shows what's playing in Windows, with Play, Pause, Previous and Next, in the Clasp panel. Turning this off stops Clasp from reading Windows media.</value>
+    <comment>Explanation text under a control in Settings &gt; Sound. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsPauseOnRemovalToggle.Header" xml:space="preserve">
+    <value>Pause media when AirPods are removed</value>
+    <comment>Label of a toggle switch in Settings &gt; Sound. One line, up to ~50 characters visible (wraps if longer). Another note quotes this label by name: keep it identical to the quote in SettingsEarDetectionNote.</comment>
+  </data>
+  <data name="SettingsPauseOnRemovalNote.Text" xml:space="preserve">
+    <value>Clasp pauses when you take your AirPods out and resumes only what it paused. It cancels the resume if you use playback controls, switch players or disconnect. This doesn't change the ear detection built into your AirPods. It needs ear changes from your AirPods, or "Ear detection (nearby estimate)" turned on in AirPods.</value>
+    <comment>Explanation text under a control in Settings &gt; Sound. Wraps over several lines; about 2 to 4 lines at ~480 px wide. Contains the quoted name 'Ear detection (nearby estimate)': keep it identical to SettingsEarDetectionToggle.Header. The final 'AirPods' refers to the AirPods section of this window.</comment>
+  </data>
+  <data name="SettingsPhoneAudioHeading.Text" xml:space="preserve">
+    <value>Phone audio</value>
+    <comment>Subheading inside the Sound section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsPhoneAudioNote.Text" xml:space="preserve">
+    <value>Play your phone's audio through this PC, like a Bluetooth speaker.</value>
+    <comment>Explanation text under a control in Settings &gt; Sound. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsPhonePicker.Header" xml:space="preserve">
+    <value>Phone</value>
+    <comment>Header (label above the control) of a drop-down or text box in Settings &gt; Sound. One line, up to ~45 characters. Chooses the phone whose audio plays through this PC.</comment>
+  </data>
+  <data name="SettingsPhonePicker.PlaceholderText" xml:space="preserve">
+    <value>Choose a phone</value>
+    <comment>Placeholder shown in the phone drop-down in Settings &gt; Sound when no phone is chosen. One line, ~25 characters.</comment>
+  </data>
+  <data name="SettingsPhoneListNote.Text" xml:space="preserve">
+    <value>Only phones that Windows says can stream audio appear here.</value>
+    <comment>Explanation text under a control in Settings &gt; Sound. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsPhoneRefreshButton.Content" xml:space="preserve">
+    <value>Refresh phones</value>
+    <comment>Button label in Settings &gt; Sound. One line, up to ~24 characters. Searches again for nearby phones.</comment>
+  </data>
+  <data name="SettingsPhoneConnectButton.Content" xml:space="preserve">
+    <value>Connect</value>
+    <comment>Button label in Settings &gt; Sound. One line, up to ~24 characters. Initial text only: it switches to 'Disconnect' while connected (Settings_Phone_Disconnect).</comment>
+  </data>
+  <data name="SettingsShortcutsTitle.Text" xml:space="preserve">
+    <value>Shortcuts</value>
+    <comment>Section title (large) of the Shortcuts section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsLinksHeading.Text" xml:space="preserve">
+    <value>Links</value>
+    <comment>Subheading inside the Shortcuts section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsAllowLinksToggle.Header" xml:space="preserve">
+    <value>Allow clasp:// links</value>
+    <comment>Label of a toggle switch in Settings &gt; Shortcuts. One line, up to ~50 characters visible (wraps if longer). 'clasp://' is a literal link scheme, do not translate it.</comment>
+  </data>
+  <data name="SettingsAllowLinksNote.Text" xml:space="preserve">
+    <value>Lets other apps on this PC, like Stream Deck or PowerToys, ask Clasp to connect, switch sound or open settings by opening a link such as clasp://connect. Links can only do the things listed below. Turning this on adds a small entry for your Windows account only, and turning it off removes it.</value>
+    <comment>Explanation text under a control in Settings &gt; Shortcuts. Wraps over several lines; about 2 to 4 lines at ~480 px wide. Mentions third-party app names (Stream Deck, PowerToys) and the example link 'clasp://connect': keep those as is.</comment>
+  </data>
+  <data name="SettingsLinksWebsiteNote.Text" xml:space="preserve">
+    <value>Websites can open these links too. Clasp asks before connecting, changing your sound, fixing the connection or playing or pausing your media.</value>
+    <comment>Explanation text under a control in Settings &gt; Shortcuts. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsGlobalShortcutsHeading.Text" xml:space="preserve">
+    <value>Global shortcuts</value>
+    <comment>Subheading inside the Shortcuts section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsGlobalShortcutsNote.Text" xml:space="preserve">
+    <value>Shortcuts work in any app and are empty until you set them. Use Ctrl, Alt or Win, for example Ctrl+Alt+A, then press Enter or Tab to save. Windows keeps some shortcuts for itself.</value>
+    <comment>Explanation text under a control in Settings &gt; Shortcuts. Wraps over several lines; about 2 to 4 lines at ~480 px wide. Contains key names (Ctrl, Alt, Win, Enter, Tab) and the example 'Ctrl+Alt+A'; use the key names as printed on a keyboard in the target language.</comment>
+  </data>
+  <data name="SettingsAdvancedTitle.Text" xml:space="preserve">
+    <value>Advanced</value>
+    <comment>Section title (large) of the Advanced section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsAdvancedNote.Text" xml:space="preserve">
+    <value>These features rely on parts of Windows that Clasp doesn't control, so they might stop working after a Windows update. They're off by default.</value>
+    <comment>Explanation text under a control in Settings &gt; Advanced. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsStemHeading.Text" xml:space="preserve">
+    <value>Stem actions</value>
+    <comment>Subheading inside the Advanced section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsStemToggle.Header" xml:space="preserve">
+    <value>Customize AirPods stem presses</value>
+    <comment>Label of a toggle switch in Settings &gt; Advanced. One line, up to ~50 characters visible (wraps if longer).</comment>
+  </data>
+  <data name="SettingsStemNote.Text" xml:space="preserve">
+    <value>Change what pressing the stem does while your AirPods are the sound output. Windows can't tell stem presses from keyboard media keys, so those keys change too while this is on.</value>
+    <comment>Explanation text under a control in Settings &gt; Advanced. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsStemPressOncePicker.Header" xml:space="preserve">
+    <value>Press once (play/pause)</value>
+    <comment>Header (label above the control) of a drop-down or text box in Settings &gt; Advanced. One line, up to ~45 characters. Chooses what a single stem press does.</comment>
+  </data>
+  <data name="SettingsStemLeaveAsIsItem.Content" xml:space="preserve">
+    <value>Leave as is</value>
+    <comment>Choice in a stem-press action drop-down in Settings &gt; Advanced (shared by the three drop-downs). One line, up to ~30 characters. Keep identical to the quoted name in SettingsStemLeaveAsIsNote.</comment>
+  </data>
+  <data name="SettingsStemMuteItem.Content" xml:space="preserve">
+    <value>Mute or unmute microphone</value>
+    <comment>Choice in a stem-press action drop-down in Settings &gt; Advanced (shared by the three drop-downs). One line, up to ~30 characters.</comment>
+  </data>
+  <data name="SettingsStemPlayPauseItem.Content" xml:space="preserve">
+    <value>Play/pause</value>
+    <comment>Choice in a stem-press action drop-down in Settings &gt; Advanced (shared by the three drop-downs). One line, up to ~30 characters.</comment>
+  </data>
+  <data name="SettingsStemNextItem.Content" xml:space="preserve">
+    <value>Next track</value>
+    <comment>Choice in a stem-press action drop-down in Settings &gt; Advanced (shared by the three drop-downs). One line, up to ~30 characters.</comment>
+  </data>
+  <data name="SettingsStemPreviousItem.Content" xml:space="preserve">
+    <value>Previous track</value>
+    <comment>Choice in a stem-press action drop-down in Settings &gt; Advanced (shared by the three drop-downs). One line, up to ~30 characters.</comment>
+  </data>
+  <data name="SettingsStemNothingItem.Content" xml:space="preserve">
+    <value>Do nothing</value>
+    <comment>Choice in a stem-press action drop-down in Settings &gt; Advanced (shared by the three drop-downs). One line, up to ~30 characters.</comment>
+  </data>
+  <data name="SettingsStemPressTwicePicker.Header" xml:space="preserve">
+    <value>Press twice (next track)</value>
+    <comment>Header (label above the control) of a drop-down or text box in Settings &gt; Advanced. One line, up to ~45 characters. Chooses what a double stem press does.</comment>
+  </data>
+  <data name="SettingsStemPressThricePicker.Header" xml:space="preserve">
+    <value>Press three times (previous track)</value>
+    <comment>Header (label above the control) of a drop-down or text box in Settings &gt; Advanced. One line, up to ~45 characters. Chooses what a triple stem press does.</comment>
+  </data>
+  <data name="SettingsStemLeaveAsIsNote.Text" xml:space="preserve">
+    <value>"Leave as is" keeps that press the way Windows handles it.</value>
+    <comment>Explanation text under a control in Settings &gt; Advanced. Wraps over several lines; about 2 to 4 lines at ~480 px wide. Contains the quoted name of a choice: keep it identical to SettingsStemLeaveAsIsItem.Content.</comment>
+  </data>
+  <data name="SettingsPerAppHeading.Text" xml:space="preserve">
+    <value>Output for each app</value>
+    <comment>Subheading inside the Advanced section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsPerAppToggle.Header" xml:space="preserve">
+    <value>Choose a sound output for each app</value>
+    <comment>Label of a toggle switch in Settings &gt; Advanced. One line, up to ~50 characters visible (wraps if longer).</comment>
+  </data>
+  <data name="SettingsPerAppNote.Text" xml:space="preserve">
+    <value>Send certain apps to certain sound outputs, for example music to your AirPods and games to your speakers. This uses an experimental Windows feature that an update could break.</value>
+    <comment>Explanation text under a control in Settings &gt; Advanced. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsPerAppRulesBox.Header" xml:space="preserve">
+    <value>Rules (one per line)</value>
+    <comment>Header of the multi-line rules text box in Settings &gt; Advanced. One line, short.</comment>
+  </data>
+  <data name="SettingsPerAppRulesBox.PlaceholderText" xml:space="preserve">
+    <value>spotify.exe=airpods</value>
+    <comment>Example rule shown in the empty rules text box in Settings &gt; Advanced. Literal rule syntax (app file name = target): do NOT translate.</comment>
+  </data>
+  <data name="SettingsPerAppRulesBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Output rules for each app, one per line</value>
+    <comment>Accessible name read by screen readers for the per-app output rules text box in Settings &gt; Advanced. Not shown on screen.</comment>
+  </data>
+  <data name="SettingsPerAppSyntaxNote.Text" xml:space="preserve">
+    <value>Write an app name, an equals sign, then airpods, speakers or default. For example: spotify.exe=airpods or chrome.exe=default. To pick one particular speaker, write speakers:ID.</value>
+    <comment>Explanation text under a control in Settings &gt; Advanced. Wraps over several lines; about 2 to 4 lines at ~480 px wide. Describes the rule syntax: the words airpods, speakers, default, the file names (spotify.exe, chrome.exe) and 'speakers:ID' are literal text typed by the user and must NOT be translated.</comment>
+  </data>
+  <data name="SettingsPerAppTimingNote.Text" xml:space="preserve">
+    <value>Rules apply when an app starts playing sound. Apps sent to your AirPods switch to the default output when the AirPods disconnect, and go back when they reconnect.</value>
+    <comment>Explanation text under a control in Settings &gt; Advanced. Wraps over several lines; about 2 to 4 lines at ~480 px wide.</comment>
+  </data>
+  <data name="SettingsAboutTitle.Text" xml:space="preserve">
+    <value>About</value>
+    <comment>Section title (large) of the About section of the Settings page. One line, short.</comment>
+  </data>
+  <data name="SettingsAboutTagline.Text" xml:space="preserve">
+    <value>Connect your AirPods with one click.</value>
+    <comment>Tagline under the app name in Settings &gt; About. One line, ~40 characters (wraps if longer).</comment>
+  </data>
+  <data name="SettingsShowWelcomeButton.Content" xml:space="preserve">
+    <value>Show welcome guide</value>
+    <comment>Button label in Settings &gt; About. One line, up to ~24 characters. Reopens the welcome guide.</comment>
+  </data>
+  <data name="SettingsDevelopedBy.Text" xml:space="preserve">
+    <value>Developed by yirock7</value>
+    <comment>Credit line in Settings &gt; About. 'yirock7' is the developer's user name, keep as is. One line.</comment>
+  </data>
+  <data name="SettingsLicensesLink.Content" xml:space="preserve">
+    <value>Open-source licenses</value>
+    <comment>Link text in Settings &gt; About that opens the open-source licenses dialog. One line. Keep identical to the dialog title (Settings_Licenses_Title).</comment>
+  </data>
+  <data name="SettingsLicensesLink.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Open-source licenses</value>
+    <comment>Accessible name read by screen readers for the open-source licenses link in Settings &gt; About. Same text as the link. Not shown on screen.</comment>
+  </data>
+  <data name="SettingsTrademarkNote.Text" xml:space="preserve">
+    <value>Clasp isn't affiliated with Apple. AirPods is a trademark of Apple Inc.</value>
+    <comment>Explanation text under a control in Settings &gt; About. Wraps over several lines; about 2 to 4 lines at ~480 px wide. Legal wording; 'Apple Inc.' and 'AirPods' are names.</comment>
+  </data>
+  <data name="SettingsDesignNote.Text" xml:space="preserve">
+    <value>The design is inspired by Liquid Glass and built with WinUI. It doesn't use Apple's rendering technology.</value>
+    <comment>Explanation text under a control in Settings &gt; About. Wraps over several lines; about 2 to 4 lines at ~480 px wide. 'Liquid Glass' and 'WinUI' are names; keep as is.</comment>
+  </data>
+  <data name="SettingsUpdatesHeading.Text" xml:space="preserve">
+    <value>Updates</value>
+    <comment>Subheading inside the About section of the Settings page. One line, short. Heading of the Updates card.</comment>
+  </data>
+  <data name="SettingsUpdateFrequencyPicker.Header" xml:space="preserve">
+    <value>Check for updates</value>
+    <comment>Header (label above the control) of a drop-down or text box in Settings &gt; About. One line, up to ~45 characters. Chooses how often Clasp checks for updates.</comment>
+  </data>
+  <data name="SettingsUpdatesNote.Text" xml:space="preserve">
+    <value>Clasp checks GitHub for new releases. Nothing about you or your devices is sent. An update installs only when you choose Update, and only if it's signed with Clasp's release key.</value>
+    <comment>Explanation text under a control in Settings &gt; About. Wraps over several lines; about 2 to 4 lines at ~480 px wide. 'Update' refers to the Update button; 'GitHub' is a name.</comment>
+  </data>
+  <data name="SettingsCheckNowButton.Content" xml:space="preserve">
+    <value>Check now</value>
+    <comment>Button label in Settings &gt; About. One line, up to ~24 characters. Checks for updates now. The first update-frequency choice, 'Only when I click Check now', refers to this label.</comment>
+  </data>
+  <data name="SettingsInstallUpdateButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.HelpText" xml:space="preserve">
+    <value>Downloads and checks the update, closes Clasp, installs it and reopens Clasp.</value>
+    <comment>Help text read by screen readers for the Update button in Settings &gt; About (the button text itself comes from the update status). Not shown on screen.</comment>
+  </data>
+  <data name="SettingsReleaseNotesButton.Content" xml:space="preserve">
+    <value>Release notes</value>
+    <comment>Button label in Settings &gt; About. One line, up to ~24 characters. Opens the release notes web page.</comment>
+  </data>
+  <data name="SettingsThemeSystemOption.Content" xml:space="preserve">
+    <value>System</value>
+    <comment>Choice (radio button) for Theme in Settings &gt; General: follow the Windows theme. One word.</comment>
+  </data>
+  <data name="SettingsThemeLightOption.Content" xml:space="preserve">
+    <value>Light</value>
+    <comment>Choice (radio button) for Theme in Settings &gt; General: light theme. One word.</comment>
+  </data>
+  <data name="SettingsThemeDarkOption.Content" xml:space="preserve">
+    <value>Dark</value>
+    <comment>Choice (radio button) for Theme in Settings &gt; General: dark theme. One word.</comment>
+  </data>
+  <data name="SettingsUpdateFreqManualOption.Content" xml:space="preserve">
+    <value>Only when I click Check now</value>
+    <comment>Choice in the Check for updates drop-down in Settings &gt; About: no automatic checks. Refers to the Check now button. One line, ~35 characters.</comment>
+  </data>
+  <data name="SettingsUpdateFreqDailyOption.Content" xml:space="preserve">
+    <value>Daily</value>
+    <comment>Choice in the Check for updates drop-down in Settings &gt; About. One word.</comment>
+  </data>
+  <data name="SettingsUpdateFreqWeeklyOption.Content" xml:space="preserve">
+    <value>Weekly</value>
+    <comment>Choice in the Check for updates drop-down in Settings &gt; About. One word.</comment>
+  </data>
+  <data name="SettingsUpdateFreqMonthlyOption.Content" xml:space="preserve">
+    <value>Monthly</value>
+    <comment>Choice in the Check for updates drop-down in Settings &gt; About. One word.</comment>
+  </data>
+  <data name="WelcomePage1Body.Text" xml:space="preserve">
+    <value>Clasp shows your AirPods battery, connects them in one click, and keeps your sound where you want it.</value>
+    <comment>Welcome page 1 intro under the headline, centred, wraps to 3 lines.</comment>
+  </data>
+  <data name="WelcomePage2Intro.Text" xml:space="preserve">
+    <value>Pick your AirPods, or pair new ones right here.</value>
+    <comment>Welcome page 2 intro under the headline, wraps to 2 lines.</comment>
+  </data>
+  <data name="WelcomePairedPicker.Header" xml:space="preserve">
+    <value>AirPods</value>
+    <comment>Header above the paired-device drop-down on welcome page 2. One word, product name.</comment>
+  </data>
+  <data name="WelcomePairedPicker.PlaceholderText" xml:space="preserve">
+    <value>Choose your AirPods</value>
+    <comment>Placeholder inside the paired-device drop-down on welcome page 2 when nothing is selected. One line, about 20 chars.</comment>
+  </data>
+  <data name="WelcomeRefreshButton.Content" xml:space="preserve">
+    <value>Refresh</value>
+    <comment>Button on welcome page 2 that re-reads the paired devices from Windows. Button label, at most 12 chars.</comment>
+  </data>
+  <data name="WelcomePage3Body.Text" xml:space="preserve">
+    <value>Clasp lives in the tray, next to the clock. Click its icon to see your AirPods.</value>
+    <comment>Welcome page 3 intro under the headline, wraps to 2 or 3 lines.</comment>
+  </data>
+  <data name="WelcomeTrayIllustration.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Illustration: the hidden-icons popup with the Clasp icon in it. An arrow points down from the icon to an empty spot on the taskbar, next to the clock.</value>
+    <comment>Screen-reader description of the tray illustration on welcome page 3. Spoken only, one or two sentences.</comment>
+  </data>
+  <data name="WelcomeTrayTip.Text" xml:space="preserve">
+    <value>Tip: if you don't see it, click the ^ arrow for hidden icons and drag Clasp onto the taskbar to keep it always visible.</value>
+    <comment>Small tip caption under the tray illustration on welcome page 3. "^ arrow" is the Windows hidden-icons chevron. Wraps to 3 lines.</comment>
+  </data>
+  <data name="WelcomeStartupLabel.Text" xml:space="preserve">
+    <value>Start Clasp when I sign in</value>
+    <comment>Label of the start-with-Windows toggle on welcome page 3. One line, about 30 chars.</comment>
+  </data>
+  <data name="WelcomeStartupCaption.Text" xml:space="preserve">
+    <value>Clasp starts quietly in the tray. No window opens.</value>
+    <comment>Caption under the start-with-Windows label on welcome page 3. Wraps to 2 lines.</comment>
+  </data>
+  <data name="WelcomeStartupToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Start Clasp when I sign in</value>
+    <comment>Screen-reader name of the start-with-Windows toggle on welcome page 3. Same wording as its visible label. Spoken only.</comment>
+  </data>
+  <data name="WelcomeNearbyLabel.Text" xml:space="preserve">
+    <value>Nearby detection</value>
+    <comment>Label of the nearby-detection toggle on welcome page 3. One line, about 20 chars.</comment>
+  </data>
+  <data name="WelcomeNearbyToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nearby detection</value>
+    <comment>Screen-reader name of the nearby-detection toggle on welcome page 3. Same wording as its visible label. Spoken only.</comment>
+  </data>
+  <data name="WelcomePage4Body.Text" xml:space="preserve">
+    <value>A few choices to start with. You can change these any time in Settings.</value>
+    <comment>Welcome page 4 intro under the headline, wraps to 2 lines. "Settings" is Clasp's own Settings window.</comment>
+  </data>
+  <data name="WelcomeLowBatteryBox.Header" xml:space="preserve">
+    <value>Low battery notification</value>
+    <comment>Header above the low-battery drop-down on welcome page 4. One line, about 25 chars.</comment>
+  </data>
+  <data name="WelcomeLowBatteryOff.Content" xml:space="preserve">
+    <value>Off</value>
+    <comment>Drop-down choice on welcome page 4: no low-battery notification. One short word.</comment>
+  </data>
+  <data name="WelcomeLowBatteryAt10.Content" xml:space="preserve">
+    <value>At 10%</value>
+    <comment>Drop-down choice on welcome page 4: notify when the battery reaches 10 percent. Keep the number in the text. Short, one line.</comment>
+  </data>
+  <data name="WelcomeLowBatteryAt20.Content" xml:space="preserve">
+    <value>At 20%</value>
+    <comment>Drop-down choice on welcome page 4: notify when the battery reaches 20 percent. Keep the number in the text. Short, one line.</comment>
+  </data>
+  <data name="WelcomeLowBatteryAt30.Content" xml:space="preserve">
+    <value>At 30%</value>
+    <comment>Drop-down choice on welcome page 4: notify when the battery reaches 30 percent. Keep the number in the text. Short, one line.</comment>
+  </data>
+  <data name="WelcomeLowBatteryCaption.Text" xml:space="preserve">
+    <value>Shows a notification when an earbud reaches this level.</value>
+    <comment>Caption under the low-battery drop-down on welcome page 4. Wraps to 2 lines.</comment>
+  </data>
+  <data name="WelcomeAutoConnectLabel.Text" xml:space="preserve">
+    <value>Connect automatically when nearby</value>
+    <comment>Label of the auto-connect toggle on welcome page 4. One line, about 35 chars.</comment>
+  </data>
+  <data name="WelcomeAutoConnectToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Connect automatically when nearby</value>
+    <comment>Screen-reader name of the auto-connect toggle on welcome page 4. Same wording as its visible label. Spoken only.</comment>
+  </data>
+  <data name="WelcomeSwitchOutputLabel.Text" xml:space="preserve">
+    <value>Switch sound to AirPods when they connect</value>
+    <comment>Label of the switch-sound-output toggle on welcome page 4. One line, wraps, about 42 chars.</comment>
+  </data>
+  <data name="WelcomeSwitchOutputCaption.Text" xml:space="preserve">
+    <value>Makes your AirPods the sound output when they connect.</value>
+    <comment>Caption under the switch-sound-output label on welcome page 4. Wraps to 2 lines.</comment>
+  </data>
+  <data name="WelcomeSwitchOutputToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Switch sound to AirPods when they connect</value>
+    <comment>Screen-reader name of the switch-sound-output toggle on welcome page 4. Same wording as its visible label. Spoken only.</comment>
+  </data>
+  <data name="WelcomeAutoPlayLabel.Text" xml:space="preserve">
+    <value>Play music when AirPods connect</value>
+    <comment>Label of the auto-play toggle on welcome page 4. One line, about 32 chars.</comment>
+  </data>
+  <data name="WelcomeAutoPlayCaption.Text" xml:space="preserve">
+    <value>Presses Play shortly after they connect, when they're your sound output.</value>
+    <comment>Caption under the auto-play label on welcome page 4. "Play" is the media Play key. Wraps to 2 lines.</comment>
+  </data>
+  <data name="WelcomeAutoPlayToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Play music when AirPods connect</value>
+    <comment>Screen-reader name of the auto-play toggle on welcome page 4. Same wording as its visible label. Spoken only.</comment>
+  </data>
+  <data name="WelcomeAutoPauseLabel.Text" xml:space="preserve">
+    <value>Pause music when AirPods disconnect</value>
+    <comment>Label of the auto-pause toggle on welcome page 4. One line, about 36 chars.</comment>
+  </data>
+  <data name="WelcomeAutoPauseCaption.Text" xml:space="preserve">
+    <value>Keeps sound from suddenly playing through your PC speakers.</value>
+    <comment>Caption under the auto-pause label on welcome page 4. Wraps to 2 lines.</comment>
+  </data>
+  <data name="WelcomeAutoPauseToggle.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Pause music when AirPods disconnect</value>
+    <comment>Screen-reader name of the auto-pause toggle on welcome page 4. Same wording as its visible label. Spoken only.</comment>
+  </data>
+  <data name="WelcomeSkipButton.Content" xml:space="preserve">
+    <value>Skip</value>
+    <comment>Small flat button at the bottom left of the welcome guide that closes it. Button label, at most 10 chars.</comment>
+  </data>
+  <data name="WelcomeSkipButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.HelpText" xml:space="preserve">
+    <value>Closes the guide. Esc does the same.</value>
+    <comment>Screen-reader help text of the Skip button. "Esc" is the Escape key. Spoken only.</comment>
+  </data>
+  <data name="WelcomeBackButton.Content" xml:space="preserve">
+    <value>Back</value>
+    <comment>Button in the welcome guide footer that goes to the previous page. Button label, at most 10 chars (72 DIP wide).</comment>
+  </data>
+  <data name="HistoryTitle.Text" xml:space="preserve">
+    <value>Battery history</value>
+    <comment>Heading above the battery history chart. One line, about 18 chars; shares the row with the range switch.</comment>
+  </data>
+  <data name="HistoryRangeGroup.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Time range</value>
+    <comment>Screen-reader name of the 24 hours / 7 days switch above the chart. Spoken only.</comment>
+  </data>
+  <data name="HistoryDayButton.Content" xml:space="preserve">
+    <value>24 hours</value>
+    <comment>Option of the range switch above the battery chart: show the last 24 hours. Short, at most 10 chars.</comment>
+  </data>
+  <data name="HistoryWeekButton.Content" xml:space="preserve">
+    <value>7 days</value>
+    <comment>Option of the range switch above the battery chart: show the last 7 days. Short, at most 10 chars.</comment>
+  </data>
+  <data name="HistoryLegendLeftChip.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Left earbud</value>
+    <comment>Screen-reader name of the left-earbud legend entry of the battery chart. Spoken only.</comment>
+  </data>
+  <data name="HistoryLegendLeftText.Text" xml:space="preserve">
+    <value>L</value>
+    <comment>Legend letter next to the left-earbud line sample in the battery chart legend. Single letter abbreviation for Left.</comment>
+  </data>
+  <data name="HistoryLegendRightChip.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Right earbud</value>
+    <comment>Screen-reader name of the right-earbud legend entry of the battery chart. Spoken only.</comment>
+  </data>
+  <data name="HistoryLegendRightText.Text" xml:space="preserve">
+    <value>R</value>
+    <comment>Legend letter next to the right-earbud line sample in the battery chart legend. Single letter abbreviation for Right.</comment>
+  </data>
+  <data name="HistoryLegendCaseChip.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Case</value>
+    <comment>Screen-reader name of the charging-case legend entry of the battery chart. Spoken only.</comment>
+  </data>
+  <data name="HistoryLegendCaseText.Text" xml:space="preserve">
+    <value>Case</value>
+    <comment>Legend text next to the charging-case line sample in the battery chart legend. One short word.</comment>
+  </data>
+  <data name="HistoryLegendChargingChip.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Charging</value>
+    <comment>Screen-reader name of the charging legend entry (shown only when the chart has charging periods). Spoken only.</comment>
+  </data>
+  <data name="HistoryLegendChargingText.Text" xml:space="preserve">
+    <value>Charging</value>
+    <comment>Legend text next to the charging band sample in the battery chart legend. One short word.</comment>
+  </data>
+  <data name="HistoryChart.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.HelpText" xml:space="preserve">
+    <value>Use Left and Right arrows to read values</value>
+    <comment>Screen-reader help text of the battery chart. "Left" and "Right" are the arrow keys. Spoken only.</comment>
+  </data>
+  <data name="HandoffDismissButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Dismiss</value>
+    <comment>Screen-reader name of the close (X) button on the "AirPods moved to another device" notice. Spoken only.</comment>
+  </data>
+  <data name="HandoffDismissButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Dismiss</value>
+    <comment>Tooltip of the close (X) button on the "AirPods moved to another device" notice. One short word.</comment>
+  </data>
+  <data name="PairingHelpExpander.Header" xml:space="preserve">
+    <value>How to pair your AirPods</value>
+    <comment>Header of the collapsible pairing help (welcome page 2 and Settings &gt; AirPods). One line, about 25 chars.</comment>
+  </data>
+  <data name="PairingHelpExpander.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>How to pair your AirPods</value>
+    <comment>Screen-reader name of the collapsible pairing help. Same wording as its header. Spoken only.</comment>
+  </data>
+  <data name="PairingHelpModelPicker.Header" xml:space="preserve">
+    <value>Your model</value>
+    <comment>Header above the AirPods model drop-down inside the pairing help. One line, about 12 chars.</comment>
+  </data>
+  <data name="PairingIllustrationBackBadge.Text" xml:space="preserve">
+    <value>on the back</value>
+    <comment>Small tag drawn next to a button on the back of the case in the pairing animation. Lower case, at most 14 chars.</comment>
+  </data>
+</root>

@@ -37,11 +37,11 @@
                 <!-- ===== Page 1: Welcome to Clasp ===== -->
                 <StackPanel x:Name="Page1" Spacing="{StaticResource GlassSpace12}" VerticalAlignment="Center">
                     <views:ModelArtwork x:Name="HeroArt" HorizontalAlignment="Center" Margin="0,0,0,8" />
-                    <TextBlock x:Name="Title1" Text="Welcome to Clasp"
+                    <TextBlock x:Name="Title1"
                                Style="{StaticResource GlassTitleTextStyle}" FontSize="26"
                                TextAlignment="Center" TextWrapping="WrapWholeWords"
                                AutomationProperties.HeadingLevel="Level1" />
-                    <TextBlock Text="Clasp shows your AirPods battery, connects them in one click, and keeps your sound where you want it."
+                    <TextBlock x:Uid="WelcomePage1Body"
                                Style="{StaticResource GlassBodyTextStyle}"
                                Foreground="{ThemeResource GlassTextSecondaryBrush}"
                                TextAlignment="Center" TextWrapping="WrapWholeWords" />
@@ -49,19 +49,18 @@
 
                 <!-- ===== Page 2: Choose your AirPods ===== -->
                 <StackPanel x:Name="Page2" Spacing="{StaticResource GlassSpace12}" Visibility="Collapsed" VerticalAlignment="Center">
-                    <TextBlock x:Name="Title2" Text="Choose your AirPods"
+                    <TextBlock x:Name="Title2"
                                Style="{StaticResource GlassTitleTextStyle}" FontSize="26"
                                TextWrapping="WrapWholeWords"
                                AutomationProperties.HeadingLevel="Level1" />
-                    <TextBlock x:Name="Page2Intro"
-                               Text="Pick your AirPods, or pair new ones right here."
+                    <TextBlock x:Name="Page2Intro" x:Uid="WelcomePage2Intro"
                                Style="{StaticResource GlassBodyTextStyle}"
                                Foreground="{ThemeResource GlassTextSecondaryBrush}"
                                TextWrapping="WrapWholeWords" />
 
                     <!-- Cycles through the supported shapes while nothing is found, then settles on the device. -->
                     <views:WaitingArtwork x:Name="HeroWaiting" HorizontalAlignment="Center" />
-                    <TextBlock x:Name="WaitingStatus" Text="Looking for your AirPods"
+                    <TextBlock x:Name="WaitingStatus"
                                Style="{StaticResource GlassLabelTextStyle}" TextAlignment="Center" HorizontalAlignment="Center"
                                TextWrapping="WrapWholeWords"
                                AutomationProperties.LiveSetting="Polite" />
@@ -80,10 +79,8 @@
 
                     <!-- Shown when Windows lists at least one paired device. -->
                     <StackPanel x:Name="PickerPanel" Spacing="{StaticResource GlassSpace8}">
-                        <ComboBox x:Name="PairedDevicePicker"
-                                  Header="AirPods"
+                        <ComboBox x:Name="PairedDevicePicker" x:Uid="WelcomePairedPicker"
                                   HorizontalAlignment="Stretch"
-                                  PlaceholderText="Choose your AirPods"
                                   SelectionChanged="OnPairedDeviceSelected">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate x:DataType="connection:ConnectionDevice">
@@ -97,11 +94,10 @@
 
                     <!-- Shown when nothing is paired yet. -->
                     <StackPanel x:Name="EmptyPanel" Spacing="{StaticResource GlassSpace4}" Visibility="Collapsed">
-                        <TextBlock x:Name="EmptyTitle" Text="Pair your AirPods in Windows first"
+                        <TextBlock x:Name="EmptyTitle"
                                    Style="{StaticResource GlassSectionTitleTextStyle}"
                                    AutomationProperties.HeadingLevel="Level2" />
                         <TextBlock x:Name="EmptyDetail"
-                                   Text="Once they're paired, they'll show up here."
                                    Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
                     </StackPanel>
 
@@ -109,29 +105,28 @@
                     <views:PairingHelpView x:Name="PairingHelp" />
 
                     <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
-                        <design:GlassButton x:Name="OpenBluetoothButton" Content="Open Bluetooth settings"
+                        <design:GlassButton x:Name="OpenBluetoothButton"
                                             Visibility="Collapsed"
                                             Click="OnOpenBluetoothSettingsClick" />
-                        <design:GlassButton x:Name="RefreshButton" Content="Refresh"
+                        <design:GlassButton x:Name="RefreshButton" x:Uid="WelcomeRefreshButton"
                                             Click="OnRefreshClick" />
                     </StackPanel>
                 </StackPanel>
 
                 <!-- ===== Page 3: Find Clasp in the tray ===== -->
                 <StackPanel x:Name="Page3" Spacing="{StaticResource GlassSpace12}" Visibility="Collapsed" VerticalAlignment="Center">
-                    <TextBlock x:Name="Title3" Text="Find Clasp in the tray"
+                    <TextBlock x:Name="Title3"
                                Style="{StaticResource GlassTitleTextStyle}" FontSize="26"
                                TextWrapping="WrapWholeWords"
                                AutomationProperties.HeadingLevel="Level1" />
-                    <TextBlock Text="Clasp lives in the tray, next to the clock. Click its icon to see your AirPods."
+                    <TextBlock x:Uid="WelcomePage3Body"
                                Style="{StaticResource GlassBodyTextStyle}"
                                Foreground="{ThemeResource GlassTextSecondaryBrush}"
                                TextWrapping="WrapWholeWords" />
 
                     <!-- Illustration: the hidden-icons popup holds Clasp's logo; an arrow drops it into an empty spot on the
                          taskbar, between the ^ chevron and the clock. Drawn from shapes plus the real logo (set in code). -->
-                    <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center" MaxHeight="104"
-                             AutomationProperties.Name="Illustration: the hidden-icons popup with the Clasp icon in it. An arrow points down from the icon to an empty spot on the taskbar, next to the clock."
+                    <Viewbox x:Uid="WelcomeTrayIllustration" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center" MaxHeight="104"
                              AutomationProperties.AccessibilityView="Content">
                     <Canvas Width="300" Height="100">
                         <!-- Taskbar strip -->
@@ -168,7 +163,7 @@
                     </Canvas>
                     </Viewbox>
 
-                    <TextBlock Text="Tip: if you don't see it, click the ^ arrow for hidden icons and drag Clasp onto the taskbar to keep it always visible."
+                    <TextBlock x:Uid="WelcomeTrayTip"
                                Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
 
                     <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
@@ -180,13 +175,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="Start Clasp when I sign in" Style="{StaticResource GlassLabelTextStyle}" />
-                            <TextBlock Text="Clasp starts quietly in the tray. No window opens."
+                            <TextBlock x:Uid="WelcomeStartupLabel" Style="{StaticResource GlassLabelTextStyle}" />
+                            <TextBlock x:Uid="WelcomeStartupCaption"
                                        Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
                         </StackPanel>
-                        <ToggleSwitch x:Name="RunOnStartupToggle" Grid.Column="1"
+                        <ToggleSwitch x:Name="RunOnStartupToggle" x:Uid="WelcomeStartupToggle" Grid.Column="1"
                                       Style="{StaticResource GlassRowToggleStyle}"
-                                      AutomationProperties.Name="Start Clasp when I sign in"
                                       Toggled="OnRunOnStartupToggled" />
                     </Grid>
                     <TextBlock x:Name="RunOnStartupStatus" Visibility="Collapsed"
@@ -199,38 +193,36 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="Nearby detection" Style="{StaticResource GlassLabelTextStyle}" />
+                            <TextBlock x:Uid="WelcomeNearbyLabel" Style="{StaticResource GlassLabelTextStyle}" />
                             <TextBlock x:Name="NearbyHelp"
-                                       Text="Listens for nearby AirPods to show their battery. It never pairs or connects to anything."
                                        Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
                         </StackPanel>
-                        <ToggleSwitch x:Name="NearbyToggle" Grid.Column="1"
+                        <ToggleSwitch x:Name="NearbyToggle" x:Uid="WelcomeNearbyToggle" Grid.Column="1"
                                       Style="{StaticResource GlassRowToggleStyle}"
-                                      AutomationProperties.Name="Nearby detection"
                                       Toggled="OnNearbyToggled" />
                     </Grid>
                 </StackPanel>
 
                 <!-- ===== Page 4: Quick settings ===== -->
                 <StackPanel x:Name="Page4" Spacing="{StaticResource GlassSpace12}" Visibility="Collapsed" VerticalAlignment="Center">
-                    <TextBlock x:Name="Title4" Text="Quick settings"
+                    <TextBlock x:Name="Title4"
                                Style="{StaticResource GlassTitleTextStyle}" FontSize="26"
                                TextWrapping="WrapWholeWords"
                                AutomationProperties.HeadingLevel="Level1" />
-                    <TextBlock Text="A few choices to start with. You can change these any time in Settings."
+                    <TextBlock x:Uid="WelcomePage4Body"
                                Style="{StaticResource GlassBodyTextStyle}"
                                Foreground="{ThemeResource GlassTextSecondaryBrush}"
                                TextWrapping="WrapWholeWords" />
 
                     <StackPanel Spacing="2">
-                        <ComboBox x:Name="LowBatteryBox" Header="Low battery notification" HorizontalAlignment="Stretch"
+                        <ComboBox x:Name="LowBatteryBox" x:Uid="WelcomeLowBatteryBox" HorizontalAlignment="Stretch"
                                   SelectionChanged="OnLowBatteryChanged">
-                            <ComboBoxItem Content="Off" />
-                            <ComboBoxItem Content="At 10%" />
-                            <ComboBoxItem Content="At 20%" />
-                            <ComboBoxItem Content="At 30%" />
+                            <ComboBoxItem x:Uid="WelcomeLowBatteryOff" />
+                            <ComboBoxItem x:Uid="WelcomeLowBatteryAt10" />
+                            <ComboBoxItem x:Uid="WelcomeLowBatteryAt20" />
+                            <ComboBoxItem x:Uid="WelcomeLowBatteryAt30" />
                         </ComboBox>
-                        <TextBlock Text="Shows a notification when an earbud reaches this level."
+                        <TextBlock x:Uid="WelcomeLowBatteryCaption"
                                    Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
                     </StackPanel>
 
@@ -240,13 +232,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="Connect automatically when nearby" Style="{StaticResource GlassLabelTextStyle}" />
-                            <TextBlock x:Name="AutoConnectHelp" Text="Clasp tries once to connect your AirPods when it notices the case opening nearby. That could be someone else's AirPods."
+                            <TextBlock x:Uid="WelcomeAutoConnectLabel" Style="{StaticResource GlassLabelTextStyle}" />
+                            <TextBlock x:Name="AutoConnectHelp"
                                        Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
                         </StackPanel>
-                        <ToggleSwitch x:Name="AutoConnectToggle" Grid.Column="1"
+                        <ToggleSwitch x:Name="AutoConnectToggle" x:Uid="WelcomeAutoConnectToggle" Grid.Column="1"
                                       Style="{StaticResource GlassRowToggleStyle}"
-                                      AutomationProperties.Name="Connect automatically when nearby"
                                       Toggled="OnQuickToggled" />
                     </Grid>
                     <Grid ColumnSpacing="{StaticResource GlassSpace12}">
@@ -255,13 +246,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="Switch sound to AirPods when they connect" Style="{StaticResource GlassLabelTextStyle}" />
-                            <TextBlock Text="Makes your AirPods the sound output when they connect."
+                            <TextBlock x:Uid="WelcomeSwitchOutputLabel" Style="{StaticResource GlassLabelTextStyle}" />
+                            <TextBlock x:Uid="WelcomeSwitchOutputCaption"
                                        Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
                         </StackPanel>
-                        <ToggleSwitch x:Name="SwitchOutputToggle" Grid.Column="1"
+                        <ToggleSwitch x:Name="SwitchOutputToggle" x:Uid="WelcomeSwitchOutputToggle" Grid.Column="1"
                                       Style="{StaticResource GlassRowToggleStyle}"
-                                      AutomationProperties.Name="Switch sound to AirPods when they connect"
                                       Toggled="OnQuickToggled" />
                     </Grid>
                     <Grid ColumnSpacing="{StaticResource GlassSpace12}">
@@ -270,13 +260,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="Play music when AirPods connect" Style="{StaticResource GlassLabelTextStyle}" />
-                            <TextBlock Text="Presses Play shortly after they connect, when they're your sound output."
+                            <TextBlock x:Uid="WelcomeAutoPlayLabel" Style="{StaticResource GlassLabelTextStyle}" />
+                            <TextBlock x:Uid="WelcomeAutoPlayCaption"
                                        Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
                         </StackPanel>
-                        <ToggleSwitch x:Name="AutoPlayToggle" Grid.Column="1"
+                        <ToggleSwitch x:Name="AutoPlayToggle" x:Uid="WelcomeAutoPlayToggle" Grid.Column="1"
                                       Style="{StaticResource GlassRowToggleStyle}"
-                                      AutomationProperties.Name="Play music when AirPods connect"
                                       Toggled="OnQuickToggled" />
                     </Grid>
                     <Grid ColumnSpacing="{StaticResource GlassSpace12}">
@@ -285,13 +274,12 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="2" VerticalAlignment="Center">
-                            <TextBlock Text="Pause music when AirPods disconnect" Style="{StaticResource GlassLabelTextStyle}" />
-                            <TextBlock Text="Keeps sound from suddenly playing through your PC speakers."
+                            <TextBlock x:Uid="WelcomeAutoPauseLabel" Style="{StaticResource GlassLabelTextStyle}" />
+                            <TextBlock x:Uid="WelcomeAutoPauseCaption"
                                        Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
                         </StackPanel>
-                        <ToggleSwitch x:Name="AutoPauseToggle" Grid.Column="1"
+                        <ToggleSwitch x:Name="AutoPauseToggle" x:Uid="WelcomeAutoPauseToggle" Grid.Column="1"
                                       Style="{StaticResource GlassRowToggleStyle}"
-                                      AutomationProperties.Name="Pause music when AirPods disconnect"
                                       Toggled="OnQuickToggled" />
                     </Grid>
                 </StackPanel>
@@ -307,14 +295,13 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <design:GlassButton x:Name="SkipButton" Content="Skip"
+            <design:GlassButton x:Name="SkipButton" x:Uid="WelcomeSkipButton"
                                 IsFlat="True" Padding="10,4,10,4" MinHeight="32"
                                 HorizontalAlignment="Left" VerticalAlignment="Center"
-                                AutomationProperties.HelpText="Closes the guide. Esc does the same."
                                 Click="OnSkipClick" />
 
             <StackPanel x:Name="Dots" Grid.Column="1" Orientation="Horizontal" Spacing="8"
-                        VerticalAlignment="Center" AutomationProperties.Name="Step 1 of 4">
+                        VerticalAlignment="Center">
                 <Grid Width="8" Height="8">
                     <Ellipse Fill="{ThemeResource GlassTextDisabledBrush}" />
                     <Ellipse x:Name="Dot1" Fill="{ThemeResource GlassAccentFillBrush}" Visibility="Collapsed" />
@@ -334,9 +321,9 @@
             </StackPanel>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}" HorizontalAlignment="Right">
-                <design:GlassButton x:Name="BackButton" Content="Back" MinWidth="72" Visibility="Collapsed"
+                <design:GlassButton x:Name="BackButton" x:Uid="WelcomeBackButton" MinWidth="72" Visibility="Collapsed"
                                     Click="OnBackClick" />
-                <design:GlassButton x:Name="NextButton" Content="Next" MinWidth="84"
+                <design:GlassButton x:Name="NextButton" MinWidth="84"
                                     Style="{StaticResource GlassAccentButtonStyle}"
                                     Click="OnNextClick" />
             </StackPanel>

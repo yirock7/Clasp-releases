@@ -215,7 +215,7 @@ internal sealed partial class CompanionHost
 
         var alert = _alerts.Evaluate(deviceId, identity, sample.Left, sample.Right, sample.PodCharging, _settings.LowBatteryThresholdPercent, state.Layout, state.DeviceNoun);
         if (alert is not null && !Toasts.ShowLowBattery(alert))
-            LocalLog.Write($"Low battery alert could not be shown as a notification: {alert.Title}");
+            LocalLog.Write("Low battery alert could not be shown as a notification.");
 
         if (now - _lastFlush >= FlushEvery) FlushBatteryData();
     }

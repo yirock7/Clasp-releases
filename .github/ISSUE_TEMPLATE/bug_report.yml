@@ -69,7 +69,7 @@ body:
     attributes:
       label: Log excerpt (optional)
       description: |
-        Clasp keeps a small local log at `%LOCALAPPDATA%\AppleDeviceHub\hub.log`. Paste the last lines from around the time of the problem.
+        Clasp keeps a small local log at `%LOCALAPPDATA%\Clasp\hub.log`. Paste the last lines from around the time of the problem.
 
-        The log is written so it doesn't contain device names, but please read it before posting and remove anything you don't want public.
+        The log is written without device names or Bluetooth addresses. Please read it before posting and remove anything you don't want public.
       render: text

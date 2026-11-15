@@ -1,4 +1,5 @@
 using System.Globalization;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.Battery;
 
@@ -290,15 +291,15 @@ public sealed class BatteryChartModel
         int days = (today - local.Date).Days;
         string day = days switch
         {
-            <= 0 => "Today",
-            1 => "Yesterday",
+            <= 0 => Strings.Battery_Chart_Today,
+            1 => Strings.Battery_Chart_Yesterday,
             < 6 => local.ToString("ddd", culture),
             _ => local.ToString("MMM d", culture),
         };
         string time = local.ToString(culture.DateTimeFormat.ShortTimePattern, culture);
-        string Part(string name, int? level) => string.Create(culture, $"{name} {(level is int l ? l + "%" : "—")}");
-        string text = $"{day} {time} · {Part("L", probe.Left)} · {Part("R", probe.Right)} · {Part("Case", probe.Case)}";
-        return probe.Charging ? text + " · Charging" : text;
+        string Level(int? level) => level is int l ? string.Format(culture, Strings.Battery_Chart_ProbeLevel, l) : "—";
+        return string.Format(culture, probe.Charging ? Strings.Battery_Chart_ProbeCharging : Strings.Battery_Chart_Probe,
+            day, time, Level(probe.Left), Level(probe.Right), Level(probe.Case));
     }
 
     private static ChartAxis BuildAxis(BatteryChartRange range, DateTimeOffset start, DateTimeOffset end, double width,
@@ -389,9 +390,9 @@ public sealed class BatteryChartModel
 /// <summary>The one plain line under the chart.</summary>
 public static class BatteryChartSummary
 {
-    public const string ChargingText = "Charging";
-    public const string NotEnoughText = "Not enough history yet";
-    public const string StaleText = "No recent reading";
+    public static string ChargingText => Strings.Battery_Chart_Charging;
+    public static string NotEnoughText => Strings.Battery_Chart_NotEnoughHistory;
+    public static string StaleText => Strings.Battery_Chart_NoRecentReading;
 
     public static string Text(IReadOnlyList<BatterySample> samples, DateTimeOffset now, DateTimeOffset? lastHeardAt = null)
     {
@@ -402,10 +403,10 @@ public static class BatteryChartSummary
             if (hours < 1.5)
             {
                 int minutes = (int)Math.Max(5, Math.Round(hours * 12) * 5);
-                return string.Create(CultureInfo.InvariantCulture, $"About {minutes} min left at this rate");
+                return string.Format(CultureInfo.CurrentCulture, Strings.Battery_Chart_MinutesLeft, minutes);
             }
             double rounded = Math.Round(hours * 2, MidpointRounding.AwayFromZero) / 2;
-            return string.Create(CultureInfo.InvariantCulture, $"About {rounded:0.#} hr left at this rate");
+            return string.Format(CultureInfo.CurrentCulture, Strings.Battery_Chart_HoursLeft, rounded.ToString("0.#", CultureInfo.InvariantCulture));
         }
         if (estimate.Text == DrainEstimator.ChargingText) return ChargingText;
         if (estimate.Text == DrainEstimator.StaleText)
@@ -413,7 +414,7 @@ public static class BatteryChartSummary
             // An old charging reading must not read as "Charging" now; say when it was last seen that way.
             var latest = samples.LastOrDefault(s => s.LowestPod is not null || s.PodCharging);
             if (latest is { PodCharging: true })
-                return "Last seen charging, " + LastSeenTracker.Ago(now - latest.Time);
+                return string.Format(CultureInfo.CurrentCulture, Strings.Battery_Chart_LastSeenCharging, LastSeenTracker.Ago(now - latest.Time));
             return StaleText;
         }
         return NotEnoughText;

@@ -1,5 +1,7 @@
 using System.ComponentModel;
+using System.Globalization;
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Automation.Peers;
@@ -34,7 +36,7 @@ public sealed partial class BatteryTile : UserControl
     public static string StatusLine(string? status, bool isLow)
     {
         if (!isLow) return status ?? string.Empty;
-        return string.IsNullOrEmpty(status) ? "Low" : $"Low · {status}";
+        return string.IsNullOrEmpty(status) ? Strings.BatteryTile_StatusLow : string.Format(CultureInfo.CurrentCulture, Strings.BatteryTile_StatusLowWithDetail, status);
     }
 
     protected override AutomationPeer OnCreateAutomationPeer() => new TilePeer(this);
@@ -79,7 +81,7 @@ public sealed partial class BatteryTile : UserControl
             : item.IsLow ? "Low"
             : "Normal";
         VisualStateManager.GoToState(this, state, false);
-        AutomationProperties.SetName(this, item?.AutomationName ?? "Battery unknown");
+        AutomationProperties.SetName(this, item?.AutomationName ?? Strings.BatteryTile_AutomationNameUnknown);
     }
 
     /// <summary>One text element per tile for screen readers (children are Raw).</summary>

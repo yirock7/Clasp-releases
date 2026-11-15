@@ -1,3 +1,4 @@
+using AppleDeviceHub.Core.Resources;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -23,8 +24,8 @@ internal sealed class LinkConfirmWindow : Window
     private LinkConfirmWindow(string text, ElementTheme theme)
     {
         Title = "Clasp";
-        var allow = new Button { Content = "Allow", MinWidth = 96 };
-        var deny = new Button { Content = "Don't allow", MinWidth = 96 };
+        var allow = new Button { Content = Strings.LinkConfirm_Button_Allow, MinWidth = 96 };
+        var deny = new Button { Content = Strings.LinkConfirm_Button_DontAllow, MinWidth = 96 };
         allow.Click += (_, _) => Finish(true);
         deny.Click += (_, _) => Finish(false);
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, HorizontalAlignment = HorizontalAlignment.Right };

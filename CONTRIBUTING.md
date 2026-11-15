@@ -4,9 +4,9 @@ Thanks for taking an interest. Clasp is a one-person hobby project, so I may be 
 
 ## Reporting a bug
 
-Use the [bug report form](https://github.com/yirock7/Clasp-releases/issues/new?template=bug_report.yml). The most helpful things you can tell me are your Clasp version (Settings, About), your Windows version, and exactly which AirPods or Beats model you have. If you can, include the last few lines of `%LOCALAPPDATA%\AppleDeviceHub\hub.log`. Read it before you post it; it is written without device names, but it is your file.
+Use the [bug report form](https://github.com/yirock7/Clasp-releases/issues/new?template=bug_report.yml). The most helpful things you can tell me are your Clasp version (Settings, About), your Windows version, and exactly which AirPods or Beats model you have. If you can, include the last few lines of `%LOCALAPPDATA%\Clasp\hub.log`. Read it before you post it. It is written without device names or Bluetooth addresses, but it is your file.
 
-Reports from real hardware I don't own are especially valuable. The [supported devices table](README.md#supported-devices) says which models have only been checked on paper.
+Reports from real hardware I don't own are especially valuable. The [supported devices table](README.md#supported-devices) says which models have only been checked on paper, and the [hardware report form](https://github.com/yirock7/Clasp-releases/issues/new?template=hardware-report.yml) is the quickest way to tell me what you saw.
 
 For anything security-related, please don't open a public issue. See [SECURITY.md](SECURITY.md).
 
@@ -40,9 +40,13 @@ Small, focused pull requests are easiest for me to review. Please:
 - not add network calls, analytics or telemetry. Clasp's only internet traffic is the update check, and that is a promise to users;
 - not copy code from projects whose licence is not compatible with GPL-3.0, and say where anything borrowed came from (see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)).
 
-By contributing you agree your work is released under the project's [GPL-3.0 licence](LICENSE).
+Contributions are accepted under the project's [GPL-3.0 licence](LICENSE): what you send in is licensed the same way as the rest of Clasp (inbound equals outbound). There is no CLA to sign.
+
+Clasp is built with AI coding agents, and I review every change. You are responsible for what you submit, however you wrote it.
 
 ## What fits, and what doesn't
+
+Clasp focuses on battery, connecting, and audio routing for AirPods and Beats. I may decline features outside that, even good ones.
 
 Good fits: bug fixes, support for more models (ideally with a real broadcast you captured), accessibility, translations of the interface, clearer wording, better pairing instructions.
 

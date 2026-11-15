@@ -1,4 +1,5 @@
 ﻿﻿using System.ComponentModel;
+using System.Globalization;
 using AppleDeviceHub.App.Ble;
 using AppleDeviceHub.App.Companion;
 using AppleDeviceHub.App.Audio;
@@ -16,6 +17,8 @@ using AppleDeviceHub.Core.Interop;
 using AppleDeviceHub.Core.Media;
 using AppleDeviceHub.Core.Pairing;
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
+using AppleDeviceHub.Core.Storage;
 using AppleDeviceHub.Core.Updates;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
@@ -91,17 +94,77 @@ public partial class App : Application
         Design.XamlCastTypes.Keep();
         InitializeComponent();
         UnhandledException += OnUnhandledException;
+        AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+    }
+
+    private static string DataFolder => AppDataFolder.DefaultRoot;
+
+    /// <summary>
+    /// Leaves a trace of a fatal crash: a line in hub.log (type, HRESULT and stack, never the message) and a small
+    /// marker file so the next launch can say Clasp closed unexpectedly. Never throws.
+    /// </summary>
+    private void RecordFatal(string source, Exception? exception)
+    {
+        try
+        {
+            LocalLog.Write($"Fatal ({source}): {LogText.Exception(exception)}");
+            if (!_quitCleanupDone) CrashMarker.TryWrite(DataFolder, DateTimeOffset.UtcNow, exception);
+        }
+        catch (Exception)
+        {
+            // Already crashing; there is nothing more to do.
+        }
+    }
+
+    private void OnDomainUnhandledException(object sender, System.UnhandledExceptionEventArgs e)
+        => RecordFatal("AppDomain", e.ExceptionObject as Exception);
+
+    private static void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        // Not fatal on .NET Core: log it (type and stack only) and mark it observed so it cannot escalate.
+        LocalLog.Write($"Unobserved task exception: {LogText.Exception(e.Exception)}");
+        e.SetObserved();
     }
 
     private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
-        LocalLog.Write($"Unhandled: {e.Exception.GetType().FullName} (0x{e.Exception.HResult:X8}): {e.Message}");
-        if (!_quitCleanupDone) return; // normal running: leave the default behaviour alone
+        LocalLog.Write($"Unhandled: {LogText.Exception(e.Exception)}");
+        if (!_quitCleanupDone)
+        {
+            // Normal running: leave the default behaviour alone (the process ends); just leave the marker first.
+            RecordFatal("WinUI", e.Exception);
+            return;
+        }
         // Everything is already stopped and saved, so a fault while the windows tear down must not become a crash that
         // Windows Error Reporting keeps alive (which would also stop an update installer from replacing Clasp).
         e.Handled = true;
         LocalLog.Write("Unhandled exception during quit teardown; ending the process.");
         Environment.Exit(0);
+    }
+
+    /// <summary>
+    /// If the last run left a crash marker, tells the person once (a toast, the same way update and low-battery notices
+    /// are shown; the flyout has no place for a one-off message) and then removes the marker. If the toast cannot be
+    /// shown the marker stays for the next launch (it is dropped after 30 days), so the notice is not silently lost.
+    /// </summary>
+    private static void ShowCrashNoticeIfAny()
+    {
+        try
+        {
+            var folder = DataFolder;
+            if (CrashMarker.ReadPending(folder, DateTimeOffset.UtcNow) is not { } crash) return;
+            LocalLog.Write($"The previous run ended with a crash ({crash.ExceptionType}).");
+            var logFolder = "%LOCALAPPDATA%\\" + Path.GetFileName(folder);
+            var shown = Toasts.Show(Strings.Toast_CrashNotice_Title,
+                string.Format(CultureInfo.CurrentCulture, Strings.Toast_CrashNotice_Body, logFolder));
+            if (shown) CrashMarker.Clear(folder);
+            else LocalLog.Write("Crash notice could not be shown; it will be tried again next time.");
+        }
+        catch (Exception ex)
+        {
+            LocalLog.Write($"Crash notice failed: {LogText.ExceptionKind(ex)}");
+        }
     }
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
@@ -124,6 +187,12 @@ public partial class App : Application
             Exit();
             return;
         }
+
+        // The mutex is ours, so no other Clasp is touching the data folder. Bring over data from the pre-rename folder before
+        // anything reads or writes it, and repair per-user entries that still name the old program.
+        AppDataFolder.MigrateDefault(LocalLog.Write);
+        if (StartupRegistration.RepairLegacyEntry(Environment.ProcessPath)) LocalLog.Write("Sign-in entry now points at Clasp.exe.");
+        if (ProtocolRegistration.RepairLegacy(Environment.ProcessPath)) LocalLog.Write("clasp: link entry now points at Clasp.exe.");
 
         _queue = DispatcherQueue.GetForCurrentThread();
         EffectsPolicy.Initialize(_queue);
@@ -199,7 +268,7 @@ public partial class App : Application
         updateService.CleanUpOldDownloads();
         var updates = _updates = new UpdateViewModel(updateService, _settings);
         updates.UpdateFound += (_, release) =>
-            Toasts.Show($"Clasp {release.Version} is available", "Open Clasp from the tray to update.");
+            Toasts.Show(string.Format(CultureInfo.CurrentCulture, Strings.Toast_UpdateAvailable_Title, release.Version), Strings.Toast_UpdateAvailable_Body);
         updates.InstallerStarted += (_, _) => Quit();
 
         var viewModel = _viewModel;
@@ -239,6 +308,7 @@ public partial class App : Application
         tray.SettingsRequested += (_, _) => ShowSettings();
         tray.QuitRequested += (_, _) => Quit();
         tray.Show();
+        ShowCrashNoticeIfAny();
 
         viewModel.PropertyChanged += (_, _) => RefreshTrayTooltip();
         viewModel.Left.PropertyChanged += (_, _) => RefreshTrayTooltip();
@@ -261,9 +331,9 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            LocalLog.Write($"Transport start failed: {ex.Message}");
+            LocalLog.Write($"Transport start failed: {LogText.ExceptionKind(ex)}");
         }
-        if (viewModel.UnavailableReason is { } unavailable) LocalLog.Write($"Hardware unavailable: {unavailable}");
+        if (viewModel.UnavailableReason is not null) LocalLog.Write("Hardware transport unavailable.");
 
         if (_connectionViewModel is not null) _ = _connectionViewModel.RefreshAsync();
         if (_settings.ObserveNearbyAirPods && _broadcastTransport is not null && !viewModel.IsBroadcastObservation)
@@ -412,14 +482,14 @@ public partial class App : Application
         {
             transport = new NtpodsDaemonTransport(options);
             deviceId = options.DeviceId;
-            LocalLog.Write($"Hardware requested: {EngineWire.SessionModeName(options.SessionMode)} session for {options.DeviceId}, engine {options.EnginePath}"
+            LocalLog.Write($"Hardware requested: {EngineWire.SessionModeName(options.SessionMode)} session for {options.DeviceId}"
                 + (options.EngineSha256 is null ? " (no hash pinned)." : " (SHA-256 pinned)."));
         }
         else
         {
             transport = new UnavailableHardwareTransport(choice.Explanation);
             deviceId = "dev-unselected";
-            LocalLog.Write($"Hardware requested but not usable: {choice.Explanation}");
+            LocalLog.Write("Hardware requested but not usable.");
         }
         if (transport is IHardwareTransportStatus status) status.Diagnostic += (_, message) => LocalLog.Write($"Hardware: {message}");
         return (transport, deviceId);
@@ -427,13 +497,15 @@ public partial class App : Application
 
     private string TooltipText()
     {
-        if (_viewModel is not { } vm) return "Clasp (Demo)";
-        var name = vm.IsDemo ? $"{vm.DeviceName} (Demo)" : vm.DeviceName;
-        static string Level(BatteryItemViewModel b) => b.IsStale ? $"{b.PercentText} ({b.StatusText})" : b.PercentText;
+        if (_viewModel is not { } vm) return Strings.Tray_Tooltip_NoDevice;
+        var name = vm.IsDemo ? string.Format(CultureInfo.CurrentCulture, Strings.Tray_Tooltip_DeviceNameDemo, vm.DeviceName) : vm.DeviceName;
+        static string Level(BatteryItemViewModel b) => b.IsStale
+            ? string.Format(CultureInfo.CurrentCulture, Strings.Tray_Tooltip_BatteryLevelStale, b.PercentText, b.StatusText)
+            : b.PercentText;
         // A single-battery model shows its one level; earbuds show L and R (the case is never in the tooltip).
         return vm.IsSingleBattery
-            ? $"{name}: {vm.ConnectionText}. Battery {Level(vm.Single)}"
-            : $"{name}: {vm.ConnectionText}. L {Level(vm.Left)}, R {Level(vm.Right)}";
+            ? string.Format(CultureInfo.CurrentCulture, Strings.Tray_Tooltip_SingleBattery, name, vm.ConnectionText, Level(vm.Single))
+            : string.Format(CultureInfo.CurrentCulture, Strings.Tray_Tooltip_EarbudsBattery, name, vm.ConnectionText, Level(vm.Left), Level(vm.Right));
     }
 
     /// <summary>The tray menu's battery line and Connect/Disconnect item, read each time the menu opens.</summary>
@@ -443,37 +515,43 @@ public partial class App : Application
         string battery;
         if (connection?.WindowsBatteryPercent is int percent)
         {
-            battery = $"{connection.SelectedDeviceNoun} battery: {percent}%";
+            battery = string.Format(CultureInfo.CurrentCulture, Strings.Tray_Menu_WindowsBattery, connection.SelectedDeviceNoun, percent);
         }
         else if (_viewModel is { IsSingleBattery: true, Single.IsKnown: true } single)
         {
             var singleAge = single.Single.IsStale ? single.Single.StatusText : null;
-            battery = $"Nearby estimate{(string.IsNullOrEmpty(singleAge) ? "" : $" (last seen {singleAge})")}: Battery {single.Single.PercentText}";
+            battery = string.IsNullOrEmpty(singleAge)
+                ? string.Format(CultureInfo.CurrentCulture, Strings.Tray_Menu_NearbySingle, single.Single.PercentText)
+                : string.Format(CultureInfo.CurrentCulture, Strings.Tray_Menu_NearbySingleStale, singleAge, single.Single.PercentText);
         }
         else if (_viewModel is { IsSingleBattery: false } vm && (vm.Left.IsKnown || vm.Right.IsKnown || vm.Case.IsKnown))
         {
             // The last reading stays, labelled with its age, never as live. The case reports rarely (not at all in the
             // ears), so its own age is shown beside it and the earbud age only counts left/right.
             var age = new[] { vm.Left, vm.Right }.FirstOrDefault(item => item.IsKnown && item.IsStale)?.StatusText;
-            var caseAge = vm.Case is { IsKnown: true, IsStale: true } ? $" ({vm.Case.StatusText})" : "";
-            var caseText = vm.HasCaseBattery ? $" · Case {vm.Case.PercentText}{caseAge}" : "";
-            battery = $"Nearby estimate{(string.IsNullOrEmpty(age) ? "" : $" (last seen {age})")}: L {vm.Left.PercentText} · R {vm.Right.PercentText}{caseText}";
+            var caseText = !vm.HasCaseBattery ? ""
+                : vm.Case is { IsKnown: true, IsStale: true }
+                    ? string.Format(CultureInfo.CurrentCulture, Strings.Tray_Menu_NearbyCaseStale, vm.Case.PercentText, vm.Case.StatusText)
+                    : string.Format(CultureInfo.CurrentCulture, Strings.Tray_Menu_NearbyCase, vm.Case.PercentText);
+            battery = string.IsNullOrEmpty(age)
+                ? string.Format(CultureInfo.CurrentCulture, Strings.Tray_Menu_NearbyEarbuds, vm.Left.PercentText, vm.Right.PercentText, caseText)
+                : string.Format(CultureInfo.CurrentCulture, Strings.Tray_Menu_NearbyEarbudsStale, age, vm.Left.PercentText, vm.Right.PercentText, caseText);
         }
         else
         {
             battery = string.IsNullOrEmpty(connection?.WindowsBatteryHint)
-                ? "Battery isn't available"
-                : "Battery isn't available (Handsfree is off)";
+                ? Strings.Tray_Menu_BatteryUnavailable
+                : Strings.Tray_Menu_BatteryUnavailableHandsfreeOff;
         }
 
-        if (connection is null) return new TrayMenuState(battery, "Connect AirPods", false);
+        if (connection is null) return new TrayMenuState(battery, Strings.Tray_Menu_ConnectAirPods, false);
         var (text, enabled) = connection switch
         {
-            { IsDisconnecting: true } => ("Disconnecting…", false),
-            { IsConnecting: true } => ("Connecting…", false),
-            { CanDisconnect: true } => ("Disconnect AirPods", true),
-            { CanConnect: true } => ("Connect AirPods", true),
-            _ => ("Connect AirPods", false),
+            { IsDisconnecting: true } => (Strings.Tray_Menu_Disconnecting, false),
+            { IsConnecting: true } => (Strings.Tray_Menu_Connecting, false),
+            { CanDisconnect: true } => (Strings.Tray_Menu_DisconnectAirPods, true),
+            { CanConnect: true } => (Strings.Tray_Menu_ConnectAirPods, true),
+            _ => (Strings.Tray_Menu_ConnectAirPods, false),
         };
         return new TrayMenuState(battery, text, enabled);
     }
@@ -572,7 +650,7 @@ public partial class App : Application
                 if (!viewModel.IsObserving)
                 {
                     await viewModel.ConnectAsync();
-                    if (viewModel.LastErrorText is { Length: > 0 } error) LocalLog.Write($"Nearby detection did not start: {error}");
+                    if (viewModel.LastErrorText is { Length: > 0 }) LocalLog.Write("Nearby detection did not start.");
                 }
                 _nearbyPromptTimer?.Start();
             }

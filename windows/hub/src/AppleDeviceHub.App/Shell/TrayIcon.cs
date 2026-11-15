@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
 using Microsoft.Win32;
 using static AppleDeviceHub.App.Shell.NativeMethods;
 
@@ -21,7 +22,7 @@ internal sealed record TrayMenuState(string BatteryText, string ConnectText, boo
 /// </summary>
 internal sealed class TrayIcon : IDisposable
 {
-    private const string WindowClass = "AppleDeviceHub.TrayWindow";
+    private const string WindowClass = "Clasp.TrayWindow";
     private const uint IconId = 1;
     private const uint CallbackMessage = WM_APP + 1;
 
@@ -237,11 +238,11 @@ internal sealed class TrayIcon : IDisposable
                 AppendMenuW(menu, MF_SEPARATOR, 0, null);
                 AppendMenuW(menu, state.ConnectEnabled ? MF_STRING : MF_STRING | MF_GRAYED, CmdConnectToggle, EscapeMenuText(state.ConnectText));
             }
-            AppendMenuW(menu, MF_STRING, CmdOpen, "&Open Clasp");
+            AppendMenuW(menu, MF_STRING, CmdOpen, Strings.Tray_Menu_Open);
             AppendMenuW(menu, MF_SEPARATOR, 0, null);
-            AppendMenuW(menu, MF_STRING, CmdSettings, "&Settings…");
+            AppendMenuW(menu, MF_STRING, CmdSettings, Strings.Tray_Menu_Settings);
             AppendMenuW(menu, MF_SEPARATOR, 0, null);
-            AppendMenuW(menu, MF_STRING, CmdQuit, "&Quit");
+            AppendMenuW(menu, MF_STRING, CmdQuit, Strings.Tray_Menu_Quit);
 
             // Required so the menu closes when the user clicks elsewhere.
             SetForegroundWindow(_hwnd);

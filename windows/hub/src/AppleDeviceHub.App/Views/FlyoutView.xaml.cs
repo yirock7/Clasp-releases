@@ -9,6 +9,7 @@ using AppleDeviceHub.Core.Artwork;
 using AppleDeviceHub.Core.Contracts;
 using AppleDeviceHub.Core.Media;
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
 using AppleDeviceHub.Core.Updates;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml;
@@ -219,7 +220,7 @@ public sealed partial class FlyoutView : UserControl
     public bool ShowUpdateConsent => Updates?.ShowConsentPrompt == true;
     public bool ShowUpdateBanner => Updates is { } updates && (updates.ShowUpdateBanner || updates.Phase is UpdatePhase.Downloading or UpdatePhase.Installing);
     public string UpdateBannerText => Updates?.StatusText ?? "";
-    public string UpdateInstallText => Updates?.InstallButtonText ?? "Update";
+    public string UpdateInstallText => Updates?.InstallButtonText ?? Strings.Flyout_Update_InstallFallback;
     public bool CanInstallUpdate => Updates?.CanInstall == true;
     public bool UpdateIsPending => Updates?.Phase is UpdatePhase.Downloading or UpdatePhase.Installing;
 
@@ -249,13 +250,13 @@ public sealed partial class FlyoutView : UserControl
     public string PlaybackPlayerNameText => Playback?.PlayerName ?? "";
     public string PlaybackTitleText => !string.IsNullOrWhiteSpace(Playback?.Title)
         ? Playback.Title!
-        : Playback?.HasPlayer == true ? "No track details" : "No active player";
+        : Playback?.HasPlayer == true ? Strings.Flyout_Playback_NoTrackDetails : Strings.Flyout_Playback_NoActivePlayer;
     public string PlaybackStateText => Playback?.Current.Playback switch
     {
-        MediaPlayback.Playing => "Playing",
-        MediaPlayback.Paused => "Paused",
-        MediaPlayback.Stopped => "Stopped",
-        _ => Playback?.HasPlayer == true ? "Ready" : "Unavailable",
+        MediaPlayback.Playing => Strings.Flyout_Playback_StatePlaying,
+        MediaPlayback.Paused => Strings.Flyout_Playback_StatePaused,
+        MediaPlayback.Stopped => Strings.Flyout_Playback_StateStopped,
+        _ => Playback?.HasPlayer == true ? Strings.Flyout_Playback_StateReady : Strings.Flyout_Playback_StateUnavailable,
     };
     // The routine "Controlling {player}..." line is hidden (the player name is already shown); every
     // failure, busy or no-player status is not routine and still appears.
@@ -266,9 +267,9 @@ public sealed partial class FlyoutView : UserControl
     public bool PlaybackCenterCanExecute => PlaybackCenterAction is not null;
     public string PlaybackCenterActionName => PlaybackCenterAction switch
     {
-        PlaybackAction.Play => "Play",
-        PlaybackAction.Pause => "Pause",
-        _ => "Playback action unavailable",
+        PlaybackAction.Play => Strings.Flyout_Playback_ActionPlay,
+        PlaybackAction.Pause => Strings.Flyout_Playback_ActionPause,
+        _ => Strings.Flyout_Playback_ActionUnavailable,
     };
     public string PlaybackCenterGlyph => Playback?.Current.Playback == MediaPlayback.Playing ? "\uE769" : "\uE768";
     private PlaybackAction? PlaybackCenterAction => Playback is { } playback
@@ -287,18 +288,18 @@ public sealed partial class FlyoutView : UserControl
 
     public string PairedConnectionStatusText => Connection switch
     {
-        { IsConnected: true, IsCurrentOutput: true } => "Connected · Current output",
-        { IsConnected: true } => "Connected · Sound plays elsewhere",
+        { IsConnected: true, IsCurrentOutput: true } => Strings.Flyout_Connection_ConnectedCurrentOutput,
+        { IsConnected: true } => Strings.Flyout_Connection_ConnectedSoundElsewhere,
         { HasSelectedDevice: true } connection => connection.StatusText,
         { } connection => connection.StatusText,
-        _ => "Can't check the connection right now.",
+        _ => Strings.Flyout_Connection_CantCheck,
     };
 
     public string PairedConnectionDetailText => Connection switch
     {
         { DetailText: not null } connection => connection.DetailText,
         { IsConnected: true } => "",
-        _ => "Choose your AirPods in Settings.",
+        _ => Strings.Flyout_Connection_ChooseInSettings,
     };
     public bool CanConnectPairedDevice => Connection is { } connection && (connection.CanConnect || connection.CanDisconnect);
     public bool PairedConnectIsPending => Connection is { } pending && (pending.IsConnecting || pending.IsDisconnecting);
@@ -324,24 +325,26 @@ public sealed partial class FlyoutView : UserControl
         get
         {
             if (ShowNearbyRings)
-                return _viewModel!.NearbyIdentityConfidence.IsLikely() ? "Nearby estimate" : "Nearby estimate \u00b7 may be another pair";
-            if (ShowWindowsRing) return "Reported by Windows";
+                return _viewModel!.NearbyIdentityConfidence.IsLikely() ? Strings.Flyout_BatterySource_NearbyEstimate : Strings.Flyout_BatterySource_NearbyEstimateMaybeOther;
+            if (ShowWindowsRing) return Strings.Flyout_BatterySource_ReportedByWindows;
             if (_viewModel?.IsBroadcastObservation == true)
             {
                 if (NearbyDetectionOn)
-                    return _viewModel.UnavailableReason is { Length: > 0 } unavailable ? unavailable : $"Looking for your {_viewModel.DeviceNoun}\u2026";
-                return ShowBatteryHint ? Connection!.WindowsBatteryHint : "Nearby detection is off in Settings.";
+                    return _viewModel.UnavailableReason is { Length: > 0 } unavailable ? unavailable : string.Format(CultureInfo.CurrentCulture, Strings.Flyout_BatterySource_LookingFor, _viewModel.DeviceNoun);
+                return ShowBatteryHint ? Connection!.WindowsBatteryHint : Strings.Flyout_BatterySource_NearbyDetectionOff;
             }
-            return ShowBatteryHint ? Connection!.WindowsBatteryHint : "Battery appears here when Windows reports it.";
+            return ShowBatteryHint ? Connection!.WindowsBatteryHint : Strings.Flyout_BatterySource_AppearsWhenReported;
         }
     }
 
     public string BatterySourceHelp => ShowNearbyRings
-            ? $"Nearby estimate from a Bluetooth signal. It may come from {OtherDeviceText}, so Clasp can't be sure it's yours."
+            ? OtherDeviceHelpText
         : ShowBatteryHint && !NearbyDetectionOn
-            ? "To turn it on: Settings, Bluetooth & devices, Devices, More devices and printers settings. Right-click the AirPods, choose Properties, open Services, tick Handsfree Telephony, then Apply."
+            ? Strings.Flyout_BatterySource_HelpEnableHandsfree
         : "";
-    private string OtherDeviceText => _viewModel?.DeviceNoun is { } noun && noun != "AirPods" ? $"another set of {noun}" : "another pair of AirPods";
+    private string OtherDeviceHelpText => _viewModel?.DeviceNoun is { } noun && noun != "AirPods"
+        ? string.Format(CultureInfo.CurrentCulture, Strings.Flyout_BatterySource_HelpNearbyOtherSet, noun)
+        : Strings.Flyout_BatterySource_HelpNearbyOtherPair;
     public bool ShowPairNewAirPods => Connection?.NeedsPairing == true;
 
     /// <summary>
@@ -359,24 +362,24 @@ public sealed partial class FlyoutView : UserControl
         || _viewModel?.IsConnected == true || !string.IsNullOrEmpty(ConnectionHintText);
     public string PairedConnectText => Connection switch
     {
-        { IsDisconnecting: true } => "Disconnecting…",
-        { IsConnecting: true } => "Connecting…",
-        { IsConnected: true } => "Disconnect",
-        _ => "Connect",
+        { IsDisconnecting: true } => Strings.Flyout_Connect_Disconnecting,
+        { IsConnecting: true } => Strings.Flyout_Connect_Connecting,
+        { IsConnected: true } => Strings.Flyout_Connect_Disconnect,
+        _ => Strings.Flyout_Connect_Connect,
     };
 
-    public string TransportActionText => _viewModel is not { } vm ? "Connect"
+    public string TransportActionText => _viewModel is not { } vm ? Strings.Flyout_Connect_Connect
         : vm.IsDemo ? vm.ConnectActionText
-        : $"Controls · {vm.ConnectActionText}";
+        : string.Format(CultureInfo.CurrentCulture, Strings.Flyout_Transport_ControlsAction, vm.ConnectActionText);
 
     public string ConnectionCaptionText
     {
         get
         {
-            if (_viewModel is not { } vm) return "Status unavailable";
+            if (_viewModel is not { } vm) return Strings.Flyout_Status_Unavailable;
             if (vm.IsDemo) return vm.ConnectionHeadline;
             if (Connection is not null) return PairedConnectionStatusText;
-            return "Status unavailable";
+            return Strings.Flyout_Status_Unavailable;
         }
     }
     public string ConnectionHintText
@@ -392,31 +395,31 @@ public sealed partial class FlyoutView : UserControl
     public string CurrentOutputNameText => AudioOutput switch
     {
         { CurrentWindowsOutputId: not null, CurrentWindowsOutputName.Length: > 0 } output => output.CurrentWindowsOutputName,
-        { CurrentWindowsOutputId: not null } => "Current Windows output",
-        _ => "No sound output found",
+        { CurrentWindowsOutputId: not null } => Strings.Flyout_Output_CurrentWindows,
+        _ => Strings.Flyout_Output_NoneFound,
     };
     public string CurrentOutputCaptionText => AudioOutput switch
     {
-        null => "Volume isn't available.",
+        null => Strings.Flyout_Output_VolumeUnavailable,
         { CurrentWindowsOutputId: null } output => string.IsNullOrWhiteSpace(output.CurrentWindowsOutputVolumeStatusText)
-            ? "Windows doesn't see a speaker or headphones right now."
+            ? Strings.Flyout_Output_NoSpeaker
             : output.CurrentWindowsOutputVolumeStatusText,
-        { CanAdjustCurrentOutput: true } => "Default Windows playback output",
+        { CanAdjustCurrentOutput: true } => Strings.Flyout_Output_DefaultPlayback,
         { } output => string.IsNullOrWhiteSpace(output.CurrentWindowsOutputVolumeStatusText)
-            ? "Windows can't change this volume right now."
+            ? Strings.Flyout_Output_CantChangeVolume
             : output.CurrentWindowsOutputVolumeStatusText,
     };
     public string CurrentOutputVolumeText => AudioOutput?.CurrentWindowsOutputVolume is float volume
         ? volume.ToString("P0", CultureInfo.CurrentCulture)
         : ""; // nothing to report: no lone dash beside "No sound output found"
     public string CurrentOutputSliderName => AudioOutput?.CurrentWindowsOutputName is { Length: > 0 } name
-        ? $"Windows output volume, {name}"
-        : "Windows output volume";
+        ? string.Format(CultureInfo.CurrentCulture, Strings.Flyout_Output_SliderNameWithDevice, name)
+        : Strings.Flyout_Output_SliderName;
     /// <summary>The routine "Default Windows playback output" caption is hidden; only a caption that explains a problem shows.</summary>
     public bool ShowCurrentOutputCaption => !(AudioOutput is { CurrentWindowsOutputId: not null, CanAdjustCurrentOutput: true });
     public bool CanAdjustCurrentOutput => AudioOutput?.CanAdjustCurrentOutput == true;
     public bool ShowNearbyDetails => _nearbyDetailsExpanded && _viewModel?.HasBroadcastSources == true;
-    public string NearbyDetailsActionName => _nearbyDetailsExpanded ? "Hide details" : "Details";
+    public string NearbyDetailsActionName => _nearbyDetailsExpanded ? Strings.Flyout_Nearby_HideDetails : Strings.Flyout_Nearby_Details;
 
     private string _bluetoothLaunchStatusText = "";
     public string BluetoothLaunchStatusText
@@ -1262,7 +1265,7 @@ public sealed partial class FlyoutView : UserControl
         try
         {
             Process.Start(new ProcessStartInfo("ms-settings-connectabledevices:devicediscovery") { UseShellExecute = true });
-            BluetoothLaunchStatusText = "Windows opened its Add a device window. Open the AirPods case and hold the button until the light flashes white.";
+            BluetoothLaunchStatusText = Strings.Flyout_Pairing_AddDeviceOpened;
         }
         catch (Exception ex)
         {
@@ -1276,12 +1279,12 @@ public sealed partial class FlyoutView : UserControl
         try
         {
             Process.Start(new ProcessStartInfo("ms-settings:bluetooth") { UseShellExecute = true });
-            BluetoothLaunchStatusText = "Windows Bluetooth settings opened. Pair or connect your AirPods there.";
+            BluetoothLaunchStatusText = Strings.Flyout_Pairing_BluetoothSettingsOpened;
         }
         catch (Exception ex)
         {
             LocalLog.Write($"Windows Bluetooth settings could not be opened ({ex.GetType().Name}).");
-            BluetoothLaunchStatusText = "Couldn't open Windows Bluetooth settings.";
+            BluetoothLaunchStatusText = Strings.Flyout_Pairing_BluetoothSettingsFailed;
         }
     }
 }

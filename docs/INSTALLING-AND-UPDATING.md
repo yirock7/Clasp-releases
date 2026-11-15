@@ -50,11 +50,11 @@ You can also download a newer setup file by hand and run it. It upgrades in plac
 
 ## Where things live
 
-Settings, battery history and a small log are in `%LOCALAPPDATA%\AppleDeviceHub`. Downloaded updates go to its `updates` subfolder.
+Settings, battery history and a small log are in `%LOCALAPPDATA%\Clasp`. Downloaded updates go to its `updates` subfolder. Earlier versions kept these in `%LOCALAPPDATA%\AppleDeviceHub`. The first start of a newer version moves them across, and an interactive uninstall that you answer Yes to deletes both folders.
 
 ## Uninstalling
 
-Windows Settings, Apps, Installed apps, Clasp. Uninstalling removes the app, its shortcuts and its sign-in entry. An interactive uninstall asks whether to delete `%LOCALAPPDATA%\AppleDeviceHub` too (the default is No); a silent uninstall never deletes it.
+Windows Settings, Apps, Installed apps, Clasp. Uninstalling removes the app, its shortcuts and its sign-in entry. An interactive uninstall asks whether to delete `%LOCALAPPDATA%\Clasp` too (the default is No); a silent uninstall never deletes it.
 
 ## Building the installer yourself
 

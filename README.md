@@ -12,6 +12,8 @@ I built Clasp because Windows shows almost nothing about AirPods: no battery for
 
 Clasp is a hobby project by one person, released as open source under the GPL-3.0. It comes with no warranty, and I would rather tell you its limits up front than have you find them later. They are listed below.
 
+Clasp is a 0.x preview. I support it on a best-effort basis, and things may change between versions.
+
 **Jump to:** [What it does](#what-it-does) · [Which devices work](#supported-devices) · [Install](#download-and-install) · [Privacy](#privacy) · [Who makes this](#who-makes-this) · [Build from source](#building-from-source)
 
 ## What it does
@@ -61,7 +63,7 @@ Clasp recognises these models from their Bluetooth broadcasts. I have only teste
 | Powerbeats Pro, Powerbeats Pro 2, Beats Fit Pro, Beats Studio Buds+, Beats Solo Buds, Beats Solo 4, Beats Studio Pro, Beats Flex, Beats 360, BeatsX | Recognised, not tested on my hardware |
 | Powerbeats 3, Powerbeats 4, Powerbeats Fit, Beats Solo 3, Beats Solo Pro, Beats Studio 3, Beats Studio Buds | Listed, but the battery layout is a best guess and I have not seen a real broadcast from them |
 
-The model information comes from other open-source projects (LibrePods, CAPod and MagicPodsCore; see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)). If your model shows the wrong battery, or Clasp calls it an "Unrecognised Apple audio device", please [open an issue](https://github.com/yirock7/Clasp-releases/issues/new/choose) and say which model you have. Reports from real hardware are the most useful thing anyone can give this project.
+The model information comes from other open-source projects (LibrePods, CAPod and MagicPodsCore; see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)). If your model shows the wrong battery, or Clasp calls it an "Unrecognised Apple audio device", please [open an issue](https://github.com/yirock7/Clasp-releases/issues/new/choose) and say which model you have. Reports from real hardware are the most useful thing anyone can give this project, and there is a [hardware report form](https://github.com/yirock7/Clasp-releases/issues/new?template=hardware-report.yml) for exactly that.
 
 ## Download and install
 
@@ -97,7 +99,7 @@ Each release also has a `.sha256` file, but it only shows the download was not d
 
 Clasp has no accounts and no telemetry. Here is everything it stores and sends, as far as I can tell from reading the code:
 
-- **On your PC**, in `%LOCALAPPDATA%\AppleDeviceHub`: your settings, your battery history, and a small log (`hub.log`, kept under 512 KB, written without device names or Bluetooth addresses). Nothing in that folder is uploaded.
+- **On your PC**, in `%LOCALAPPDATA%\Clasp`: your settings, your battery history, and a small log (`hub.log`, kept under 512 KB). The log is written without device names or Bluetooth addresses (errors are recorded by type and code, not by message), but it is your file, so look it over before you share it. If `hub.log` cannot be written, a fallback log goes to `%TEMP%\Clasp-hub-fallback.log`. Downloaded updates are kept in `%LOCALAPPDATA%\Clasp\updates`. Nothing in these places is uploaded.
 - **Over the internet**: only the update check, which asks GitHub for the list of releases, and the download if you choose to update. GitHub can see your IP address like any website you visit. Clasp sends no identifiers of its own. By default it does not check on its own; it asks you once whether you want automatic checks (daily, weekly or monthly), and you can change that in Settings.
 - **Over Bluetooth**: Clasp listens to the broadcasts that nearby Apple devices send out, to read battery levels. While the welcome guide's pairing page is open, it also looks for headphones in pairing mode, the same search Windows Settings runs. It never pairs with or connects to anything without you asking. You can turn nearby detection off in Settings.
 
@@ -105,7 +107,7 @@ Because the source is public, you do not have to take my word for any of this. Y
 
 ## Who makes this
 
-Clasp is made by me, [yirock7](https://github.com/yirock7), on my own in my spare time. I am not a company, and Clasp is not affiliated with or endorsed by Apple or Beats. AirPods, Beats and Apple are trademarks of Apple Inc., used here only to say which devices Clasp works with.
+Clasp is made by me, [yirock7](https://github.com/yirock7), on my own in my spare time. I build it with AI coding agents, and I review every change. I am not a company, and Clasp is not affiliated with or endorsed by Apple or Beats. AirPods, Beats and Apple are trademarks of Apple Inc., used here only to say which devices Clasp works with.
 
 - **Open source.** The source code is in this repository under the [GNU General Public License v3.0](LICENSE). It comes with no warranty, as the licence says.
 - **No telemetry.** See [Privacy](#privacy).
@@ -119,9 +121,9 @@ Clasp is made by me, [yirock7](https://github.com/yirock7), on my own in my spar
 
 **Why does Windows warn me about the installer?** It is not code-signed yet, so Windows does not know who I am. See [Download and install](#download-and-install).
 
-**How do I uninstall it?** Windows Settings, Apps, Installed apps, Clasp. Uninstalling leaves your settings folder in place so a reinstall picks up where you were. Delete `%LOCALAPPDATA%\AppleDeviceHub` if you want it gone too.
+**How do I uninstall it?** Windows Settings, Apps, Installed apps, Clasp. An interactive uninstall asks "Also delete Clasp's settings and battery history?". The default is No, which keeps your data so a reinstall picks up where you were. Say Yes to delete `%LOCALAPPDATA%\Clasp`. A silent uninstall always keeps it, so delete that folder yourself if you want it gone.
 
-**Where are my settings?** In `%LOCALAPPDATA%\AppleDeviceHub\settings.json`.
+**Where are my settings?** In `%LOCALAPPDATA%\Clasp\settings.json`. Versions before the rename used `%LOCALAPPDATA%\AppleDeviceHub`; Clasp moves that folder across the first time the new version starts.
 
 **It says it can't find my AirPods.** Make sure Bluetooth is on and open the case near your PC. If they have never been paired with this PC, pair them first: open the welcome guide (Settings, About, **Show welcome guide**), put them in pairing mode and click **Pair**, or use Windows Settings. The guide has model-specific pairing steps, and you can also read them in [docs/PAIRING-MODES.md](docs/PAIRING-MODES.md).
 

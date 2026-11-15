@@ -1,7 +1,9 @@
+using System.Globalization;
 using AppleDeviceHub.App.Audio;
 using AppleDeviceHub.App.Shell;
 using AppleDeviceHub.Core.Audio;
 using AppleDeviceHub.Core.Connection;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.App.Companion;
 
@@ -87,7 +89,7 @@ internal sealed partial class CompanionHost
         if (_settings.HandsfreeMode == HandsfreeMode.Smart && connected && !microphoneSnapshot.IsReady)
         {
             _hfRecheckAt = null;
-            Status.HandsfreeText = "Checking whether your microphone is in use…";
+            Status.HandsfreeText = Strings.CompHost_Handsfree_CheckingMicrophone;
             return;
         }
         var micInUse = microphoneSnapshot.IsMicrophoneInUse;
@@ -100,7 +102,7 @@ internal sealed partial class CompanionHost
         if (address is not ulong bluetoothAddress)
         {
             _hfPolicy.ReportOutcome(decision.Action, HandsfreeOutcome.DeviceNotFound);
-            Status.HandsfreeText = "Couldn't find your AirPods to change Handsfree. Clasp left it as it was.";
+            Status.HandsfreeText = Strings.CompHost_Handsfree_NoAddress;
             LocalLog.Write("Handsfree change skipped: no Bluetooth address in the selected device id.");
             return;
         }
@@ -138,9 +140,9 @@ internal sealed partial class CompanionHost
         LocalLog.Write($"Handsfree result: {result.Outcome} (Win32 {result.Win32Error}).");
         Status.HandsfreeText = result.Outcome switch
         {
-            HandsfreeOutcome.AccessDenied => "Windows needs administrator access to change Handsfree. Clasp left it as it was.",
-            HandsfreeOutcome.DeviceNotFound => "Windows couldn't find these AirPods. Clasp left Handsfree as it was.",
-            HandsfreeOutcome.Failed => $"Windows couldn't change Handsfree (error {result.Win32Error}).",
+            HandsfreeOutcome.AccessDenied => Strings.CompHost_Handsfree_AccessDenied,
+            HandsfreeOutcome.DeviceNotFound => Strings.CompHost_Handsfree_DeviceNotFound,
+            HandsfreeOutcome.Failed => string.Format(CultureInfo.CurrentCulture, Strings.CompHost_Handsfree_Failed, result.Win32Error),
             _ => Status.HandsfreeText,
         };
         if (_hfDirty || result.Outcome == HandsfreeOutcome.Succeeded)
@@ -153,7 +155,7 @@ internal sealed partial class CompanionHost
 
     private string HandsfreeStatusLine(HandsfreeDecision decision)
     {
-        if (_hfPolicy.IsBlocked) return $"{_hfPolicy.BlockedReason} Clasp left it as it was.";
+        if (_hfPolicy.IsBlocked) return string.Format(CultureInfo.CurrentCulture, Strings.CompHost_Handsfree_Blocked, _hfPolicy.BlockedReason);
         if (_settings.HandsfreeMode == HandsfreeMode.AlwaysOn) return "";
         return decision.Reason;
     }
@@ -206,12 +208,12 @@ internal sealed partial class CompanionHost
 
     private static string KeepAliveStatusLine(KeepAliveReason reason) => reason switch
     {
-        KeepAliveReason.Running => "On",
-        KeepAliveReason.NotConnected => "Waiting for your AirPods to connect",
-        KeepAliveReason.NoEndpoint => "Waiting for Windows to show your AirPods",
-        KeepAliveReason.NotDefaultOutput => "Paused. Your AirPods aren't the sound output.",
-        KeepAliveReason.BackingOff => "Couldn't start. Trying again.",
-        KeepAliveReason.RetriesExhausted => "Stopped until your AirPods reconnect",
+        KeepAliveReason.Running => Strings.CompHost_LowLatency_On,
+        KeepAliveReason.NotConnected => Strings.CompHost_LowLatency_WaitingForConnect,
+        KeepAliveReason.NoEndpoint => Strings.CompHost_LowLatency_WaitingForOutput,
+        KeepAliveReason.NotDefaultOutput => Strings.CompHost_LowLatency_NotDefaultOutput,
+        KeepAliveReason.BackingOff => Strings.CompHost_LowLatency_Retrying,
+        KeepAliveReason.RetriesExhausted => Strings.CompHost_LowLatency_Stopped,
         _ => "",
     };
 
@@ -231,7 +233,7 @@ internal sealed partial class CompanionHost
         if (state != KeepAliveRendererState.Failed) return;
         Post(() =>
         {
-            LocalLog.Write($"Low audio latency stream failed: {detail}");
+            LocalLog.Write("Low audio latency stream failed.");
             _kaPolicy.ReportFailure();
             EvaluateKeepAlive();
             EnsureTick();

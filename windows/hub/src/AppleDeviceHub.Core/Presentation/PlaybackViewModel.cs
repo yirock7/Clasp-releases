@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using AppleDeviceHub.Core.Media;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.Presentation;
 
@@ -115,15 +116,15 @@ public sealed class PlaybackViewModel : INotifyPropertyChanged, IAsyncDisposable
         lock (_gate)
         {
             if (_disposed)
-                return new PlaybackCommandResult(PlaybackCommandStatus.Cancelled, "Playback controls were closed.");
+                return new PlaybackCommandResult(PlaybackCommandStatus.Cancelled, Strings.Playback_Status_ControlsClosed);
             if (_isBusy)
-                return new PlaybackCommandResult(PlaybackCommandStatus.Busy, "Still working on the last request.");
+                return new PlaybackCommandResult(PlaybackCommandStatus.Busy, Strings.Playback_Status_StillWorking);
             _isBusy = true;
             commandCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _lifetime.Token);
             _activeCommandCancellation = commandCancellation;
         }
 
-        QueueBusyState("Sending to Windows…");
+        QueueBusyState(Strings.Playback_Status_SendingToWindows);
         PlaybackCommandResult result;
         Task<PlaybackCommandResult>? commandTask = null;
         try
@@ -152,11 +153,11 @@ public sealed class PlaybackViewModel : INotifyPropertyChanged, IAsyncDisposable
         }
         catch (OperationCanceledException)
         {
-            result = new PlaybackCommandResult(PlaybackCommandStatus.Cancelled, "Cancelled.");
+            result = new PlaybackCommandResult(PlaybackCommandStatus.Cancelled, Strings.Playback_Status_Cancelled);
         }
         catch (Exception)
         {
-            result = new PlaybackCommandResult(PlaybackCommandStatus.Failed, "Windows couldn't do that.");
+            result = new PlaybackCommandResult(PlaybackCommandStatus.Failed, Strings.Playback_Status_WindowsCouldntDoThat);
         }
 
         bool notify;
@@ -200,7 +201,7 @@ public sealed class PlaybackViewModel : INotifyPropertyChanged, IAsyncDisposable
             PlaybackAction.Pause => controller.PauseAsync(cancellationToken),
             PlaybackAction.Next => controller.NextAsync(cancellationToken),
             PlaybackAction.Previous => controller.PreviousAsync(cancellationToken),
-            _ => Task.FromResult(new PlaybackCommandResult(PlaybackCommandStatus.Unsupported, "That isn't available here.")),
+            _ => Task.FromResult(new PlaybackCommandResult(PlaybackCommandStatus.Unsupported, Strings.Playback_Status_NotAvailableHere)),
         };
 
     private void OnControllerChanged(object? sender, PlaybackSnapshot snapshot)

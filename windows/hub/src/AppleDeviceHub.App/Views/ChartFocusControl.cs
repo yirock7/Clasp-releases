@@ -1,3 +1,4 @@
+using AppleDeviceHub.Core.Resources;
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
 
@@ -10,7 +11,7 @@ namespace AppleDeviceHub.App.Views;
 /// </summary>
 public sealed partial class ChartFocusControl : ContentControl
 {
-    public const string HelpText = "Use Left and Right arrows to read values";
+    public static string HelpText => Strings.ChartFocus_HelpText;
 
     protected override AutomationPeer OnCreateAutomationPeer() => new ChartFocusPeer(this);
 
@@ -39,7 +40,7 @@ public sealed partial class ChartFocusControl : ContentControl
 
         protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Custom;
 
-        protected override string GetLocalizedControlTypeCore() => "chart";
+        protected override string GetLocalizedControlTypeCore() => Strings.ChartFocus_ControlType;
 
         protected override string GetClassNameCore() => nameof(ChartFocusControl);
 

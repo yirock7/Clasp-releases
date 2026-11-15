@@ -1,3 +1,5 @@
+using System.Globalization;
+using AppleDeviceHub.Core.Resources;
 using Microsoft.UI.Dispatching;
 using Windows.UI.ViewManagement;
 
@@ -73,11 +75,14 @@ public static class EffectsPolicy
     }
 
     /// <summary>A one-line description for Settings and the design review.</summary>
-    public static string Describe() =>
-        $"Windows animations {(SystemAnimationsEnabled ? "on" : "off")}, " +
-        $"transparency {(SystemTransparencyEnabled ? "on" : "off")}, " +
-        $"high contrast {(HighContrast ? "on" : "off")}. " +
-        $"App: {(ReduceMotion ? "reduced motion" : "full motion")}, {(ReduceTransparency ? "opaque surfaces" : "glass surfaces")}.";
+    public static string Describe() => string.Format(
+        CultureInfo.CurrentCulture,
+        Strings.Design_Effects_Summary,
+        SystemAnimationsEnabled ? Strings.Design_Effects_On : Strings.Design_Effects_Off,
+        SystemTransparencyEnabled ? Strings.Design_Effects_On : Strings.Design_Effects_Off,
+        HighContrast ? Strings.Design_Effects_On : Strings.Design_Effects_Off,
+        ReduceMotion ? Strings.Design_Effects_ReducedMotion : Strings.Design_Effects_FullMotion,
+        ReduceTransparency ? Strings.Design_Effects_OpaqueSurfaces : Strings.Design_Effects_GlassSurfaces);
 
     private static void Post() => s_queue?.TryEnqueue(Refresh);
 

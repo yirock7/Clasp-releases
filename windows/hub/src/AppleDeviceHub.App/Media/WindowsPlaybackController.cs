@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.Runtime.InteropServices;
 using AppleDeviceHub.Core.Media;
+using AppleDeviceHub.Core.Resources;
 using Windows.Media.Control;
 
 namespace AppleDeviceHub.App.Media;
@@ -76,18 +78,18 @@ internal sealed class WindowsPlaybackController : IPlaybackSessionSource
         lock (_gate)
         {
             if (_disposed)
-                return Result(PlaybackCommandStatus.Cancelled, "Windows media controls have been closed.");
+                return Result(PlaybackCommandStatus.Cancelled, Strings.WinPlayback_ControlsClosed);
 
             snapshot = _current;
             if (_session is null || snapshot.SessionId != sessionId)
-                return Result(PlaybackCommandStatus.Cancelled, "The selected Windows player changed before the request was sent.");
+                return Result(PlaybackCommandStatus.Cancelled, Strings.WinPlayback_PlayerChangedBeforeSend);
             if (!snapshot.Supports(action))
                 return Result(PlaybackCommandStatus.Unsupported, UnsupportedMessage(snapshot.PlayerName, action));
             session = _session;
         }
 
         if (cancellationToken.IsCancellationRequested)
-            return Result(PlaybackCommandStatus.Cancelled, "The Windows media request was cancelled before it was sent.");
+            return Result(PlaybackCommandStatus.Cancelled, Strings.WinPlayback_CancelledBeforeSend);
 
         try
         {
@@ -108,31 +110,31 @@ internal sealed class WindowsPlaybackController : IPlaybackSessionSource
 
             var accepted = await request;
             if (cancellationToken.IsCancellationRequested)
-                return Result(PlaybackCommandStatus.Cancelled, "The selected player changed while Windows was handling the request.");
+                return Result(PlaybackCommandStatus.Cancelled, Strings.WinPlayback_PlayerChangedWhileHandling);
             if (!accepted)
-                return Result(PlaybackCommandStatus.Refused, $"Windows did not accept the {ActionName(action)} request.");
+                return Result(PlaybackCommandStatus.Refused, string.Format(CultureInfo.CurrentCulture, Strings.WinPlayback_NotAccepted, ActionName(action)));
 
             lock (_gate)
             {
                 if (_disposed || _current.SessionId != sessionId || !ReferenceEquals(_session, session))
-                    return Result(PlaybackCommandStatus.Cancelled, "The selected player changed before Windows finished the request.");
+                    return Result(PlaybackCommandStatus.Cancelled, Strings.WinPlayback_PlayerChangedBeforeFinish);
             }
 
-            return Result(PlaybackCommandStatus.Sent, $"{ActionName(action)} request sent to {snapshot.PlayerName}.");
+            return Result(PlaybackCommandStatus.Sent, string.Format(CultureInfo.CurrentCulture, Strings.WinPlayback_RequestSent, ActionName(action), snapshot.PlayerName));
         }
         catch (OperationCanceledException)
         {
-            return Result(PlaybackCommandStatus.Cancelled, "The Windows media request was cancelled.");
+            return Result(PlaybackCommandStatus.Cancelled, Strings.WinPlayback_Cancelled);
         }
         catch (Exception exception) when (exception is COMException
             or UnauthorizedAccessException
             or InvalidOperationException)
         {
-            return Result(PlaybackCommandStatus.Refused, $"Windows refused the {ActionName(action)} request.");
+            return Result(PlaybackCommandStatus.Refused, string.Format(CultureInfo.CurrentCulture, Strings.WinPlayback_Refused, ActionName(action)));
         }
         catch (Exception)
         {
-            return Result(PlaybackCommandStatus.Failed, "Windows could not complete the media request.");
+            return Result(PlaybackCommandStatus.Failed, Strings.WinPlayback_CouldNotComplete);
         }
     }
 
@@ -306,8 +308,8 @@ internal sealed class WindowsPlaybackController : IPlaybackSessionSource
                     && _metadataRevision == request.Revision)
                 {
                     var status = _current.PlayerName is null
-                        ? "Windows media controls are ready."
-                        : $"Controlling { _current.PlayerName } through Windows media controls.";
+                        ? Strings.WinPlayback_ControlsReady
+                        : string.Format(CultureInfo.CurrentCulture, Strings.WinPlayback_Controlling, _current.PlayerName);
                     _current = _current with { Title = title, Status = status, StatusIsRoutine = _current.PlayerName is not null };
                     snapshot = _current;
                 }
@@ -328,7 +330,7 @@ internal sealed class WindowsPlaybackController : IPlaybackSessionSource
         var sessionId = $"manual:{appUserModelId}:{generation}";
         string playerName;
         try { playerName = FormatPlayerName(appUserModelId); }
-        catch (Exception) { playerName = "Windows media player"; }
+        catch (Exception) { playerName = Strings.WinPlayback_DefaultPlayerName; }
 
         try
         {
@@ -350,20 +352,20 @@ internal sealed class WindowsPlaybackController : IPlaybackSessionSource
                 controls?.IsPauseEnabled == true,
                 controls?.IsNextEnabled == true,
                 controls?.IsPreviousEnabled == true,
-                $"Controlling {playerName} through Windows media controls.",
+                string.Format(CultureInfo.CurrentCulture, Strings.WinPlayback_Controlling, playerName),
                 StatusIsRoutine: true);
         }
         catch (Exception)
         {
             return new PlaybackSnapshot(sessionId, playerName, title, MediaPlayback.Unknown,
                 false, false, false, false,
-                $"Windows could not read playback controls for {playerName}.");
+                string.Format(CultureInfo.CurrentCulture, Strings.WinPlayback_CouldNotReadControls, playerName));
         }
     }
 
     private static string FormatPlayerName(string? appUserModelId)
     {
-        if (string.IsNullOrWhiteSpace(appUserModelId)) return "Windows media player";
+        if (string.IsNullOrWhiteSpace(appUserModelId)) return Strings.WinPlayback_DefaultPlayerName;
         var appName = appUserModelId[(appUserModelId.LastIndexOf('!') + 1)..];
         if (string.IsNullOrWhiteSpace(appName)
             || string.Equals(appName, "App", StringComparison.OrdinalIgnoreCase)
@@ -395,15 +397,16 @@ internal sealed class WindowsPlaybackController : IPlaybackSessionSource
 
     private static string ActionName(PlaybackAction action) => action switch
     {
-        PlaybackAction.Play => "Play",
-        PlaybackAction.Pause => "Pause",
-        PlaybackAction.Next => "Next",
-        PlaybackAction.Previous => "Previous",
-        _ => "Playback",
+        PlaybackAction.Play => Strings.WinPlayback_Action_Play,
+        PlaybackAction.Pause => Strings.WinPlayback_Action_Pause,
+        PlaybackAction.Next => Strings.WinPlayback_Action_Next,
+        PlaybackAction.Previous => Strings.WinPlayback_Action_Previous,
+        _ => Strings.WinPlayback_Action_Generic,
     };
 
     private static string UnsupportedMessage(string? playerName, PlaybackAction action)
-        => $"{playerName ?? "The current Windows player"} does not support {ActionName(action)}. No command was sent.";
+        => string.Format(CultureInfo.CurrentCulture, Strings.WinPlayback_ActionUnsupported,
+            playerName ?? Strings.WinPlayback_CurrentPlayerFallback, ActionName(action));
 
     /// <inheritdoc />
     public async ValueTask DisposeAsync()

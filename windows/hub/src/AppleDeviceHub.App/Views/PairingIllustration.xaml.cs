@@ -243,7 +243,7 @@ public sealed partial class PairingIllustration : UserControl
         }
         catch (Exception ex)
         {
-            Shell.LocalLog.Write("Pairing progress ring unavailable: " + ex.Message);
+            Shell.LocalLog.Write("Pairing progress ring unavailable: " + AppleDeviceHub.Core.Presentation.LogText.ExceptionKind(ex));
             return null;
         }
     }

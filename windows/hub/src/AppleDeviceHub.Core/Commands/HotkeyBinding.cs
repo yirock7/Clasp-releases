@@ -1,3 +1,6 @@
+using AppleDeviceHub.Core.Resources;
+using System.Globalization;
+
 namespace AppleDeviceHub.Core.Commands;
 
 /// <summary>Modifier keys. Values match the Win32 MOD_* flags so the app can pass them straight through.</summary>
@@ -42,28 +45,28 @@ public sealed record HotkeyBinding(HotkeyModifiers Modifiers, uint VirtualKey)
     {
         binding = null;
         reason = null;
-        if (string.IsNullOrWhiteSpace(text)) { reason = "Type a shortcut."; return false; }
-        if (text.Length > 64) { reason = "That shortcut is too long."; return false; }
+        if (string.IsNullOrWhiteSpace(text)) { reason = Strings.Command_Hotkey_TypeShortcut; return false; }
+        if (text.Length > 64) { reason = Strings.Command_Hotkey_TooLong; return false; }
 
         var parts = text.Split('+', StringSplitOptions.TrimEntries);
         var modifiers = HotkeyModifiers.None;
         uint? key = null;
         foreach (var part in parts)
         {
-            if (part.Length == 0) { reason = "That shortcut isn't valid."; return false; }
+            if (part.Length == 0) { reason = Strings.Command_Hotkey_NotValid; return false; }
             var modifier = ModifierFor(part);
             if (modifier != HotkeyModifiers.None)
             {
-                if (key is not null) { reason = "The key has to come last."; return false; }
-                if ((modifiers & modifier) != 0) { reason = $"{part} is used twice."; return false; }
+                if (key is not null) { reason = Strings.Command_Hotkey_KeyMustBeLast; return false; }
+                if ((modifiers & modifier) != 0) { reason = string.Format(CultureInfo.CurrentCulture, Strings.Command_Hotkey_UsedTwice, part); return false; }
                 modifiers |= modifier;
                 continue;
             }
-            if (key is not null) { reason = "A shortcut can use only one key."; return false; }
+            if (key is not null) { reason = Strings.Command_Hotkey_OnlyOneKey; return false; }
             key = KeyFor(part);
-            if (key is null) { reason = $"Clasp doesn't recognize '{part}'."; return false; }
+            if (key is null) { reason = string.Format(CultureInfo.CurrentCulture, Strings.Command_Hotkey_UnknownKey, part); return false; }
         }
-        if (key is null) { reason = "Add a key to the shortcut."; return false; }
+        if (key is null) { reason = Strings.Command_Hotkey_AddKey; return false; }
         binding = new HotkeyBinding(modifiers, key.Value);
         return true;
     }
@@ -92,11 +95,11 @@ public sealed record HotkeyBinding(HotkeyModifiers Modifiers, uint VirtualKey)
     /// </summary>
     public HotkeyValidation Validate()
     {
-        if (KeyName(VirtualKey).StartsWith("0x", StringComparison.Ordinal)) return HotkeyValidation.Invalid("That key isn't supported.");
-        if (Modifiers == HotkeyModifiers.None) return HotkeyValidation.Invalid("Include Ctrl, Alt, or Win.");
+        if (KeyName(VirtualKey).StartsWith("0x", StringComparison.Ordinal)) return HotkeyValidation.Invalid(Strings.Command_Hotkey_KeyNotSupported);
+        if (Modifiers == HotkeyModifiers.None) return HotkeyValidation.Invalid(Strings.Command_Hotkey_IncludeModifier);
         if ((Modifiers & (HotkeyModifiers.Ctrl | HotkeyModifiers.Alt | HotkeyModifiers.Win)) == 0)
-            return HotkeyValidation.Invalid("Shift alone gets in the way of typing. Add Ctrl or Alt.");
-        if (Modifiers == HotkeyModifiers.Win) return HotkeyValidation.Invalid("Windows keeps Win shortcuts for itself. Add Ctrl or Alt.");
+            return HotkeyValidation.Invalid(Strings.Command_Hotkey_ShiftAlone);
+        if (Modifiers == HotkeyModifiers.Win) return HotkeyValidation.Invalid(Strings.Command_Hotkey_WinAlone);
 
         const uint Delete = 0x2E, F4 = 0x73, Tab = 0x09, Escape = 0x1B, Space = 0x20;
         if (Modifiers == (HotkeyModifiers.Ctrl | HotkeyModifiers.Alt) && VirtualKey == Delete) return Reserved();
@@ -105,7 +108,7 @@ public sealed record HotkeyBinding(HotkeyModifiers Modifiers, uint VirtualKey)
         if (Modifiers == (HotkeyModifiers.Ctrl | HotkeyModifiers.Shift) && VirtualKey == Escape) return Reserved();
         return HotkeyValidation.Valid;
 
-        static HotkeyValidation Reserved() => HotkeyValidation.Invalid("Windows already uses this shortcut. Pick another.");
+        static HotkeyValidation Reserved() => HotkeyValidation.Invalid(Strings.Command_Hotkey_Reserved);
     }
 
     private static HotkeyModifiers ModifierFor(string part) => part.ToLowerInvariant() switch

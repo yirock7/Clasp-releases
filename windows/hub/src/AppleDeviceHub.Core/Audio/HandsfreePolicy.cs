@@ -1,3 +1,6 @@
+using AppleDeviceHub.Core.Resources;
+using System.Globalization;
+
 namespace AppleDeviceHub.Core.Audio;
 
 /// <summary>How Clasp manages the AirPods' Handsfree (call) Bluetooth service.</summary>
@@ -115,7 +118,7 @@ public sealed class HandsfreePolicy
         {
             // A new connection gets a fresh single attempt.
             _attempted = HandsfreeAction.None;
-            return new(HandsfreeAction.None, "AirPods are not connected.");
+            return new(HandsfreeAction.None, Strings.Audio_Handsfree_NotConnected);
         }
 
         if (knownState != HandsfreeState.Unknown) _assumed = knownState;
@@ -127,22 +130,22 @@ public sealed class HandsfreePolicy
             if (!_disabledByUs)
             {
                 _attempted = HandsfreeAction.None;
-                return new(HandsfreeAction.None, "Handsfree is left to Windows.");
+                return new(HandsfreeAction.None, Strings.Audio_Handsfree_LeftToWindows);
             }
-            return Choose(HandsfreeAction.Enable, effective, "Restoring the Windows default (Handsfree on).", null, hold: false);
+            return Choose(HandsfreeAction.Enable, effective, Strings.Audio_Handsfree_RestoringDefault, null, hold: false);
         }
 
         if (mode == HandsfreeMode.AlwaysOff)
-            return Choose(HandsfreeAction.Disable, effective, "Handsfree is set to always off.", null, hold: false);
+            return Choose(HandsfreeAction.Disable, effective, Strings.Audio_Handsfree_AlwaysOff, null, hold: false);
 
         // Smart.
         if (micInUse)
-            return Choose(HandsfreeAction.Enable, effective, "An app is using a microphone.", null, hold: false);
+            return Choose(HandsfreeAction.Enable, effective, Strings.Audio_Handsfree_MicInUse, null, hold: false);
 
         if (_idleSince is { } since && now - since < _grace)
-            return Choose(HandsfreeAction.Enable, effective, "Waiting briefly before turning Handsfree off.", since + _grace, hold: true);
+            return Choose(HandsfreeAction.Enable, effective, Strings.Audio_Handsfree_WaitingBriefly, since + _grace, hold: true);
 
-        return Choose(HandsfreeAction.Disable, effective, "No app is using a microphone.", null, hold: false);
+        return Choose(HandsfreeAction.Disable, effective, Strings.Audio_Handsfree_NoMicInUse, null, hold: false);
     }
 
     /// <summary>Records the result of acting on a decision so the policy tracks the service state.</summary>
@@ -157,7 +160,7 @@ public sealed class HandsfreePolicy
                 break;
             case HandsfreeOutcome.AccessDenied:
                 _blocked = true;
-                _blockedReason = "Windows did not allow Clasp to change Handsfree without administrator rights.";
+                _blockedReason = Strings.Audio_Handsfree_BlockedNoAdmin;
                 break;
             default:
                 // Not retried until the desired state flips or the AirPods reconnect.
@@ -175,7 +178,7 @@ public sealed class HandsfreePolicy
     private HandsfreeDecision Choose(
         HandsfreeAction target, HandsfreeState effective, string reason, DateTimeOffset? recheck, bool hold)
     {
-        if (_blocked) return new(HandsfreeAction.None, _blockedReason ?? "Handsfree changes are unavailable.");
+        if (_blocked) return new(HandsfreeAction.None, _blockedReason ?? Strings.Audio_Handsfree_ChangesUnavailable);
 
         var targetState = target == HandsfreeAction.Enable ? HandsfreeState.On : HandsfreeState.Off;
         if (effective == targetState)
@@ -190,7 +193,7 @@ public sealed class HandsfreePolicy
             return new(HandsfreeAction.None, reason, recheck);
 
         if (_attempted == target)
-            return new(HandsfreeAction.None, reason + " (already attempted)", recheck);
+            return new(HandsfreeAction.None, string.Format(CultureInfo.CurrentCulture, Strings.Audio_Handsfree_AlreadyAttempted, reason), recheck);
 
         _attempted = target;
         return new(target, reason, recheck);

@@ -1,3 +1,5 @@
+using AppleDeviceHub.Core.Resources;
+
 namespace AppleDeviceHub.Core.Startup;
 
 /// <summary>What the "start Clasp when I sign in" setting means for the user.</summary>
@@ -64,15 +66,14 @@ public static class StartupMessages
 {
     public static string Describe(StartupStatus status) => status switch
     {
-        StartupStatus.On => "Clasp starts when you sign in.",
-        StartupStatus.OffInTaskManager =>
-            "Clasp is turned off in Task Manager. To start it when you sign in, turn it on under Startup apps.",
-        _ => "Clasp won't start when you sign in.",
+        StartupStatus.On => Strings.Startup_Status_On,
+        StartupStatus.OffInTaskManager => Strings.Startup_Status_OffInTaskManager,
+        _ => Strings.Startup_Status_Off,
     };
 
     /// <summary>The result of a successful change. The status decides the wording, so an entry Task Manager has disabled is reported, not hidden.</summary>
     public static StartupChangeResult Succeeded(StartupStatus status) => new(true, status, Describe(status));
 
     public static StartupChangeResult Failed(StartupStatus previous) => new(false, previous,
-        "Couldn't change this setting. Try again, or check Startup apps in Task Manager.");
+        Strings.Startup_Status_ChangeFailed);
 }

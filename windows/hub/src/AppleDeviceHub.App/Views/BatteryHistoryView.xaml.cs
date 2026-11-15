@@ -1,5 +1,6 @@
 using System.Globalization;
 using AppleDeviceHub.Core.Battery;
+using AppleDeviceHub.Core.Resources;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
@@ -35,11 +36,16 @@ public sealed partial class BatteryHistoryView : UserControl
     private BatteryChartModel? _model;
     private int _probeIndex = -1;
     private bool _probeFromPointer;
-    private string _baseName = "Battery history chart";
+    private string _baseName = string.Empty;
 
     public BatteryHistoryView()
     {
         InitializeComponent();
+        _baseName = Strings.History_Chart_Name;
+        // 100% / 50% / 0%: same text in every culture, with the sign placement coming from the resource.
+        Label100.Text = string.Format(CultureInfo.CurrentCulture, Strings.Battery_Percent_Format, "100");
+        Label50.Text = string.Format(CultureInfo.CurrentCulture, Strings.Battery_Percent_Format, "50");
+        Label0.Text = string.Format(CultureInfo.CurrentCulture, Strings.Battery_Percent_Format, "0");
         ActualThemeChanged += (_, _) => Redraw();
         Loaded += (_, _) => Redraw();
     }
@@ -109,22 +115,24 @@ public sealed partial class BatteryHistoryView : UserControl
         DrawTimeLabels(_model, width);
 
         ChargingChip.Visibility = _model.Charging.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        string rangeName = _range == BatteryChartRange.Week ? "last 7 days" : "last 24 hours";
+        string rangeName = _range == BatteryChartRange.Week ? Strings.History_Range_Last7Days : Strings.History_Range_Last24Hours;
         if (_samples.Count == 0)
         {
-            EmptyText.Text = "No battery history yet";
+            EmptyText.Text = Strings.History_Empty_NoHistory;
             EmptyText.Visibility = Visibility.Visible;
         }
         else if (!_model.HasData)
         {
-            EmptyText.Text = _range == BatteryChartRange.Week ? "No readings in the last 7 days" : "No readings in the last 24 hours";
+            EmptyText.Text = _range == BatteryChartRange.Week ? Strings.History_Empty_NoReadings7Days : Strings.History_Empty_NoReadings24Hours;
             EmptyText.Visibility = Visibility.Visible;
         }
         else EmptyText.Visibility = Visibility.Collapsed;
 
         _baseName = _samples.Count == 0
-            ? "Battery history chart, no readings yet"
-            : $"Battery history chart, {rangeName}. {SummaryText.Text}. {(_model.IsCompressed ? "Long stretches without readings are shortened. " : "")}Use the left and right arrow keys to move between readings.";
+            ? Strings.History_Chart_NameNoReadings
+            : string.Format(CultureInfo.CurrentCulture,
+                _model.IsCompressed ? Strings.History_Chart_NameWithDataShortened : Strings.History_Chart_NameWithData,
+                rangeName, SummaryText.Text);
         AutomationProperties.SetName(ChartFocus, _baseName);
     }
 

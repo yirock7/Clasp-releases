@@ -1,3 +1,4 @@
+using AppleDeviceHub.Core.Resources;
 using Microsoft.UI.Xaml;
 
 namespace AppleDeviceHub.App.Design;
@@ -35,7 +36,7 @@ public static class GlassBind
 
     /// <summary>Why the Adaptive strength slider is unavailable, or "" when it is usable.</summary>
     public static string StrengthCaption(bool enabled, bool known)
-        => !known ? "Strength not reported yet" : enabled ? "" : "Available in Adaptive mode";
+        => !known ? Strings.Design_Bind_StrengthNotReported : enabled ? "" : Strings.Design_Bind_StrengthAdaptiveOnly;
 
     /// <summary>Visibility for <see cref="StrengthCaption"/> (x:Bind arguments cannot nest functions).</summary>
     public static Visibility StrengthCaptionVisibility(bool enabled, bool known)

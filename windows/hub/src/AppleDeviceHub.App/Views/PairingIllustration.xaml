@@ -27,7 +27,7 @@
                     </Border>
                     <!-- "back" tag beside a button on the back of the case. -->
                     <Border x:Name="BackBadge" Background="{ThemeResource GlassAccentBrush}" CornerRadius="8" Padding="6,1">
-                        <TextBlock Text="on the back" FontSize="12" FontWeight="SemiBold" Foreground="White" />
+                        <TextBlock x:Uid="PairingIllustrationBackBadge" FontSize="12" FontWeight="SemiBold" Foreground="White" />
                     </Border>
                     <!-- Curved arrow that goes "around the back" to a button the front view cannot show. -->
                     <Path x:Name="BackArrowHalo" Stroke="#FFFFFFFF" StrokeThickness="5" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />

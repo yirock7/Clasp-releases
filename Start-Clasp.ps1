@@ -2,7 +2,7 @@ param(
     [switch]$Settings
 )
 
-$exePath = Join-Path $PSScriptRoot 'windows\hub\src\AppleDeviceHub.App\bin\x64\Release\net10.0-windows10.0.19041.0\win-x64\AppleDeviceHub.exe'
+$exePath = Join-Path $PSScriptRoot 'windows\hub\src\AppleDeviceHub.App\bin\x64\Release\net10.0-windows10.0.19041.0\win-x64\Clasp.exe'
 
 if (-not (Test-Path -LiteralPath $exePath -PathType Leaf)) {
     Write-Error @"
@@ -15,7 +15,7 @@ Build it first with:
     exit 1
 }
 
-$existing = Get-Process -Name 'AppleDeviceHub' -ErrorAction SilentlyContinue
+$existing = Get-Process -Name 'Clasp' -ErrorAction SilentlyContinue
 if ($existing) {
     Write-Host 'Clasp is already running. The existing process was left untouched.'
     exit 0

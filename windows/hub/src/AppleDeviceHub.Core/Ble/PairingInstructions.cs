@@ -4,6 +4,8 @@
 // The wording follows Apple Support and Beats Support. Sources and the models with no source are
 // recorded in docs/PAIRING-MODES.md. A model with no source gets the fallback guide, never a guess.
 
+using AppleDeviceHub.Core.Resources;
+
 namespace AppleDeviceHub.Core.Ble;
 
 /// <summary>One pairing guide: a picker label, a short title and 2 to 4 plain steps, shared by one or more models.</summary>
@@ -18,92 +20,91 @@ public static class PairingInstructions
 {
     public const string FallbackKey = "check-guide";
 
-    private const string ChooseInWindows = "In Windows, open Bluetooth settings and choose it.";
-
+    // Built on first use, after the startup language is set; the language only changes with a restart.
     private static readonly PairingGuide[] All =
     [
-        new("airpods-setup-button", "AirPods (1st to 3rd generation), AirPods Pro, AirPods Pro 2",
-            "AirPods with a setup button",
-            ["Put both AirPods in the case and open the lid.",
-             "Press and hold the setup button on the back of the case for about 5 seconds. The light flashes white.",
-             "In Windows, open Bluetooth settings and choose your AirPods."],
+        new("airpods-setup-button", Strings.Ble_PairingGuide_AirpodsSetupButton_Label,
+            Strings.Ble_PairingGuide_AirpodsSetupButton_Title,
+            [Strings.Ble_PairingGuide_Step_PutBothAirPodsInCase,
+             Strings.Ble_PairingGuide_AirpodsSetupButton_Step2,
+             Strings.Ble_PairingGuide_Step_ChooseYourAirPods],
             [0x0220, 0x0F20, 0x1320, 0x0E20, 0x1420, 0x2420]),
 
-        new("airpods-double-tap", "AirPods 4, AirPods 5, AirPods Pro 3",
-            "AirPods with no setup button",
-            ["Put both AirPods in the case and open the lid.",
-             "Double-tap the front of the case. The light flashes white.",
-             "In Windows, open Bluetooth settings and choose your AirPods."],
+        new("airpods-double-tap", Strings.Ble_PairingGuide_AirpodsDoubleTap_Label,
+            Strings.Ble_PairingGuide_AirpodsDoubleTap_Title,
+            [Strings.Ble_PairingGuide_Step_PutBothAirPodsInCase,
+             Strings.Ble_PairingGuide_AirpodsDoubleTap_Step2,
+             Strings.Ble_PairingGuide_Step_ChooseYourAirPods],
             [0x1920, 0x1B20, 0x3620, 0x3020, 0x2720]),
 
-        new("airpods-max", "AirPods Max",
-            "AirPods Max",
-            ["Make sure your AirPods Max are on.",
-             "Press and hold the noise control button (the listening mode button, on the right earcup next to the Digital Crown) for about 5 seconds. The light flashes white.",
-             "In Windows, open Bluetooth settings and choose your AirPods Max."],
+        new("airpods-max", Strings.Ble_PairingGuide_AirpodsMax_Label,
+            Strings.Ble_PairingGuide_AirpodsMax_Title,
+            [Strings.Ble_PairingGuide_AirpodsMax_Step1,
+             Strings.Ble_PairingGuide_AirpodsMax_Step2,
+             Strings.Ble_PairingGuide_AirpodsMax_Step3],
             [0x0A20, 0x1F20, 0x2D20]),
 
-        new("beats-case-system-button", "Beats Fit Pro, Studio Buds +, Powerbeats Fit, Powerbeats Pro 2",
-            "Beats earbuds with a case",
-            ["Put both earbuds in the case and open the lid.",
-             "Press and hold the system button on the case until the light flashes white.",
-             "In Windows, open Bluetooth settings and choose your Beats."],
+        new("beats-case-system-button", Strings.Ble_PairingGuide_BeatsCaseSystemButton_Label,
+            Strings.Ble_PairingGuide_BeatsCaseSystemButton_Title,
+            [Strings.Ble_PairingGuide_Step_PutBothEarbudsInCase,
+             Strings.Ble_PairingGuide_BeatsCaseSystemButton_Step2,
+             Strings.Ble_PairingGuide_BeatsCaseSystemButton_Step3],
             [0x1220, 0x1620, 0x2F20, 0x1D20]),
 
-        new("beats-studio-buds", "Beats Studio Buds",
-            "Beats Studio Buds",
-            ["Put both earbuds in the case and open the lid.",
-             "Press and hold the small round button on the case until the light flashes.",
-             ChooseInWindows],
+        new("beats-studio-buds", Strings.Ble_PairingGuide_BeatsStudioBuds_Label,
+            Strings.Ble_PairingGuide_BeatsStudioBuds_Title,
+            [Strings.Ble_PairingGuide_Step_PutBothEarbudsInCase,
+             Strings.Ble_PairingGuide_BeatsStudioBuds_Step2,
+             Strings.Ble_PairingGuide_Step_ChooseInWindows],
             [0x1120]),
 
-        new("beats-solo-buds", "Beats Solo Buds",
-            "Beats Solo Buds",
-            ["Put both earbuds in the case and open the lid.",
-             "Press and hold the button above the b logo on either earbud until a tone repeats.",
-             ChooseInWindows],
+        new("beats-solo-buds", Strings.Ble_PairingGuide_BeatsSoloBuds_Label,
+            Strings.Ble_PairingGuide_BeatsSoloBuds_Title,
+            [Strings.Ble_PairingGuide_Step_PutBothEarbudsInCase,
+             Strings.Ble_PairingGuide_BeatsSoloBuds_Step2,
+             Strings.Ble_PairingGuide_Step_ChooseInWindows],
             [0x2620]),
 
-        new("beats-flex", "Beats Flex",
-            "Beats Flex",
-            ["Make sure your Beats Flex are on.",
-             "Press and hold the power button on the right control module until the light flashes.",
-             ChooseInWindows],
+        new("beats-flex", Strings.Ble_PairingGuide_BeatsFlex_Label,
+            Strings.Ble_PairingGuide_BeatsFlex_Title,
+            [Strings.Ble_PairingGuide_BeatsFlex_Step1,
+             Strings.Ble_PairingGuide_BeatsFlex_Step2,
+             Strings.Ble_PairingGuide_Step_ChooseInWindows],
             [0x1020]),
 
-        new("beats-solo-4", "Beats Solo 4",
-            "Beats Solo 4",
-            ["Make sure your Beats are on.",
-             "Press and hold the power button on the right earcup until the light flashes.",
-             ChooseInWindows],
+        new("beats-solo-4", Strings.Ble_PairingGuide_BeatsSolo4_Label,
+            Strings.Ble_PairingGuide_BeatsSolo4_Title,
+            [Strings.Ble_PairingGuide_Step_MakeSureBeatsOn,
+             Strings.Ble_PairingGuide_BeatsSolo4_Step2,
+             Strings.Ble_PairingGuide_Step_ChooseInWindows],
             [0x2520]),
 
-        new("beats-studio-pro", "Beats Studio Pro",
-            "Beats Studio Pro",
-            ["Make sure your Beats are on.",
-             "Press and hold the system button on the right earcup until the light flashes.",
-             ChooseInWindows],
+        new("beats-studio-pro", Strings.Ble_PairingGuide_BeatsStudioPro_Label,
+            Strings.Ble_PairingGuide_BeatsStudioPro_Title,
+            [Strings.Ble_PairingGuide_Step_MakeSureBeatsOn,
+             Strings.Ble_PairingGuide_BeatsStudioPro_Step2,
+             Strings.Ble_PairingGuide_Step_ChooseInWindows],
             [0x1720]),
 
-        new("beats-360", "Beats 360",
-            "Beats 360",
-            ["Make sure your Beats are on.",
-             "Press and hold the power button on the back of the left earcup until the light flashes.",
-             ChooseInWindows],
+        new("beats-360", Strings.Ble_PairingGuide_Beats360_Label,
+            Strings.Ble_PairingGuide_Beats360_Title,
+            [Strings.Ble_PairingGuide_Step_MakeSureBeatsOn,
+             Strings.Ble_PairingGuide_Beats360_Step2,
+             Strings.Ble_PairingGuide_Step_ChooseInWindows],
             [0x3820]),
 
-        new("beats-solo-3", "Beats Solo 3",
-            "Beats Solo 3",
-            ["Press and hold the power button for 5 seconds, until the Fuel Gauge lights flash.",
-             "In Windows, open Bluetooth settings and choose your headphones."],
+        new("beats-solo-3", Strings.Ble_PairingGuide_BeatsSolo3_Label,
+            Strings.Ble_PairingGuide_BeatsSolo3_Title,
+            [Strings.Ble_PairingGuide_BeatsSolo3_Step1,
+             Strings.Ble_PairingGuide_BeatsSolo3_Step2],
             [0x0620]),
 
         // No primary source was confirmed for these models, so no steps are claimed for them.
-        new(FallbackKey, "Powerbeats 3, Powerbeats 4, Powerbeats Pro, BeatsX, Solo Pro, Studio 3",
-            "Check your model's guide",
-            ["Find pairing mode in the guide that came with your Beats, or on Beats Support.",
-             "Put your Beats in pairing mode as the guide shows.",
-             "In Windows, open Bluetooth settings and choose them."],
+        new(FallbackKey, Strings.Ble_PairingGuide_CheckGuide_Label,
+            Strings.Ble_PairingGuide_CheckGuide_Title,
+            [Strings.Ble_PairingGuide_CheckGuide_Step1,
+             Strings.Ble_PairingGuide_CheckGuide_Step2,
+             Strings.Ble_PairingGuide_CheckGuide_Step3],
             [0x0320, 0x0D20, 0x0B20, 0x0520, 0x0C20, 0x0920]),
     ];
 
@@ -120,11 +121,20 @@ public static class PairingInstructions
     {
         ArgumentNullException.ThrowIfNull(guide);
         var steps = guide.Steps;
-        if (steps.Count == 0 || !steps[^1].StartsWith("In Windows, open Bluetooth settings", StringComparison.Ordinal)) return steps;
+        if (steps.Count == 0 || !IsWindowsSettingsStep(steps[^1])) return steps;
         var result = new List<string>(steps);
-        result[^1] = "Wait for them to appear below, then click Pair.";
+        result[^1] = Strings.Ble_PairingGuide_InApp_WaitForDevice;
         return result;
     }
+
+    /// <summary>True for the guides' last step that sends the user to Windows Bluetooth settings (matched by its exact text, in any language).</summary>
+    private static bool IsWindowsSettingsStep(string step)
+        => string.Equals(step, Strings.Ble_PairingGuide_Step_ChooseYourAirPods, StringComparison.Ordinal)
+        || string.Equals(step, Strings.Ble_PairingGuide_Step_ChooseInWindows, StringComparison.Ordinal)
+        || string.Equals(step, Strings.Ble_PairingGuide_AirpodsMax_Step3, StringComparison.Ordinal)
+        || string.Equals(step, Strings.Ble_PairingGuide_BeatsCaseSystemButton_Step3, StringComparison.Ordinal)
+        || string.Equals(step, Strings.Ble_PairingGuide_BeatsSolo3_Step2, StringComparison.Ordinal)
+        || string.Equals(step, Strings.Ble_PairingGuide_CheckGuide_Step3, StringComparison.Ordinal);
 
     /// <summary>The guide shown when a model is unknown or unlisted.</summary>
     public static PairingGuide Fallback => All[^1];

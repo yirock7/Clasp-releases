@@ -1,5 +1,7 @@
 using AppleDeviceHub.Core.Contracts;
+using System.Globalization;
 using AppleDeviceHub.Core.Interop;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.Ble;
 
@@ -126,7 +128,7 @@ public sealed class BroadcastObservationTransport : IAirPodsTransport, IHardware
 
     public const string TransportName = "Bluetooth LE broadcast";
 
-    private const string ReadOnlyText = "Broadcast observation only listens; nothing is ever written to the AirPods.";
+    private static string ReadOnlyText => Strings.Ble_Broadcast_ReadOnly;
 
     private readonly IAdvertisementSource _source;
     private readonly TimeProvider _time;
@@ -418,8 +420,8 @@ public sealed class BroadcastObservationTransport : IAirPodsTransport, IHardware
     public string? UnavailableReason { get { lock (_gate) return _unavailableReason; } }
 
     public string SourceText => IdentityConfidence.IsLikely()
-        ? "Broadcast: nearby Bluetooth LE observation (approximate, likely your AirPods)"
-        : "Broadcast: nearby Bluetooth LE observation (approximate, identity unconfirmed)";
+        ? Strings.Ble_Broadcast_SourceLikely
+        : Strings.Ble_Broadcast_SourceUnconfirmed;
 
     public string? ReadOnlyReason => ReadOnlyText;
 
@@ -447,7 +449,7 @@ public sealed class BroadcastObservationTransport : IAirPodsTransport, IHardware
         ArgumentNullException.ThrowIfNull(command);
         lock (_gate)
         {
-            if (_disposed) return Result(command, CommandOutcome.TransportUnavailable, "The broadcast transport has been closed.");
+            if (_disposed) return Result(command, CommandOutcome.TransportUnavailable, Strings.Ble_Broadcast_TransportClosed);
         }
         return command switch
         {
@@ -463,7 +465,7 @@ public sealed class BroadcastObservationTransport : IAirPodsTransport, IHardware
         long generation;
         lock (_gate)
         {
-            if (_disposed) return Result(command, CommandOutcome.TransportUnavailable, "The broadcast transport has been closed.");
+            if (_disposed) return Result(command, CommandOutcome.TransportUnavailable, Strings.Ble_Broadcast_TransportClosed);
             if (_observing) return Result(command, CommandOutcome.Acknowledged, "Already observing.");
             _observing = true;
             generation = ++_generation;
@@ -495,7 +497,7 @@ public sealed class BroadcastObservationTransport : IAirPodsTransport, IHardware
         }
         catch (Exception ex)
         {
-            status = new AdvertisementSourceStatus(AdvertisementSourceState.Unavailable, $"Bluetooth listening could not start ({ex.GetType().Name}).");
+            status = new AdvertisementSourceStatus(AdvertisementSourceState.Unavailable, string.Format(CultureInfo.CurrentCulture, Strings.Ble_Broadcast_Unavailable_CouldNotStart, ex.GetType().Name));
         }
 
         if (status.State == AdvertisementSourceState.Running)
@@ -524,7 +526,7 @@ public sealed class BroadcastObservationTransport : IAirPodsTransport, IHardware
             return Result(command, CommandOutcome.Acknowledged, "Observing nearby broadcasts.");
         }
 
-        var reason = status.Reason ?? "Bluetooth listening is unavailable.";
+        var reason = status.Reason ?? Strings.Ble_Broadcast_Unavailable_Generic;
         // The start failed for a platform reason (radio off or not ready, often at login), not because the user
         // stopped: observing stays on, shows the reason and retries. Only the user's Stop ends it.
         bool kept, reasonChanged = false;
@@ -966,8 +968,8 @@ public sealed class BroadcastObservationTransport : IAirPodsTransport, IHardware
             _sourceHealthy = false;
             _nextRestartAt = _time.GetUtcNow();
             reason = status.State == AdvertisementSourceState.Unavailable
-                ? status.Reason ?? "Bluetooth listening became unavailable."
-                : "Bluetooth listening stopped unexpectedly.";
+                ? status.Reason ?? Strings.Ble_Broadcast_Unavailable_Became
+                : Strings.Ble_Broadcast_Unavailable_StoppedUnexpectedly;
             changed = !string.Equals(_unavailableReason, reason, StringComparison.Ordinal);
             _unavailableReason = reason;
         }
@@ -1020,7 +1022,7 @@ public sealed class BroadcastObservationTransport : IAirPodsTransport, IHardware
             }
             catch (Exception ex)
             {
-                status = new AdvertisementSourceStatus(AdvertisementSourceState.Unavailable, $"Bluetooth listening could not restart ({ex.GetType().Name}).");
+                status = new AdvertisementSourceStatus(AdvertisementSourceState.Unavailable, string.Format(CultureInfo.CurrentCulture, Strings.Ble_Broadcast_Unavailable_CouldNotRestart, ex.GetType().Name));
             }
 
             bool current, changed = false, running = status.State == AdvertisementSourceState.Running;
@@ -1040,7 +1042,7 @@ public sealed class BroadcastObservationTransport : IAirPodsTransport, IHardware
                     }
                     else
                     {
-                        var reason = status.Reason ?? "Bluetooth listening is unavailable.";
+                        var reason = status.Reason ?? Strings.Ble_Broadcast_Unavailable_Generic;
                         _sourceHealthy = false;
                         _nextRestartAt = now + Options.RestartRetryInterval;
                         changed = !string.Equals(_unavailableReason, reason, StringComparison.Ordinal);
@@ -1104,7 +1106,7 @@ public sealed class BroadcastObservationTransport : IAirPodsTransport, IHardware
         var link = LinkState.Unknown;
         var battery = BatteryState.Unknown;
         var ears = EarState.Unknown;
-        string display, model = "Unknown model";
+        string display, model = Strings.Ble_Broadcast_UnknownModel;
 
         bool showValues = _last is not null && _phase is BroadcastPhase.Fresh or BroadcastPhase.Stale or BroadcastPhase.Lost;
         // Layout and noun come from the shown message, else the selected model, so a waiting Studio Pro never looks like earbuds.
@@ -1119,16 +1121,16 @@ public sealed class BroadcastObservationTransport : IAirPodsTransport, IHardware
         switch (_phase)
         {
             case BroadcastPhase.NotObserving:
-                display = $"{noun} broadcasts (not observing)";
+                display = string.Format(CultureInfo.CurrentCulture, Strings.Ble_Broadcast_Display_NotObserving, noun);
                 break;
             case BroadcastPhase.Waiting:
-                display = $"Listening for nearby {noun}";
+                display = string.Format(CultureInfo.CurrentCulture, Strings.Ble_Broadcast_Display_Waiting, noun);
                 break;
             case BroadcastPhase.Ambiguous:
-                display = $"Nearby broadcast sources ({_ambiguousCount})";
+                display = string.Format(CultureInfo.CurrentCulture, Strings.Ble_Broadcast_Display_Ambiguous, _ambiguousCount);
                 break;
             default:
-                display = ShownIdentityLocked().IsLikely() ? IdentityConfidenceText.LikelyFor(noun) : $"Nearby {noun} (unconfirmed)";
+                display = ShownIdentityLocked().IsLikely() ? IdentityConfidenceText.LikelyFor(noun) : string.Format(CultureInfo.CurrentCulture, Strings.Ble_Broadcast_Display_Unconfirmed, noun);
                 break;
         }
 

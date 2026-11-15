@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using AppleDeviceHub.Core.Contracts;
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
@@ -354,8 +355,8 @@ public sealed partial class GlassSegmentedControl : UserControl
             bool showDot = split && i == confirmed;
             _confirmedDots[i].Visibility = showDot ? Visibility.Visible : Visibility.Collapsed;
 
-            string status = IsPending && i == selected ? "Requested, waiting for confirmation"
-                : i == confirmed ? "Current mode"
+            string status = IsPending && i == selected ? Strings.Design_Segments_StatusRequested
+                : i == confirmed ? Strings.Design_Segments_StatusCurrent
                 : string.Empty;
             AutomationProperties.SetItemStatus(_buttons[i], status);
         }

@@ -142,7 +142,7 @@ internal sealed class FlyoutWindow : Window
         }
         catch (Exception ex)
         {
-            LocalLog.Write($"Flyout prewarm failed: {ex.Message}");
+            LocalLog.Write($"Flyout prewarm failed: {LogText.ExceptionKind(ex)}");
         }
     }
 
@@ -211,7 +211,7 @@ internal sealed class FlyoutWindow : Window
         }
         catch (Exception ex)
         {
-            LocalLog.Write($"Flyout open failed: {ex}");
+            LocalLog.Write($"Flyout open failed: {LogText.Exception(ex)}");
         }
     }
 
@@ -259,7 +259,7 @@ internal sealed class FlyoutWindow : Window
             }
             catch (Exception ex)
             {
-                LocalLog.Write($"Flyout open failed: {ex}");
+                LocalLog.Write($"Flyout open failed: {LogText.Exception(ex)}");
             }
         };
         return timer;
@@ -387,7 +387,7 @@ internal sealed class FlyoutWindow : Window
         {
             _passive = false;
             RemoveMouseHook();
-            LocalLog.Write($"Flyout passive open failed: {ex}");
+            LocalLog.Write($"Flyout passive open failed: {LogText.Exception(ex)}");
         }
     }
 
@@ -569,7 +569,7 @@ internal sealed class FlyoutWindow : Window
         }
         catch (Exception ex)
         {
-            LocalLog.Write($"Overflow detection failed: {ex.Message}");
+            LocalLog.Write($"Overflow detection failed: {LogText.ExceptionKind(ex)}");
         }
         return false;
     }
@@ -658,7 +658,7 @@ internal sealed class FlyoutWindow : Window
         }
         catch (Exception ex)
         {
-            LocalLog.Write($"Flyout refit failed: {ex.Message}");
+            LocalLog.Write($"Flyout refit failed: {LogText.ExceptionKind(ex)}");
         }
     }
 
@@ -680,7 +680,7 @@ internal sealed class FlyoutWindow : Window
         }
         catch (Exception ex)
         {
-            LocalLog.Write($"Flyout hide failed: {ex.Message}");
+            LocalLog.Write($"Flyout hide failed: {LogText.ExceptionKind(ex)}");
         }
         finally
         {
