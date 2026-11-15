@@ -1,6 +1,7 @@
 using AppleDeviceHub.App.Design;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace AppleDeviceHub.App.Views;
 
@@ -13,6 +14,7 @@ public sealed partial class ClaspLogo : UserControl
     public ClaspLogo()
     {
         InitializeComponent();
+        Picture.Source = new BitmapImage(new Uri(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "ClaspLogo.png")));
         Loaded += (_, _) =>
         {
             EffectsPolicy.Changed += OnEffectsChanged;

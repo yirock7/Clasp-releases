@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    The full-colour Clasp logo for in-app branding (Assets/ClaspLogo.png, made by tools/make-logo.py).
+    The full-colour Clasp logo for in-app branding (Assets/ClaspLogo.png, made by tools/make-logo.py), loaded
+    from the app folder like the other assets (this app is unpackaged).
     In a Windows High Contrast theme the colour image is swapped for the monochrome ClaspGlyph,
     which is drawn with system colours. ClaspLogo.xaml.cs switches them on EffectsPolicy.HighContrast.
 -->
@@ -13,7 +14,7 @@
     AutomationProperties.AccessibilityView="Raw">
 
     <Grid>
-        <Image x:Name="Picture" Source="ms-appx:///Assets/ClaspLogo.png" Stretch="Uniform"
+        <Image x:Name="Picture" Stretch="Uniform"
                AutomationProperties.AccessibilityView="Raw" />
         <views:ClaspGlyph x:Name="ContrastGlyph" Visibility="Collapsed" />
     </Grid>
