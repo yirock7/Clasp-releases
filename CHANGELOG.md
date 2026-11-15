@@ -2,20 +2,27 @@
 
 What changed in each version of Clasp, written for people who use it. Each version's full release (with the installer) is on the [releases page](https://github.com/yirock7/Clasp-releases/releases).
 
-## Unreleased
+## 0.5.0
+
+A tidy-up release: the program is renamed Clasp.exe, with a safer log and a notice after a crash.
 
 ### Changed
 
-- **The program is now called Clasp.exe, and its data folder is `%LOCALAPPDATA%\Clasp`.** Both used to carry an older internal name. The first time the new version starts it moves your settings, battery history and log across from the old `AppleDeviceHub` folder. If something in the old folder is still in use (for example the installer of the update that just ran), it copies your files instead and removes the old folder on a later start. Your settings are never deleted before they are safely in the new folder. Your "Start Clasp when I sign in" setting and the `clasp:` link setting carry over.
+- **The program is now called Clasp.exe, and its data folder is `%LOCALAPPDATA%\Clasp`.** Both used to carry an older internal name. The first time the new version starts it moves your settings, battery history and log across from the old `AppleDeviceHub` folder. If something in the old folder is still in use (for example the installer of the update that just ran), it copies your files instead and removes the old folder on a later start. Your settings are never deleted before they are safely in the new folder. Your "Start Clasp when I sign in" setting and the `clasp:` link setting carry over, and Setup and the app repair those entries after the rename. If you pinned the old `AppleDeviceHub.exe` to the taskbar, pin Clasp again from the Start menu.
 
 ### New
 
 - **If Clasp crashes, it now says so the next time it starts.** A notification tells you that Clasp closed unexpectedly and where `hub.log` is. The log records what kind of error it was, but not its message.
+- **The project is ready for visitors.** The README says Clasp is a preview, there is a hardware report form for telling me how your AirPods or Beats behave, and `docs/TOOLCHAIN.md` lists what building the installer needs.
 
 ### Fixed
 
-- **`hub.log` no longer contains the name of your sound output or other error text.** It never contained Bluetooth addresses, and it is now also free of device names.
+- **`hub.log` no longer contains device names (such as your sound output) or error messages.** It never contained Bluetooth addresses; errors are now recorded by type only.
 - **Starting Clasp.exe directly no longer shows made-up Demo battery numbers.** Demo mode now needs `--transport=demo`. The Start menu, desktop and sign-in entries are unchanged.
+
+### Behind the scenes
+
+- The app's on-screen text now lives in resource files, which prepares the way for translations. Nothing looks different.
 
 ## 0.4.2
 

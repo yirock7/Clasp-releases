@@ -10,7 +10,9 @@ For what Clasp does and how it handles your data, read the [main README](../../R
 - **Nearby detection** reads the approximate battery broadcasts that Apple devices send over Bluetooth Low Energy. It is passive (it never pairs or connects) and can be turned off in Settings. The source is not matched to your paired device, so another pair nearby can supply the estimate, which is why the app calls it an estimate.
 - **Automatic reconnect** is off by default. If you turn it on, Clasp makes one reconnect attempt for the chosen device when it notices a case opening nearby. It never starts or resumes your music.
 - **The tray icon** draws the silhouette of the device you selected in Windows (never one picked from Bluetooth broadcasts, which can be faked), dimmed when it is not connected. Its colour shows the battery: amber when low, red at your low-battery level, green while charging. There is no number on the icon; hover for the exact percentage, or click for full details.
-- **Demo mode** (`--transport=demo`) uses made-up data and is labelled "Demo" on screen.
+- **Data and crashes.** Settings, battery history and `hub.log` live in `%LOCALAPPDATA%\Clasp` (the folder used to be `AppleDeviceHub`; the first start of a newer version moves it across). If Clasp dies from an unhandled exception it leaves a small `crash.marker` (time and exception type only), and the next start shows a notification.
+- **Program name.** The program is `Clasp.exe`; it used to be `AppleDeviceHub.exe`. Setup and the app rewrite an old sign-in or `clasp:` link entry that still names the old file. The source folders keep the `AppleDeviceHub.*` names.
+- **Demo mode** (only with `--transport=demo`; running `Clasp.exe` with no arguments uses real nearby detection) uses made-up data and is labelled "Demo" on screen.
 - **No driver.** Listening modes, Conversation Awareness, true ear detection and similar controls need Apple's private control channel, which needs a Microsoft-signed driver. The current app does not offer them.
 
 ## Attribution and licence
