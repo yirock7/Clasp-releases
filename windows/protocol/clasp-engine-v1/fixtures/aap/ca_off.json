@@ -1,0 +1,7 @@
+{
+  "description": "v1.1: control id 0x28 value 2 = Conversation Awareness off (a genuine off readback IS an observation)",
+  "packet_hex": "0400040009002802000000",
+  "expect_fields": {
+    "conversation_awareness": "off"
+  }
+}

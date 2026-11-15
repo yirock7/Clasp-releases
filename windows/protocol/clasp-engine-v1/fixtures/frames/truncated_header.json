@@ -1,0 +1,5 @@
+{
+  "description": "Only 2 of the 4 length bytes",
+  "bytes_hex": "0a00",
+  "expect": "reject_truncated"
+}

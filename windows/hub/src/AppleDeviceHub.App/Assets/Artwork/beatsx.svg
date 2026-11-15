@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 230">
+  <style>
+    svg {
+      --hi: #5a5d66;
+      --mid: #2e3036;
+      --lo: #17181c;
+      --edge: #868a94;
+      --hook: #2a2c31;
+      --hook-lo: #17181c;
+      --tip: #1f2023;
+      --tip-in: #3f4249;
+      --face-hi: #6b6f79;
+      --face: #2e3036;
+      --face-edge: #868a94;
+      --cable: #2c2e33;
+      --cable-hi: #8e929c;
+      --spec: #aeb2bb;
+      --rim: #8a8e98;
+    }
+    svg[data-colorway="black"] {
+    }
+    svg[data-colorway="white"] {
+      --hi: #ffffff;
+      --mid: #eceef1;
+      --lo: #c0c5ce;
+      --edge: #9299a5;
+      --hook: #e3e6ea;
+      --hook-lo: #c0c5ce;
+      --tip: #dde0e6;
+      --tip-in: #f6f7f9;
+      --face-hi: #ffffff;
+      --face: #eceef1;
+      --face-edge: #9299a5;
+      --cable: #dfe2e7;
+      --cable-hi: #ffffff;
+      --spec: #ffffff;
+      --rim: #ffffff;
+    }
+    svg[data-colorway="blue"] {
+      --hi: #6aa6ef;
+      --mid: #2a6fd1;
+      --lo: #174a98;
+      --edge: #103673;
+      --hook: #2566c3;
+      --hook-lo: #174a98;
+      --tip: #2769c8;
+      --tip-in: #6aa6ef;
+      --face-hi: #88b8f2;
+      --face: #2a6fd1;
+      --face-edge: #103673;
+      --cable: #2464c0;
+      --cable-hi: #97c1f4;
+      --spec: #c3dbf9;
+      --rim: #88b8f2;
+    }
+    svg[data-colorway="gray"] {
+      --hi: #b8bcc4;
+      --mid: #8a8f98;
+      --lo: #5b6068;
+      --edge: #454a52;
+      --hook: #7e838c;
+      --hook-lo: #5b6068;
+      --tip: #838891;
+      --tip-in: #b8bcc4;
+      --face-hi: #c6c9d0;
+      --face: #8a8f98;
+      --face-edge: #454a52;
+      --cable: #7c818a;
+      --cable-hi: #cdd0d6;
+      --spec: #e3e4e7;
+      --rim: #c6c9d0;
+    }
+    svg[data-colorway="satin-silver"] {
+      --hi: #eceef0;
+      --mid: #c4c7cc;
+      --lo: #8d9198;
+      --edge: #6e737a;
+      --hook: #b6babf;
+      --hook-lo: #8d9198;
+      --tip: #bcbfc4;
+      --tip-in: #eceef0;
+      --face-hi: #f0f1f3;
+      --face: #c4c7cc;
+      --face-edge: #6e737a;
+      --cable: #b4b7bc;
+      --cable-hi: #f2f3f4;
+      --spec: #f7f8f9;
+      --rim: #f0f1f3;
+    }
+    svg[data-colorway="satin-gold"] {
+      --hi: #f0dfbf;
+      --mid: #d9bf94;
+      --lo: #a98d5c;
+      --edge: #7d6439;
+      --hook: #cdb286;
+      --hook-lo: #a98d5c;
+      --tip: #d2b88c;
+      --tip-in: #f0dfbf;
+      --face-hi: #f3e5cc;
+      --face: #d9bf94;
+      --face-edge: #7d6439;
+      --cable: #cbb083;
+      --cable-hi: #f4e9d2;
+      --spec: #f9f2e5;
+      --rim: #f3e5cc;
+    }
+  </style>
+  <defs>
+    <radialGradient id="shadowSoft" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#000000" stop-opacity=".28"/>
+      <stop offset=".55" stop-color="#000000" stop-opacity=".15"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hsH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--lo)"/>
+      <stop offset=".3" stop-color="var(--hi)"/>
+      <stop offset=".65" stop-color="var(--mid)"/>
+      <stop offset="1" stop-color="var(--lo)"/>
+    </linearGradient>
+    <linearGradient id="hsV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".16"/>
+      <stop offset=".45" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity=".24"/>
+    </linearGradient>
+    <linearGradient id="modG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--hi)"/>
+      <stop offset=".5" stop-color="var(--mid)"/>
+      <stop offset="1" stop-color="var(--lo)"/>
+    </linearGradient>
+    <radialGradient id="faceG" cx=".36" cy=".3" r=".85">
+      <stop offset="0" stop-color="var(--face-hi)"/>
+      <stop offset="1" stop-color="var(--face)"/>
+    </radialGradient>
+    <radialGradient id="glossSoft" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".5"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <g id="nbBase">
+      <path d="M62,18 C50.48,48.24 49.33,76.41 59.29,98.77" stroke="#000000" stroke-opacity=".12" stroke-width="7.6" stroke-linecap="round" fill="none" transform="translate(1.5 3)"/>
+      <path d="M59.29,98.77 C63.16,107.46 68.72,115.28 76,122" stroke="#000000" stroke-opacity=".12" stroke-width="5.2" stroke-linecap="round" fill="none" transform="translate(1.5 3)"/>
+      <path d="M76,122 C100,148 143,146 143.5,170" stroke="#000000" stroke-opacity=".12" stroke-width="5.2" stroke-linecap="round" fill="none" transform="translate(1.5 3)"/>
+      <path d="M62,18 C50.48,48.24 49.33,76.41 59.29,98.77" stroke="var(--edge)" stroke-width="7.5" stroke-linecap="round" fill="none"/>
+      <path d="M59.29,98.77 C63.16,107.46 68.72,115.28 76,122" stroke="var(--edge)" stroke-width="5.1" stroke-linecap="round" fill="none"/>
+      <path d="M76,122 C100,148 143,146 143.5,170" stroke="var(--edge)" stroke-width="5.1" stroke-linecap="round" fill="none"/>
+      <path d="M62,18 C50.48,48.24 49.33,76.41 59.29,98.77" stroke="var(--cable)" stroke-width="6.2" stroke-linecap="round" fill="none"/>
+      <path d="M59.29,98.77 C63.16,107.46 68.72,115.28 76,122" stroke="var(--cable)" stroke-width="3.8" stroke-linecap="round" fill="none"/>
+      <path d="M76,122 C100,148 143,146 143.5,170" stroke="var(--cable)" stroke-width="3.8" stroke-linecap="round" fill="none"/>
+      <path d="M62,18 C50.48,48.24 49.33,76.41 59.29,98.77" stroke="var(--cable-hi)" stroke-opacity=".6" stroke-width="1.24" stroke-linecap="round" fill="none" transform="translate(-.5 -.6)"/>
+      <path d="M59.29,98.77 C63.16,107.46 68.72,115.28 76,122" stroke="var(--cable-hi)" stroke-opacity=".6" stroke-width="0.8" stroke-linecap="round" fill="none" transform="translate(-.5 -.6)"/>
+      <path d="M76,122 C100,148 143,146 143.5,170" stroke="var(--cable-hi)" stroke-opacity=".6" stroke-width="0.8" stroke-linecap="round" fill="none" transform="translate(-.5 -.6)"/>
+      <rect x="137" y="169" width="13" height="30" rx="6.24" fill="#000000" fill-opacity=".22" transform="translate(1 2)"/>
+      <rect x="137" y="169" width="13" height="30" rx="6.24" fill="url(#hsH)" stroke="var(--edge)" stroke-width=".9"/>
+      <rect x="137" y="169" width="13" height="30" rx="6.24" fill="url(#hsV)"/>
+      <path d="M139.6,177 L139.6,191" stroke="#ffffff" stroke-opacity=".38" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+      <path d="M137.8,176 L149.2,176" stroke="var(--edge)" stroke-opacity=".7" stroke-width=".7" fill="none"/>
+      <rect x="140" y="198" width="6" height="3.6" rx="1.5" fill="var(--mid)" stroke="var(--edge)" stroke-width=".6"/>
+      <ellipse cx="143" cy="203.4" rx="5.6" ry="3.2" fill="var(--tip)" stroke="var(--edge)" stroke-width=".8"/>
+      <ellipse cx="144" cy="202.8" rx="2.4" ry="1.2" fill="var(--tip-in)" fill-opacity=".8"/>
+    </g>
+    <g id="modA">
+      <g transform="translate(59.29,98.77) rotate(65.98)">
+        <rect x="-17" y="-6.25" width="34" height="12.5" rx="6.2" fill="#000000" fill-opacity=".24" transform="translate(0 1.8)"/>
+        <rect x="-17" y="-6.25" width="34" height="12.5" rx="6.2" fill="url(#modG)" stroke="var(--edge)" stroke-width=".9"/>
+        <path d="M-10.8,-4.05 L10.8,-4.05" stroke="#ffffff" stroke-opacity=".4" stroke-width="1" stroke-linecap="round" fill="none"/>
+        <circle cx="11" cy="0.4" r="1.3" fill="var(--spec)" fill-opacity=".9" stroke="var(--edge)" stroke-width=".4"/>
+        <path d="M-11,2.25 L5,2.25" stroke="var(--edge)" stroke-opacity=".55" stroke-width=".7" stroke-linecap="round" fill="none"/>
+      </g>
+    </g>
+    <g id="modB">
+      <g transform="translate(59.29,98.77) rotate(65.98)">
+        <rect x="-17" y="-6.25" width="34" height="12.5" rx="6.2" fill="#000000" fill-opacity=".24" transform="translate(0 1.8)"/>
+        <rect x="-17" y="-6.25" width="34" height="12.5" rx="6.2" fill="url(#modG)" stroke="var(--edge)" stroke-width=".9"/>
+        <path d="M-10.8,-4.05 L10.8,-4.05" stroke="#ffffff" stroke-opacity=".4" stroke-width="1" stroke-linecap="round" fill="none"/>
+        <rect x="-12" y="-2.5" width="13.6" height="5" rx="2.5" fill="var(--lo)" fill-opacity=".5" stroke="var(--edge)" stroke-width=".5"/>
+        <circle cx="11" cy="0.3" r="1.3" fill="var(--spec)" fill-opacity=".9" stroke="var(--edge)" stroke-width=".4"/>
+      </g>
+    </g>
+  </defs>
+
+  <g data-part="shadow">
+    <ellipse cx="150" cy="217" rx="70" ry="7.5" fill="url(#shadowSoft)"/>
+  </g>
+
+  <g data-part="body">
+    <use href="#nbBase"/>
+    <use href="#nbBase" transform="translate(300,0) scale(-1,1)"/>
+    <use href="#modA"/>
+    <use href="#modB" transform="translate(300,0) scale(-1,1)"/>
+  </g>
+</svg>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The Clasp mark as monochrome vectors: the charging-case outline, lid seam and status light used by the
+    tray icon (Assets/TrayIcon-*.ico). The in-app logo is the full-colour ClaspLogo; this glyph is its High
+    Contrast fallback and the stand-in for the tray icon in the welcome illustration. Everything is drawn with the primary text brush, so it is
+    dark on the light theme, light on the dark theme, and a system colour in High Contrast.
+
+    The numbers come from tools/make-icons.py (GRID/BOX/STROKE/...), shifted so the glyph's own
+    box (56 x 38) starts at 0,0. Keep the two in step.
+-->
+<UserControl
+    x:Class="AppleDeviceHub.App.Views.ClaspGlyph"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    IsTabStop="False"
+    AutomationProperties.AccessibilityView="Raw">
+
+    <Viewbox Stretch="Uniform">
+        <Canvas Width="56" Height="38">
+            <Path Stroke="{ThemeResource GlassTextPrimaryBrush}" StrokeThickness="5.5" StrokeLineJoin="Round"
+                  Data="M 11.5,2.75 L 44.5,2.75 A 8.75,8.75 0 0 1 53.25,11.5 L 53.25,21.5 A 13.75,13.75 0 0 1 39.5,35.25 L 16.5,35.25 A 13.75,13.75 0 0 1 2.75,21.5 L 2.75,11.5 A 8.75,8.75 0 0 1 11.5,2.75 Z" />
+            <Rectangle Canvas.Left="2.75" Canvas.Top="12.75" Width="50.5" Height="3.5"
+                       Fill="{ThemeResource GlassTextPrimaryBrush}" />
+            <Ellipse Canvas.Left="24.8" Canvas.Top="22.3" Width="6.4" Height="6.4"
+                     Fill="{ThemeResource GlassTextPrimaryBrush}" />
+        </Canvas>
+    </Viewbox>
+</UserControl>

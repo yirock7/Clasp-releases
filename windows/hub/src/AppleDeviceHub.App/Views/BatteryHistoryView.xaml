@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Battery history: a title with a 24 hours / 7 days switch, a legend, one drawing surface (percent
+    gridlines, charging bands, a line per part, time labels, hover guide and tooltip) and one plain
+    summary line. The lines are drawn in code (BatteryHistoryView.xaml.cs) from the geometry in Core
+    (BatteryChartModel). Colour never carries meaning alone: the lines also differ in style (solid,
+    dashed, dotted) and the legend shows the same style. Nothing here animates.
+    Host contract: call Show(...) with the data; the view draws nothing it was not given.
+-->
+<UserControl
+    x:Class="AppleDeviceHub.App.Views.BatteryHistoryView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="using:AppleDeviceHub.App.Views"
+    Background="Transparent">
+
+    <UserControl.Resources>
+        <!-- One option of the range switch: text only, the selected one sits on a raised pill. -->
+        <Style x:Key="BatteryRangeRadioStyle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{ThemeResource GlassTextPrimaryBrush}" />
+            <Setter Property="Padding" Value="12,4,12,4" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="MinHeight" Value="28" />
+            <Setter Property="FontSize" Value="{ThemeResource GlassCaptionFontSize}" />
+            <Setter Property="UseSystemFocusVisuals" Value="True" />
+            <Setter Property="FocusVisualMargin" Value="-1" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Grid x:Name="RootGrid" Background="Transparent" CornerRadius="{TemplateBinding CornerRadius}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Target="Pill.Background" Value="{ThemeResource GlassHoverOverlayBrush}" />
+                                            <Setter Target="Pill.BorderBrush" Value="{ThemeResource GlassHoverEdgeBrush}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Target="Pill.Background" Value="{ThemeResource GlassPressedOverlayBrush}" />
+                                            <Setter Target="Pill.BorderBrush" Value="{ThemeResource GlassHoverEdgeBrush}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <VisualState.Setters>
+                                            <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource GlassTextDisabledBrush}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="CheckStates">
+                                    <VisualState x:Name="Checked">
+                                        <VisualState.Setters>
+                                            <Setter Target="Pill.Background" Value="{ThemeResource GlassSelectedFillBrush}" />
+                                            <Setter Target="Pill.BorderBrush" Value="{ThemeResource GlassSelectedEdgeBrush}" />
+                                            <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource GlassSelectedTextBrush}" />
+                                            <Setter Target="ContentPresenter.FontWeight" Value="SemiBold" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Unchecked" />
+                                    <VisualState x:Name="Indeterminate" />
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <Border x:Name="Pill" Background="Transparent" BorderBrush="Transparent" BorderThickness="1"
+                                    CornerRadius="{TemplateBinding CornerRadius}" IsHitTestVisible="False" />
+                            <ContentPresenter x:Name="ContentPresenter" Padding="{TemplateBinding Padding}"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}"
+                                              AutomationProperties.AccessibilityView="Raw" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel Spacing="8">
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Uid="HistoryTitle" VerticalAlignment="Center"
+                       Style="{StaticResource GlassLabelTextStyle}"
+                       AutomationProperties.HeadingLevel="Level3" />
+            <Border Grid.Column="1" Background="{ThemeResource GlassTrackBrush}"
+                    BorderBrush="{ThemeResource GlassControlEdgeBrush}"
+                    BorderThickness="{ThemeResource GlassTileEdgeThickness}"
+                    CornerRadius="16" Padding="2">
+                <StackPanel x:Uid="HistoryRangeGroup" Orientation="Horizontal" XYFocusKeyboardNavigation="Enabled" TabFocusNavigation="Once">
+                    <RadioButton x:Name="DayButton" x:Uid="HistoryDayButton" GroupName="BatteryHistoryRange"
+                                 Style="{StaticResource BatteryRangeRadioStyle}" Checked="OnRangeChecked" />
+                    <RadioButton x:Name="WeekButton" x:Uid="HistoryWeekButton" GroupName="BatteryHistoryRange"
+                                 Style="{StaticResource BatteryRangeRadioStyle}" Checked="OnRangeChecked" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Legend: the swatch repeats each line's style. The swatch brushes also colour the drawn lines. -->
+        <StackPanel Orientation="Horizontal" Spacing="16">
+            <StackPanel x:Uid="HistoryLegendLeftChip" Orientation="Horizontal" Spacing="6">
+                <Line x:Name="LegendLeft" X1="0" Y1="0" X2="20" Y2="0" VerticalAlignment="Center" Width="20"
+                      Stroke="{ThemeResource GlassChartLeftBrush}" StrokeThickness="2.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                <TextBlock x:Uid="HistoryLegendLeftText" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel x:Uid="HistoryLegendRightChip" Orientation="Horizontal" Spacing="6">
+                <Line x:Name="LegendRight" X1="0" Y1="0" X2="20" Y2="0" VerticalAlignment="Center" Width="20"
+                      Stroke="{ThemeResource GlassChartRightBrush}" StrokeThickness="2.5" StrokeDashArray="2 1.2" />
+                <TextBlock x:Uid="HistoryLegendRightText" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel x:Uid="HistoryLegendCaseChip" Orientation="Horizontal" Spacing="6">
+                <Line x:Name="LegendCase" X1="0" Y1="0" X2="20" Y2="0" VerticalAlignment="Center" Width="20"
+                      Stroke="{ThemeResource GlassChartCaseBrush}" StrokeThickness="2.5" StrokeDashArray="0.01 1.6"
+                      StrokeDashCap="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                <TextBlock x:Uid="HistoryLegendCaseText" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel x:Name="ChargingChip" x:Uid="HistoryLegendChargingChip" Orientation="Horizontal" Spacing="6" Visibility="Collapsed">
+                <Border x:Name="LegendCharging" Width="16" Height="10" CornerRadius="2" VerticalAlignment="Center"
+                        Background="{ThemeResource GlassChartChargingBandBrush}"
+                        BorderBrush="{ThemeResource GlassChartChargingEdgeBrush}" BorderThickness="0,2,0,0" />
+                <TextBlock x:Uid="HistoryLegendChargingText" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" />
+            </StackPanel>
+        </StackPanel>
+
+        <!-- The chart is one focusable control: arrow keys move the guide between readings. -->
+        <views:ChartFocusControl x:Name="ChartFocus" x:Uid="HistoryChart" Height="142" IsTabStop="True" UseSystemFocusVisuals="True"
+                        FocusVisualMargin="-3" CornerRadius="8" HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        SizeChanged="OnChartSizeChanged" KeyDown="OnChartKeyDown"
+                        GotFocus="OnChartGotFocus" LostFocus="OnChartLostFocus"
+                        PointerEntered="OnChartPointerMoved" PointerMoved="OnChartPointerMoved"
+                        PointerPressed="OnChartPointerPressed" PointerReleased="OnChartPointerReleased"
+                        PointerCanceled="OnChartPointerReleased" PointerCaptureLost="OnChartPointerReleased"
+                        PointerExited="OnChartPointerExited"
+                        >
+            <Grid>
+                <Canvas x:Name="Surface" Width="340" Height="142" Background="Transparent"
+                        HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Canvas x:Name="BandLayer" />
+                    <Canvas x:Name="LineLayer" />
+                    <Line x:Name="GridTop" Stroke="{ThemeResource GlassDividerBrush}" StrokeThickness="1" />
+                    <Line x:Name="GridMiddle" Stroke="{ThemeResource GlassDividerBrush}" StrokeThickness="1" />
+                    <Line x:Name="GridBottom" Stroke="{ThemeResource GlassDividerBrush}" StrokeThickness="1" />
+                    <Canvas x:Name="SeriesLayer" />
+                    <Canvas x:Name="LabelLayer" />
+                    <TextBlock x:Name="Label100" Style="{StaticResource GlassCaptionTextStyle}"
+                               TextAlignment="Right" TextWrapping="NoWrap" Width="30" />
+                    <TextBlock x:Name="Label50" Style="{StaticResource GlassCaptionTextStyle}"
+                               TextAlignment="Right" TextWrapping="NoWrap" Width="30" />
+                    <TextBlock x:Name="Label0" Style="{StaticResource GlassCaptionTextStyle}"
+                               TextAlignment="Right" TextWrapping="NoWrap" Width="30" />
+
+                    <!-- Hover / keyboard readout. Hidden until used. -->
+                    <Line x:Name="Guide" Stroke="{ThemeResource GlassChartGuideBrush}" StrokeThickness="1"
+                          Visibility="Collapsed" IsHitTestVisible="False" />
+                    <Ellipse x:Name="DotCase" Width="9" Height="9" Fill="{ThemeResource GlassChartCaseBrush}"
+                             Stroke="{ThemeResource GlassOpaqueFillBrush}" StrokeThickness="2"
+                             Visibility="Collapsed" IsHitTestVisible="False" />
+                    <Ellipse x:Name="DotRight" Width="9" Height="9" Fill="{ThemeResource GlassChartRightBrush}"
+                             Stroke="{ThemeResource GlassOpaqueFillBrush}" StrokeThickness="2"
+                             Visibility="Collapsed" IsHitTestVisible="False" />
+                    <Ellipse x:Name="DotLeft" Width="9" Height="9" Fill="{ThemeResource GlassChartLeftBrush}"
+                             Stroke="{ThemeResource GlassOpaqueFillBrush}" StrokeThickness="2"
+                             Visibility="Collapsed" IsHitTestVisible="False" />
+                    <Border x:Name="Tip" Background="{ThemeResource GlassOpaqueFillBrush}"
+                            BorderBrush="{ThemeResource GlassOpaqueEdgeBrush}" BorderThickness="1"
+                            CornerRadius="8" Padding="8,4,8,4" Visibility="Collapsed" IsHitTestVisible="False">
+                        <TextBlock x:Name="TipText" Style="{StaticResource GlassBodyTextStyle}"
+                                   FontSize="{ThemeResource GlassCaptionFontSize}" TextWrapping="NoWrap" />
+                    </Border>
+                    <!-- Screen readers: said when the keyboard moves the guide. Not visible. -->
+                    <TextBlock x:Name="Announcer" Opacity="0" Width="1" Height="1" IsHitTestVisible="False"
+                               AutomationProperties.LiveSetting="Polite" />
+                </Canvas>
+                <TextBlock x:Name="EmptyText"
+                           Style="{StaticResource GlassCaptionTextStyle}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,8"
+                           IsHitTestVisible="False" Visibility="Collapsed" />
+            </Grid>
+        </views:ChartFocusControl>
+
+        <TextBlock x:Name="SummaryText" Style="{StaticResource GlassBodyTextStyle}"
+                   TextWrapping="WrapWholeWords" AutomationProperties.LiveSetting="Polite" />
+        <TextBlock x:Name="WearText" Style="{StaticResource GlassCaptionTextStyle}"
+                   TextWrapping="WrapWholeWords" Visibility="Collapsed" />
+    </StackPanel>
+</UserControl>

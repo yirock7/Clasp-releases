@@ -1,0 +1,227 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 230">
+  <style>
+    svg {
+      --band-hi: #626365;
+      --band: #1f2023;
+      --band-lo: #111213;
+      --band-edge: #7d7e7f;
+      --cup-hi: #656668;
+      --cup: #232427;
+      --cup-lo: #131415;
+      --cup-edge: #7f8082;
+      --cushion-hi: #4f5051;
+      --cushion: #18191a;
+      --cushion-lo: #0d0e0e;
+      --cushion-edge: #797a7a;
+      --metal-lo: #5c5e62;
+      --metal-mid: #a7abb2;
+      --metal-hi: #d7d9dc;
+      --metal-edge: #6d6f74;
+      --sheen: #ffffff;
+    }
+    svg[data-colorway="black"] {
+    }
+    svg[data-colorway="gloss-white"] {
+      --band-hi: #f7f7f6;
+      --band: #f1f1ef;
+      --band-lo: #bcbcba;
+      --band-edge: #959594;
+      --cup-hi: #f9f9f8;
+      --cup: #f4f4f2;
+      --cup-lo: #bebebd;
+      --cup-edge: #979796;
+      --cushion-hi: #eeeeec;
+      --cushion: #e4e4e1;
+      --cushion-lo: #b2b2b0;
+      --cushion-edge: #8d8d8c;
+      --metal-lo: #6f7073;
+      --metal-mid: #c9ccd1;
+      --metal-hi: #e7e8ea;
+      --metal-edge: #838588;
+    }
+    svg[data-colorway="silver"] {
+      --band-hi: #dee0e2;
+      --band: #c3c6cb;
+      --band-lo: #989a9e;
+      --band-edge: #797b7e;
+      --cup-hi: #e1e2e5;
+      --cup: #c8cbd0;
+      --cup-lo: #9c9ea2;
+      --cup-edge: #7c7e81;
+      --cushion-hi: #c7c9cd;
+      --cushion: #a8abb1;
+      --cushion-lo: #83858a;
+      --cushion-edge: #686a6e;
+      --metal-lo: #7b7c7e;
+      --metal-mid: #dfe1e5;
+      --metal-hi: #f1f2f3;
+      --metal-edge: #919295;
+    }
+    svg[data-colorway="gold"] {
+      --band-hi: #e7dbc5;
+      --band: #d4bd96;
+      --band-lo: #a59375;
+      --band-edge: #83755d;
+      --cup-hi: #ebdfca;
+      --cup: #dac49e;
+      --cup-lo: #aa997b;
+      --cup-edge: #877a62;
+      --cushion-hi: #d6c7ab;
+      --cushion: #bfa77c;
+      --cushion-lo: #958261;
+      --cushion-edge: #76684d;
+      --metal-lo: #827966;
+      --metal-mid: #ecdcb9;
+      --metal-hi: #f6efe0;
+      --metal-edge: #998f78;
+    }
+    svg[data-colorway="rose-gold"] {
+      --band-hi: #e8d1cb;
+      --band: #d6aca0;
+      --band-lo: #a7867d;
+      --band-edge: #856b63;
+      --cup-hi: #ecd6cf;
+      --cup: #dcb4a8;
+      --cup-lo: #ac8c83;
+      --cup-edge: #887068;
+      --cushion-hi: #d6bbb3;
+      --cushion: #bf9588;
+      --cushion-lo: #95746a;
+      --cushion-edge: #765c54;
+      --metal-lo: #82726e;
+      --metal-mid: #ecd0c8;
+      --metal-hi: #f6eae6;
+      --metal-edge: #998782;
+    }
+    svg[data-colorway="red"] {
+      --band-hi: #d86476;
+      --band: #c3112c;
+      --band-lo: #880c1f;
+      --band-edge: #6b0918;
+      --cup-hi: #de6878;
+      --cup: #cc1630;
+      --cup-lo: #8f0f22;
+      --cup-edge: #700c1a;
+      --cushion-hi: #b44759;
+      --cushion: #9c0d24;
+      --cushion-lo: #560714;
+      --cushion-edge: #c67380;
+      --metal-lo: #77595d;
+      --metal-mid: #d9a1a9;
+      --metal-hi: #eed5d8;
+      --metal-edge: #8d696e;
+    }
+    svg[data-colorway="satin-silver"] {
+      --band-hi: #d2d4d7;
+      --band: #aeb1b6;
+      --band-lo: #888a8e;
+      --band-edge: #6c6e71;
+      --cup-hi: #d5d7da;
+      --cup: #b3b6bb;
+      --cup-lo: #8c8e92;
+      --cup-edge: #6f7174;
+      --cushion-hi: #aeb1b5;
+      --cushion: #8f9298;
+      --cushion-lo: #64666a;
+      --cushion-edge: #4f5054;
+      --metal-lo: #717275;
+      --metal-mid: #cdd0d4;
+      --metal-hi: #e8eaec;
+      --metal-edge: #85878a;
+    }
+    svg[data-colorway="matte-black"] {
+      --band-hi: #6a6a6b;
+      --band: #2a2a2c;
+      --band-lo: #171718;
+      --band-edge: #838385;
+      --cup-hi: #6d6d6e;
+      --cup: #2e2e30;
+      --cup-lo: #19191a;
+      --cup-edge: #868687;
+      --cushion-hi: #565657;
+      --cushion: #202022;
+      --cushion-lo: #121213;
+      --cushion-edge: #7e7e7f;
+      --metal-lo: #4c4e51;
+      --metal-mid: #8a8d94;
+      --metal-hi: #cacccf;
+      --metal-edge: #5a5c60;
+    }
+  </style>
+
+  <defs>
+    <linearGradient id="bandV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--band-hi)"/>
+      <stop offset=".4" stop-color="var(--band)"/>
+      <stop offset="1" stop-color="var(--band-lo)"/>
+    </linearGradient>
+    <linearGradient id="padV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--cushion-lo)"/>
+      <stop offset=".6" stop-color="var(--cushion)"/>
+      <stop offset="1" stop-color="var(--cushion-hi)"/>
+    </linearGradient>
+    <linearGradient id="cupH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--cup-lo)"/>
+      <stop offset=".28" stop-color="var(--cup-hi)"/>
+      <stop offset=".62" stop-color="var(--cup)"/>
+      <stop offset="1" stop-color="var(--cup-lo)"/>
+    </linearGradient>
+    <linearGradient id="cushH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--cushion-lo)"/>
+      <stop offset=".5" stop-color="var(--cushion)"/>
+      <stop offset="1" stop-color="var(--cushion-hi)"/>
+    </linearGradient>
+    <linearGradient id="metalH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--metal-lo)"/>
+      <stop offset=".3" stop-color="var(--metal-hi)"/>
+      <stop offset=".65" stop-color="var(--metal-mid)"/>
+      <stop offset="1" stop-color="var(--metal-lo)"/>
+    </linearGradient>
+    <linearGradient id="cupShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".14"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity=".22"/>
+    </linearGradient>
+    <radialGradient id="shadowSoft" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#000000" stop-opacity=".3"/>
+      <stop offset=".5" stop-color="#000000" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <g id="side">
+      <g transform="rotate(-5 84 165.5)">
+        <path d="M94.5,133 L99.5,133 C103.3,133 106.5,136.2 106.5,140 L106.5,191 C106.5,194.8 103.3,198 99.5,198 L94.5,198 C93.7,198 93,197.3 93,196.5 L93,134.5 C93,133.7 93.7,133 94.5,133 Z" fill="url(#cushH)" stroke="var(--cushion-edge)" stroke-width=".9"/>
+        <path d="M104.2,142 C105.2,155 105.2,176 104.2,189" stroke="#ffffff" stroke-opacity=".22" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+        <path d="M80,127 L92,127 C93.1,127 94,127.9 94,129 L94,202 C94,203.1 93.1,204 92,204 L80,204 C73.4,204 68,198.6 68,192 L68,139 C68,132.4 73.4,127 80,127 Z" fill="url(#cupH)" stroke="var(--cup-edge)" stroke-width=".9"/>
+        <path d="M80,127 L92,127 C93.1,127 94,127.9 94,129 L94,202 C94,203.1 93.1,204 92,204 L80,204 C73.4,204 68,198.6 68,192 L68,139 C68,132.4 73.4,127 80,127 Z" fill="url(#cupShade)"/>
+        <path d="M72.2,140 C71.6,156 71.6,175 72.2,191" stroke="#ffffff" stroke-opacity=".55" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M75.2,128.8 L89,128.8" stroke="#ffffff" stroke-opacity=".28" stroke-width="1" fill="none" stroke-linecap="round"/>
+        <path d="M94,129 L94,202" stroke="#000000" stroke-opacity=".3" stroke-width="1" fill="none"/>
+        <path d="M95.2,131 L95.2,200" stroke="#ffffff" stroke-opacity=".18" stroke-width=".8" fill="none"/>
+        <path d="M77,135 C77.6,157 77.6,174 77,196" stroke="#000000" stroke-opacity=".12" stroke-width="1" fill="none"/>
+      </g>
+      <rect x="78" y="106" width="11" height="17" rx="2" fill="url(#metalH)" stroke="var(--metal-edge)" stroke-width=".8"/>
+      <path d="M73,128 C73,123.5 76,121.5 80,121.5 L90,121.5 C94,121.5 96.5,123.5 96.5,128 L97,138 C97,143 94,146 90,146 L79,146 C75,146 72.5,143 73,138 Z" fill="url(#bandV)" stroke="var(--band-edge)" stroke-width=".9"/>
+      <path d="M77,125.5 C81,124.4 87,124.4 93,125.5" stroke="#ffffff" stroke-opacity=".4" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+      <path d="M73.5,134 L96.5,134" stroke="#000000" stroke-opacity=".28" stroke-width=".9" fill="none"/>
+      <circle cx="85" cy="139.5" r="2.4" fill="url(#metalH)" stroke="var(--metal-edge)" stroke-width=".6"/>
+      <rect x="75" y="113" width="19" height="9" rx="3.5" fill="url(#bandV)" stroke="var(--band-edge)" stroke-width=".8"/>
+      <path d="M81,113.5 L81,121.5 M88,113.5 L88,121.5" stroke="#000000" stroke-opacity=".25" stroke-width=".7" fill="none"/>
+    </g>
+  </defs>
+
+  <g data-part="shadow">
+    <ellipse cx="150" cy="206" rx="98" ry="11" fill="url(#shadowSoft)"/>
+  </g>
+
+  <g data-part="body">
+    <path d="M76,121 C70,60.4 100.6,20 150,20 C199.4,20 230,60.4 224,121 L211,121 C211,66.2 190.7,34 150,34 C109.3,34 89,66.2 89,121 Z" fill="url(#bandV)" stroke="var(--band-edge)" stroke-width="1"/>
+    <path d="M79,112 C73,63.4 103.6,23.5 150,23.5 C196.4,23.5 227,63.4 221,112" stroke="#ffffff" stroke-opacity=".4" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <path d="M90,112 C90,66.2 113.3,36 150,36 C186.7,36 210,66.2 210,112" stroke="#000000" stroke-opacity=".18" stroke-width="1" fill="none"/>
+    <path d="M106,52.9 C122.7,37.1 135.5,34 150,34 C164.5,34 177.3,37.1 194,52.9 C177.3,40 163.2,45 150,45 C136.8,45 122.7,40 106,52.9 Z" fill="url(#padV)" stroke="var(--cushion-edge)" stroke-width=".8"/>
+    <path d="M119.2,47.2 C130.2,37.5 141.2,37 150,37 C158.8,37 169.8,37.5 180.8,47.2" stroke="#ffffff" stroke-opacity=".16" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+    <use href="#side"/>
+    <use href="#side" transform="translate(300,0) scale(-1,1)"/>
+  </g>
+</svg>

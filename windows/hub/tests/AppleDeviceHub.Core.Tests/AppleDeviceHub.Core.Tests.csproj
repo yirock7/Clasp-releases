@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- Test names use the xUnit Method_Condition_Result convention; CA1707 (no underscores in
+         identifiers) is for public library APIs, so it is off for this test project only. -->
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>AppleDeviceHub.Core.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AppleDeviceHub.Core\AppleDeviceHub.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Compile the small Windows COM-apartment helper directly so the Core gate can test it
+         without referencing the WinUI app project. -->
+    <Compile Include="..\..\src\AppleDeviceHub.App\Audio\MtaThread.cs" Link="App\Audio\MtaThread.cs" />
+    <!-- The retry policy has no WinUI dependency, so keep its timing behavior in the Core gate. -->
+    <Compile Include="..\..\src\AppleDeviceHub.App\Connection\AppleIdentityRetryCache.cs" Link="App\Connection\AppleIdentityRetryCache.cs" />
+    <!-- The connection action runner only uses Core contracts; linking keeps its orchestration testable without WinUI. -->
+    <Compile Include="..\..\src\AppleDeviceHub.App\Automation\ConnectionActionsRunner.cs" Link="App\Automation\ConnectionActionsRunner.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

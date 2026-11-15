@@ -1,0 +1,36 @@
+[package]
+name = "clasp-engine"
+version = "0.1.0"
+edition = "2021"
+autobins = false
+description = "Clasp engine: the restricted, optional AAP hardware engine that the Clasp app talks to over a versioned, identity-checked pipe."
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_System_IO",
+    "Win32_System_Registry",
+    "Win32_System_Threading",
+    "Win32_System_Pipes",
+    "Win32_System_Services",
+    "Win32_Storage_FileSystem",
+    "Win32_Security",
+    "Win32_Security_Authorization",
+    "Win32_Devices_DeviceAndDriverInstallation",
+    "Win32_Devices_Bluetooth",
+    "Win32_Security_Cryptography",
+    "Win32_System_Console",
+] }
+
+# Restricted engine for Clasp (protocol: windows/protocol/clasp-engine-v1).
+# Build: cargo build --release --bin clasp-engine
+[[bin]]
+name = "clasp-engine"
+path = "src/bin/clasp_engine.rs"
+
+[profile.release]
+opt-level = "s"
+lto = true
+strip = true

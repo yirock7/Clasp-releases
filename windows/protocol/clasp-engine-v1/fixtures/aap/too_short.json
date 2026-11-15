@@ -1,0 +1,5 @@
+{
+  "description": "Shorter than any packet",
+  "packet_hex": "040004",
+  "expect_fields": null
+}

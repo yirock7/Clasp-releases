@@ -1,0 +1,29 @@
+name: Feature request
+description: An idea for something Clasp could do
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea. One thing to know first: anything that needs a Bluetooth driver (listening modes, true ear detection) is on hold until a signed driver is possible, so I can't take those yet.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: Describe the situation rather than the solution. What gets in your way today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like Clasp to do?
+    validations:
+      required: true
+
+  - type: input
+    id: model
+    attributes:
+      label: AirPods or Beats model (optional)
+      placeholder: "AirPods Pro 2 (USB-C)"

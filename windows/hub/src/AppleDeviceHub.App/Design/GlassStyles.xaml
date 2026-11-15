@@ -1,0 +1,937 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Liquid Glass control styles. Every colour/size comes from GlassTokens.xaml through
+    {ThemeResource} (resolved at run time, so theme switches and high contrast follow).
+    Native control semantics are kept: GlassButton is a Button, GlassToggle is a
+    ToggleSwitch, GlassSlider is a Slider (both with their own templates). Focus uses the system focus visuals.
+    Do not set XAML Opacity/RenderTransform on template parts that code animates through
+    Design/Motion.cs (PointerLight, PointerRim, the control root).
+-->
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:design="using:AppleDeviceHub.App.Design">
+
+    <!-- ============================== Text ============================== -->
+    <Style x:Key="GlassTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{ThemeResource GlassTitleFontSize}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{ThemeResource GlassTextPrimaryBrush}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <Style x:Key="GlassSectionTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{ThemeResource GlassSectionFontSize}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{ThemeResource GlassTextPrimaryBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style x:Key="GlassBodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{ThemeResource GlassBodyFontSize}" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{ThemeResource GlassTextPrimaryBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style x:Key="GlassLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{ThemeResource GlassBodyFontSize}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{ThemeResource GlassTextPrimaryBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style x:Key="GlassCaptionTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{ThemeResource GlassCaptionFontSize}" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{ThemeResource GlassTextSecondaryBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <!-- ============================ GlassSurface ============================ -->
+    <!-- Layers (back to front): glass tint | opaque fallback | soft inner light | specular sheen (top band) |
+         inner rim (inset 1 DIP, light) | inner shade (inset 1 DIP, bottom line) | specular edge | pointer rim (invisible until GlassSurface lights it) | content. "Opaque" state = reduced transparency / high contrast. -->
+    <Style x:Key="GlassSurfaceStyle" TargetType="design:GlassSurface">
+        <Setter Property="Background" Value="{ThemeResource GlassTintBrush}" />
+        <Setter Property="OpaqueFill" Value="{ThemeResource GlassOpaqueFillBrush}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource GlassEdgeBrush}" />
+        <Setter Property="BorderThickness" Value="{ThemeResource GlassEdgeThickness}" />
+        <Setter Property="CornerRadius" Value="{ThemeResource GlassSurfaceRadius}" />
+        <Setter Property="Padding" Value="{ThemeResource GlassPadding16}" />
+        <Setter Property="Foreground" Value="{ThemeResource GlassTextPrimaryBrush}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="design:GlassSurface">
+                    <Grid x:Name="RootGrid" CornerRadius="{TemplateBinding CornerRadius}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="MaterialStates">
+                                <VisualState x:Name="Glass" />
+                                <VisualState x:Name="Opaque">
+                                    <VisualState.Setters>
+                                        <Setter Target="GlassFill.Visibility" Value="Collapsed" />
+                                        <Setter Target="InnerHighlight.Visibility" Value="Collapsed" />
+                                        <Setter Target="InnerRim.Visibility" Value="Collapsed" />
+                                        <Setter Target="InnerShade.Visibility" Value="Collapsed" />
+                                        <Setter Target="SheenHost.Visibility" Value="Collapsed" />
+                                        <Setter Target="PointerRim.Visibility" Value="Collapsed" />
+                                        <Setter Target="OpaqueFillLayer.Visibility" Value="Visible" />
+                                        <Setter Target="Edge.BorderBrush" Value="{ThemeResource GlassOpaqueEdgeBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <!-- Fake lens (GlassSurface.cs / GlassLens.cs): the shaped rim and the inner edge band replace the flat edge, inner rim and inner shade. -->
+                            <VisualStateGroup x:Name="LensStates">
+                                <VisualState x:Name="LensOff" />
+                                <VisualState x:Name="LensOn">
+                                    <VisualState.Setters>
+                                        <Setter Target="LensBandHost.Visibility" Value="Visible" />
+                                        <Setter Target="LensRimHost.Visibility" Value="Visible" />
+                                        <Setter Target="InnerRim.Visibility" Value="Collapsed" />
+                                        <Setter Target="InnerShade.Visibility" Value="Collapsed" />
+                                        <Setter Target="Edge.Visibility" Value="Collapsed" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <Border x:Name="GlassFill"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="{TemplateBinding CornerRadius}" />
+                        <Border x:Name="OpaqueFillLayer"
+                                Background="{TemplateBinding OpaqueFill}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Visibility="Collapsed" />
+                        <Border x:Name="InnerHighlight"
+                                Background="{ThemeResource GlassInnerHighlightBrush}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False" />
+                        <!-- Specular sheen: a soft curved highlight in a short band at the top (30% of the height, at most
+                             64 DIP). Decorative only: it takes no space from the content and no clicks. -->
+                        <Grid x:Name="SheenHost" IsHitTestVisible="False">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0.3*" MaxHeight="64" />
+                                <RowDefinition Height="0.7*" />
+                            </Grid.RowDefinitions>
+                            <Border x:Name="SurfaceSheen"
+                                    Background="{ThemeResource GlassSurfaceSheenBrush}"
+                                    CornerRadius="{TemplateBinding CornerRadius}"
+                                    IsHitTestVisible="False" />
+                        </Grid>
+                        <!-- Follows the edge thickness: a borderless tile gets no inner rim or inner shade either. -->
+                        <Border x:Name="InnerRim"
+                                Margin="{TemplateBinding BorderThickness}"
+                                BorderBrush="{ThemeResource GlassInnerRimBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False" />
+                        <Border x:Name="InnerShade"
+                                Margin="{TemplateBinding BorderThickness}"
+                                BorderBrush="{ThemeResource GlassInnerShadeBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False" />
+                        <Border x:Name="Edge"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False" />
+                        <!-- Fake lens, drawn only in the LensOn state (collapsed otherwise, and always when the material is Opaque).
+                             Inner edge band: five rings, 3 DIP each (15 DIP in all), darker and more saturated at the outer edge and
+                             fading to nothing by the inner edge; the weights follow (1 - t)^2. The corner radii of the rings are set in
+                             GlassSurface.cs (each ring's radius is the panel's, less its inset). Composition opacity of both hosts is
+                             driven by GlassSurface.PlayMaterialise (do not set XAML Opacity on the hosts). -->
+                        <Grid x:Name="LensBandHost" IsHitTestVisible="False" Visibility="Collapsed">
+                            <Border BorderBrush="{ThemeResource GlassLensBandBrush}" BorderThickness="3" Margin="0" Opacity="1" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource GlassLensBandBrush}" BorderThickness="3" Margin="3" Opacity="0.64" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource GlassLensBandBrush}" BorderThickness="3" Margin="6" Opacity="0.36" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource GlassLensBandBrush}" BorderThickness="3" Margin="9" Opacity="0.16" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource GlassLensBandBrush}" BorderThickness="3" Margin="12" Opacity="0.04" IsHitTestVisible="False" />
+                        </Grid>
+                        <!-- Lit rim, 3 DIP: three 1 DIP rings with the squircle slope falloff (1, 0.6, 0.26), each lit by one
+                             angled gradient (light from the top-left; brightest on the top-left curve, dimmest bottom-right). -->
+                        <Grid x:Name="LensRimHost" IsHitTestVisible="False" Visibility="Collapsed">
+                            <Border BorderBrush="{ThemeResource GlassLensRimBrush}" BorderThickness="1" Margin="0" Opacity="1" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource GlassLensRimBrush}" BorderThickness="1" Margin="1" Opacity="0.6" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource GlassLensRimBrush}" BorderThickness="1" Margin="2" Opacity="0.26" IsHitTestVisible="False" />
+                        </Grid>
+                        <!-- Composition opacity is driven by GlassSurface.cs (0 at rest). -->
+                        <Border x:Name="PointerRim"
+                                BorderThickness="1"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False">
+                            <Border.BorderBrush>
+                                <RadialGradientBrush Center="0.5,0" GradientOrigin="0.5,0" RadiusX="0.5" RadiusY="0.2">
+                                    <GradientStop Offset="0" Color="{ThemeResource GlassPointerRimColor}" />
+                                    <GradientStop Offset="1" Color="#00FFFFFF" />
+                                </RadialGradientBrush>
+                            </Border.BorderBrush>
+                        </Border>
+                        <ContentPresenter x:Name="ContentPresenter"
+                                          Padding="{TemplateBinding Padding}"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          ContentTransitions="{TemplateBinding ContentTransitions}"
+                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Foreground="{TemplateBinding Foreground}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="design:GlassSurface" BasedOn="{StaticResource GlassSurfaceStyle}" />
+
+    <!-- Nested section inside a card: radius 16, lighter frosting. -->
+    <Style x:Key="GlassNestedSurfaceStyle" TargetType="design:GlassSurface" BasedOn="{StaticResource GlassSurfaceStyle}">
+        <Setter Property="Background" Value="{ThemeResource GlassNestedTintBrush}" />
+        <Setter Property="OpaqueFill" Value="{ThemeResource GlassNestedOpaqueFillBrush}" />
+        <Setter Property="CornerRadius" Value="{ThemeResource GlassNestedRadius}" />
+        <Setter Property="Padding" Value="{ThemeResource GlassPadding12}" />
+    </Style>
+
+    <!-- Fills a whole borderless window: matches the DWM window corner instead of drawing a
+         second 24 DIP box inside the window edge. -->
+    <Style x:Key="GlassWindowSurfaceStyle" TargetType="design:GlassSurface" BasedOn="{StaticResource GlassSurfaceStyle}">
+        <Setter Property="CornerRadius" Value="{ThemeResource GlassWindowRadius}" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <!-- Readable content surface (settings pages): stronger, nearly opaque frosting. -->
+    <Style x:Key="GlassReadableSurfaceStyle" TargetType="design:GlassSurface" BasedOn="{StaticResource GlassSurfaceStyle}">
+        <Setter Property="Background" Value="{ThemeResource GlassReadableFillBrush}" />
+        <Setter Property="OpaqueFill" Value="{ThemeResource GlassNestedOpaqueFillBrush}" />
+        <Setter Property="CornerRadius" Value="{ThemeResource GlassNestedRadius}" />
+        <Setter Property="Padding" Value="{ThemeResource GlassPadding16}" />
+    </Style>
+
+    <!-- Borderless tile inside a window surface: groups content with tint and space instead of
+         another outline (no box-in-a-box). High contrast restores a 1 DIP system-colour edge. -->
+    <Style x:Key="GlassTileStyle" TargetType="design:GlassSurface" BasedOn="{StaticResource GlassSurfaceStyle}">
+        <Setter Property="Background" Value="{ThemeResource GlassTileTintBrush}" />
+        <Setter Property="OpaqueFill" Value="{ThemeResource GlassNestedOpaqueFillBrush}" />
+        <Setter Property="BorderThickness" Value="{ThemeResource GlassTileEdgeThickness}" />
+        <Setter Property="LensEdge" Value="False" />
+        <Setter Property="CornerRadius" Value="{ThemeResource GlassTileRadius}" />
+        <Setter Property="Padding" Value="{ThemeResource GlassPadding12}" />
+    </Style>
+
+    <!-- ============================ GlassButton ============================ -->
+    <!-- Layers: fill | top sheen | lens (convex highlight, glass only) | state overlay (hover/press/disabled) |
+         bottom shade (inner shadow, glass only) | pointer light (radial, follows the pointer, invisible at rest) |
+         edge | rim light (bright top-left rim, glass only) | status edge (pending/error) | content.
+         Only backgrounds change; content never moves. -->
+    <Style x:Key="GlassButtonStyle" TargetType="design:GlassButton">
+        <Setter Property="Background" Value="{ThemeResource GlassControlFillBrush}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource GlassControlEdgeBrush}" />
+        <Setter Property="BorderThickness" Value="{ThemeResource GlassEdgeThickness}" />
+        <Setter Property="Foreground" Value="{ThemeResource GlassControlTextBrush}" />
+        <Setter Property="CornerRadius" Value="{ThemeResource GlassControlRadius}" />
+        <Setter Property="Padding" Value="16,6,16,6" />
+        <Setter Property="MinHeight" Value="{ThemeResource GlassControlHeight}" />
+        <Setter Property="MinWidth" Value="40" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FontSize" Value="{ThemeResource GlassBodyFontSize}" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="FocusVisualMargin" Value="-3" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="design:GlassButton">
+                    <Grid x:Name="RootGrid" Background="Transparent" CornerRadius="{TemplateBinding CornerRadius}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="StateOverlay.Background" Value="{ThemeResource GlassHoverOverlayBrush}" />
+                                        <Setter Target="StateOverlay.BorderBrush" Value="{ThemeResource GlassHoverEdgeBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="StateOverlay.Background" Value="{ThemeResource GlassPressedOverlayBrush}" />
+                                        <Setter Target="StateOverlay.BorderBrush" Value="{ThemeResource GlassHoverEdgeBrush}" />
+                                        <!-- Pressed glass flattens: the convex highlight and the bottom shade ease off (no animation). -->
+                                        <Setter Target="Lens.Opacity" Value="0.5" />
+                                        <Setter Target="BottomShade.Opacity" Value="0.6" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="StateOverlay.Background" Value="{ThemeResource GlassDisabledOverlayBrush}" />
+                                        <Setter Target="Edge.BorderBrush" Value="{ThemeResource GlassDisabledEdgeBrush}" />
+                                        <Setter Target="Sheen.Visibility" Value="Collapsed" />
+                                        <Setter Target="PointerLight.Visibility" Value="Collapsed" />
+                                        <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource GlassTextDisabledBrush}" />
+                                        <Setter Target="PendingRing.Foreground" Value="{ThemeResource GlassTextDisabledBrush}" />
+                                        <Setter Target="ErrorGlyph.Foreground" Value="{ThemeResource GlassTextDisabledBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="CommandStates">
+                                <VisualState x:Name="Idle" />
+                                <VisualState x:Name="Pending">
+                                    <VisualState.Setters>
+                                        <Setter Target="PendingRing.Visibility" Value="Visible" />
+                                        <Setter Target="PendingRing.IsActive" Value="True" />
+                                        <Setter Target="StatusEdge.Visibility" Value="Visible" />
+                                        <Setter Target="StatusEdge.BorderBrush" Value="{ThemeResource GlassPendingBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Error">
+                                    <VisualState.Setters>
+                                        <Setter Target="ErrorGlyph.Visibility" Value="Visible" />
+                                        <Setter Target="StatusEdge.Visibility" Value="Visible" />
+                                        <Setter Target="StatusEdge.BorderBrush" Value="{ThemeResource GlassErrorBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <Border x:Name="Fill"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="{TemplateBinding CornerRadius}" />
+                        <Border x:Name="Sheen"
+                                Background="{ThemeResource GlassControlSheenBrush}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False" />
+                        <!-- Glass-capsule layers (Lens, BottomShade, RimLight): drawn only in the glass material and
+                             not flat. GlassButton.cs collapses them for reduced transparency / High Contrast, for
+                             IsFlat buttons and while disabled; they never take clicks or space. -->
+                        <!-- Fake lens band (GlassButton.cs): three 2 DIP rings (6 DIP), darker toward the edge. Collapsed unless the lens is on. -->
+                        <Grid x:Name="LensBandHost" IsHitTestVisible="False" Visibility="Collapsed">
+                            <Border BorderBrush="{ThemeResource GlassLensBandBrush}" BorderThickness="2" Margin="0" Opacity="0.9" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource GlassLensBandBrush}" BorderThickness="2" Margin="2" Opacity="0.45" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource GlassLensBandBrush}" BorderThickness="2" Margin="4" Opacity="0.16" IsHitTestVisible="False" />
+                        </Grid>
+                        <Border x:Name="Lens"
+                                Background="{ThemeResource GlassButtonLensBrush}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False" />
+                        <Border x:Name="StateOverlay"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                BorderThickness="1"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False" />
+                        <Border x:Name="BottomShade"
+                                Margin="{TemplateBinding BorderThickness}"
+                                Background="{ThemeResource GlassButtonShadeFillBrush}"
+                                BorderBrush="{ThemeResource GlassButtonShadeLineBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False" />
+                        <!-- Composition opacity is driven by GlassButton.cs (0 at rest). -->
+                        <Border x:Name="PointerLight"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False">
+                            <Border.Background>
+                                <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.6" RadiusY="1.4">
+                                    <GradientStop Offset="0" Color="{ThemeResource GlassPointerLightColor}" />
+                                    <GradientStop Offset="1" Color="#00FFFFFF" />
+                                </RadialGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <Border x:Name="Edge"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False" />
+                        <!-- Reduced transparency only (GlassButton.cs): a plain outline, so a white button stays visible on a white card. -->
+                        <Border x:Name="OpaqueEdge"
+                                BorderBrush="{ThemeResource GlassOpaqueControlEdgeBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False"
+                                Visibility="Collapsed" />
+                        <Border x:Name="RimLight"
+                                BorderBrush="{ThemeResource GlassButtonRimBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False" />
+                        <!-- Second rim ring (2 DIP of lit rim with RimLight), inset 1 DIP. Collapsed unless the lens is on. -->
+                        <Grid x:Name="LensRimHost" IsHitTestVisible="False" Visibility="Collapsed">
+                            <Border BorderBrush="{ThemeResource GlassLensRimBrush}" BorderThickness="1" Margin="1" Opacity="0.5" IsHitTestVisible="False" />
+                        </Grid>
+                        <Border x:Name="StatusEdge"
+                                BorderBrush="Transparent"
+                                BorderThickness="1.5"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                IsHitTestVisible="False"
+                                Visibility="Collapsed" />
+
+                        <Grid x:Name="ContentGrid"
+                              Padding="{TemplateBinding Padding}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ProgressRing x:Name="PendingRing"
+                                          Width="16" Height="16"
+                                          Margin="0,0,8,0"
+                                          VerticalAlignment="Center"
+                                          IsIndeterminate="True"
+                                          IsActive="False"
+                                          Visibility="Collapsed"
+                                          Foreground="{ThemeResource GlassPendingBrush}"
+                                          AutomationProperties.AccessibilityView="Raw" />
+                            <FontIcon x:Name="ErrorGlyph"
+                                      Glyph="&#xE783;"
+                                      FontSize="14"
+                                      Margin="0,0,8,0"
+                                      VerticalAlignment="Center"
+                                      Visibility="Collapsed"
+                                      Foreground="{ThemeResource GlassErrorBrush}"
+                                      AutomationProperties.AccessibilityView="Raw" />
+                            <ContentPresenter x:Name="ContentPresenter"
+                                              Grid.Column="1"
+                                              VerticalAlignment="Center"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              ContentTransitions="{TemplateBinding ContentTransitions}"
+                                              Foreground="{TemplateBinding Foreground}"
+                                              AutomationProperties.AccessibilityView="Raw" />
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="design:GlassButton" BasedOn="{StaticResource GlassButtonStyle}" />
+
+    <!-- Primary action: restrained cool-blue fill. IsAccent merges GlassAccentOverrides.xaml so
+         hover/press darken (not lighten) the blue and white text keeps >= 4.5:1. -->
+    <Style x:Key="GlassAccentButtonStyle" TargetType="design:GlassButton" BasedOn="{StaticResource GlassButtonStyle}">
+        <Setter Property="IsAccent" Value="True" />
+        <Setter Property="Background" Value="{ThemeResource GlassAccentFillBrush}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource GlassAccentEdgeBrush}" />
+        <Setter Property="Foreground" Value="{ThemeResource GlassOnAccentBrush}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- Settings navigation rail item: quiet at rest (sidebar rows, not a stack of buttons);
+         hover/press overlays still respond. The current page uses the Selected variant. -->
+    <Style x:Key="GlassNavButtonStyle" TargetType="design:GlassButton" BasedOn="{StaticResource GlassButtonStyle}">
+        <Setter Property="IsFlat" Value="True" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Padding" Value="14,8,14,8" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="CornerRadius" Value="12" />
+    </Style>
+    <Style x:Key="GlassNavSelectedButtonStyle" TargetType="design:GlassButton" BasedOn="{StaticResource GlassNavButtonStyle}">
+        <Setter Property="Background" Value="{ThemeResource GlassSelectedFillBrush}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource GlassSelectedEdgeBrush}" />
+        <Setter Property="Foreground" Value="{ThemeResource GlassSelectedTextBrush}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- ========================== GlassIconButton ========================== -->
+    <Style x:Key="GlassIconButtonStyle" TargetType="design:GlassIconButton" BasedOn="{StaticResource GlassButtonStyle}">
+        <Setter Property="Width" Value="{ThemeResource GlassIconButtonSize}" />
+        <Setter Property="Height" Value="{ThemeResource GlassIconButtonSize}" />
+        <Setter Property="MinWidth" Value="{ThemeResource GlassIconButtonSize}" />
+        <Setter Property="MinHeight" Value="{ThemeResource GlassIconButtonSize}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="CornerRadius" Value="{ThemeResource GlassIconRadius}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+    <Style TargetType="design:GlassIconButton" BasedOn="{StaticResource GlassIconButtonStyle}" />
+
+    <!-- ========================== GlassStatusChip ========================== -->
+    <!-- Every kind has a glyph AND text: colour never carries meaning alone. -->
+    <Style TargetType="design:GlassStatusChip">
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="design:GlassStatusChip">
+                    <Grid x:Name="ChipRoot"
+                          MinHeight="{ThemeResource GlassChipHeight}"
+                          Padding="8,2,10,2"
+                          Background="{ThemeResource GlassChipNeutralFillBrush}"
+                          BorderBrush="{ThemeResource GlassChipEdgeBrush}"
+                          BorderThickness="1"
+                          CornerRadius="{ThemeResource GlassChipRadius}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="KindStates">
+                                <VisualState x:Name="Neutral" />
+                                <VisualState x:Name="Demo">
+                                    <VisualState.Setters>
+                                        <Setter Target="ChipRoot.Background" Value="{ThemeResource GlassChipDemoFillBrush}" />
+                                        <Setter Target="ChipRoot.BorderBrush" Value="{ThemeResource GlassChipDemoEdgeBrush}" />
+                                        <Setter Target="KindGlyph.Glyph" Value="&#xE768;" />
+                                        <Setter Target="KindGlyph.Foreground" Value="{ThemeResource GlassChipDemoForegroundBrush}" />
+                                        <Setter Target="KindLabel.Foreground" Value="{ThemeResource GlassChipDemoForegroundBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Success">
+                                    <VisualState.Setters>
+                                        <Setter Target="ChipRoot.Background" Value="{ThemeResource GlassChipSuccessFillBrush}" />
+                                        <Setter Target="KindGlyph.Glyph" Value="&#xE73E;" />
+                                        <Setter Target="KindGlyph.Foreground" Value="{ThemeResource GlassSuccessBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pending">
+                                    <VisualState.Setters>
+                                        <Setter Target="ChipRoot.Background" Value="{ThemeResource GlassChipPendingFillBrush}" />
+                                        <Setter Target="KindGlyph.Glyph" Value="&#xE916;" />
+                                        <Setter Target="KindGlyph.Foreground" Value="{ThemeResource GlassPendingBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Warning">
+                                    <VisualState.Setters>
+                                        <Setter Target="ChipRoot.Background" Value="{ThemeResource GlassChipWarningFillBrush}" />
+                                        <Setter Target="KindGlyph.Glyph" Value="&#xE7BA;" />
+                                        <Setter Target="KindGlyph.Foreground" Value="{ThemeResource GlassWarningBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Error">
+                                    <VisualState.Setters>
+                                        <Setter Target="ChipRoot.Background" Value="{ThemeResource GlassChipErrorFillBrush}" />
+                                        <Setter Target="ChipRoot.BorderBrush" Value="{ThemeResource GlassErrorBrush}" />
+                                        <Setter Target="KindGlyph.Glyph" Value="&#xE783;" />
+                                        <Setter Target="KindGlyph.Foreground" Value="{ThemeResource GlassErrorBrush}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <FontIcon x:Name="KindGlyph"
+                                      Glyph="&#xE946;"
+                                      FontSize="12"
+                                      Margin="0,0,6,0"
+                                      VerticalAlignment="Center"
+                                      Foreground="{ThemeResource GlassTextSecondaryBrush}"
+                                      AutomationProperties.AccessibilityView="Raw" />
+                            <TextBlock x:Name="KindLabel"
+                                       Text="{TemplateBinding Text}"
+                                       FontSize="{ThemeResource GlassCaptionFontSize}"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"
+                                       Foreground="{ThemeResource GlassTextPrimaryBrush}" />
+                        </StackPanel>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============================ GlassToggle ============================ -->
+    <!-- A ToggleSwitch with its own template (Header on the left, a 44 x 26 capsule on the right, no On/Off text).
+         Native semantics, click, drag-on-the-knob, keyboard and UIA all stay with the control: the template keeps the
+         parts it looks for (SwitchKnobBounds, SwitchKnob, KnobTranslateTransform, SwitchThumb, the content presenters and
+         the Off/On/Dragging states). Position and fill still show the value without colour alone, and Narrator reads the
+         state from the control. The white knob widens while pressed and the shadow/slide rules live in
+         Design/ControlFeel.cs, switched on by design:GlassMotion.ControlFeel. Colours come from GlassTokens.xaml.
+         Only the switch (track and knob) takes clicks and drags: the root has no background and the thumb sits in the switch
+         column, so the label and the gap do not flip it. -->
+    <Style x:Key="GlassToggleStyle" TargetType="ToggleSwitch">
+        <Setter Property="OnContent" Value="{x:Null}" />
+        <Setter Property="OffContent" Value="{x:Null}" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="Foreground" Value="{ThemeResource GlassTextPrimaryBrush}" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="FocusVisualMargin" Value="-4,-2,-4,-2" />
+        <Setter Property="design:GlassMotion.ControlFeel" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleSwitch">
+                    <Grid x:Name="LayoutRoot" MinHeight="32">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="OuterBorder.Fill" Value="{ThemeResource ToggleSwitchFillOffPointerOver}" />
+                                        <Setter Target="OuterBorder.Stroke" Value="{ThemeResource ToggleSwitchStrokeOffPointerOver}" />
+                                        <Setter Target="SwitchKnobBounds.Fill" Value="{ThemeResource ToggleSwitchFillOnPointerOver}" />
+                                        <Setter Target="SwitchKnobBounds.Stroke" Value="{ThemeResource ToggleSwitchStrokeOnPointerOver}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="OuterBorder.Fill" Value="{ThemeResource ToggleSwitchFillOffPressed}" />
+                                        <Setter Target="OuterBorder.Stroke" Value="{ThemeResource ToggleSwitchStrokeOffPressed}" />
+                                        <Setter Target="SwitchKnobBounds.Fill" Value="{ThemeResource ToggleSwitchFillOnPressed}" />
+                                        <Setter Target="SwitchKnobBounds.Stroke" Value="{ThemeResource ToggleSwitchStrokeOnPressed}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="HeaderContentPresenter.Foreground" Value="{ThemeResource GlassTextDisabledBrush}" />
+                                        <Setter Target="OuterBorder.Fill" Value="{ThemeResource ToggleSwitchFillOffDisabled}" />
+                                        <Setter Target="OuterBorder.Stroke" Value="{ThemeResource ToggleSwitchStrokeOffDisabled}" />
+                                        <Setter Target="SwitchKnobBounds.Fill" Value="{ThemeResource ToggleSwitchFillOnDisabled}" />
+                                        <Setter Target="SwitchKnobBounds.Stroke" Value="{ThemeResource ToggleSwitchStrokeOnDisabled}" />
+                                        <Setter Target="KnobFill.Fill" Value="{ThemeResource ToggleSwitchKnobFillDisabled}" />
+                                        <Setter Target="KnobFill.Stroke" Value="{ThemeResource ToggleSwitchKnobStrokeDisabled}" />
+                                        <Setter Target="KnobShadow.Opacity" Value="0.4" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="ToggleStates">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition x:Name="DraggingToOnTransition" From="Dragging" To="On" GeneratedDuration="0">
+                                        <Storyboard>
+                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SwitchKnobBounds" Storyboard.TargetProperty="Opacity">
+                                                <LinearDoubleKeyFrame KeyTime="{StaticResource ControlFasterAnimationDuration}" Value="1" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="OuterBorder" Storyboard.TargetProperty="Opacity">
+                                                <LinearDoubleKeyFrame KeyTime="{StaticResource ControlFasterAnimationDuration}" Value="0" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualTransition>
+                                    <VisualTransition x:Name="OnToDraggingTransition" From="On" To="Dragging" GeneratedDuration="0">
+                                        <Storyboard>
+                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SwitchKnobBounds" Storyboard.TargetProperty="Opacity">
+                                                <LinearDoubleKeyFrame KeyTime="0" Value="1" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualTransition>
+                                    <VisualTransition x:Name="DraggingToOffTransition" From="Dragging" To="Off" GeneratedDuration="0">
+                                        <Storyboard>
+                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SwitchKnobBounds" Storyboard.TargetProperty="Opacity">
+                                                <LinearDoubleKeyFrame KeyTime="{StaticResource ControlFasterAnimationDuration}" Value="0" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="OuterBorder" Storyboard.TargetProperty="Opacity">
+                                                <LinearDoubleKeyFrame KeyTime="{StaticResource ControlFasterAnimationDuration}" Value="1" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualTransition>
+                                    <VisualTransition x:Name="OnToOffTransition" From="On" To="Off" GeneratedDuration="0">
+                                        <Storyboard>
+                                        </Storyboard>
+                                    </VisualTransition>
+                                    <VisualTransition x:Name="OffToOnTransition" From="Off" To="On" GeneratedDuration="0">
+                                        <Storyboard>
+                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SwitchKnobBounds" Storyboard.TargetProperty="Opacity">
+                                                <LinearDoubleKeyFrame KeyTime="{StaticResource ControlFasterAnimationDuration}" Value="1" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="OuterBorder" Storyboard.TargetProperty="Opacity">
+                                                <LinearDoubleKeyFrame KeyTime="{StaticResource ControlFasterAnimationDuration}" Value="0" />
+                                            </DoubleAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualTransition>
+                                </VisualStateGroup.Transitions>
+                                <VisualState x:Name="Dragging" />
+                                <VisualState x:Name="Off" />
+                                <VisualState x:Name="On">
+                                    <Storyboard>
+                                        <!-- 18 = track width 44 minus the 26 DIP knob cell. -->
+                                        <DoubleAnimation Storyboard.TargetName="KnobTranslateTransform" Storyboard.TargetProperty="X" To="18" Duration="0" />
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SwitchKnobBounds" Storyboard.TargetProperty="Opacity">
+                                            <LinearDoubleKeyFrame KeyTime="{StaticResource ControlFasterAnimationDuration}" Value="1" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="OuterBorder" Storyboard.TargetProperty="Opacity">
+                                            <LinearDoubleKeyFrame KeyTime="{StaticResource ControlFasterAnimationDuration}" Value="0" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="ContentStates">
+                                <VisualState x:Name="OffContent" />
+                                <VisualState x:Name="OnContent" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Collapsed until the control has a Header; then the star column carries the (wrapping) label
+                             and the switch stays at the right. With no Header the column is empty and the switch is flush right. -->
+                        <ContentPresenter x:Name="HeaderContentPresenter"
+                                          Grid.Column="0"
+                                          Content="{TemplateBinding Header}"
+                                          ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          IsHitTestVisible="False"
+                                          Margin="0,4,12,4"
+                                          TextWrapping="Wrap"
+                                          VerticalAlignment="Center"
+                                          Visibility="Collapsed"
+                                          AutomationProperties.AccessibilityView="Raw" />
+
+                        <Grid Grid.Column="1" Width="44" Height="26" VerticalAlignment="Center">
+                            <!-- Focus target and a slightly generous hit area behind the track. -->
+                            <Grid x:Name="SwitchAreaGrid" Background="Transparent" CornerRadius="13" Control.IsTemplateFocusTarget="True" />
+                            <!-- The content presenters stay (the control looks for them) but are never shown: no On/Off text. -->
+                            <ContentPresenter x:Name="OffContentPresenter" Visibility="Collapsed" Content="{TemplateBinding OffContent}" ContentTemplate="{TemplateBinding OffContentTemplate}" IsHitTestVisible="False" AutomationProperties.AccessibilityView="Raw" />
+                            <ContentPresenter x:Name="OnContentPresenter" Visibility="Collapsed" Content="{TemplateBinding OnContent}" ContentTemplate="{TemplateBinding OnContentTemplate}" IsHitTestVisible="False" AutomationProperties.AccessibilityView="Raw" />
+                            <Rectangle x:Name="OuterBorder" Width="44" Height="26" RadiusX="13" RadiusY="13"
+                                       Fill="{ThemeResource ToggleSwitchFillOff}"
+                                       Stroke="{ThemeResource ToggleSwitchStrokeOff}"
+                                       StrokeThickness="{ThemeResource GlassTrackEdgeThickness}" />
+                            <Rectangle x:Name="SwitchKnobBounds" Width="44" Height="26" RadiusX="13" RadiusY="13" Opacity="0"
+                                       Fill="{ThemeResource ToggleSwitchFillOn}"
+                                       Stroke="{ThemeResource ToggleSwitchStrokeOn}"
+                                       StrokeThickness="{ThemeResource GlassTrackEdgeThickness}" />
+                            <Grid x:Name="SwitchKnob" HorizontalAlignment="Left" Width="26" Height="26" IsHitTestVisible="False">
+                                <!-- KnobFlow carries the liquid travel (spring offset + stretch) as composition Translation/Scale, inside the
+                                     parent's own slide transform. Do not give it or KnobBody a XAML transform. -->
+                                <Grid x:Name="KnobFlow" IsHitTestVisible="False">
+                                <!-- KnobBody is scaled by Design/ControlFeel.cs through composition: do not give it a XAML transform. -->
+                                <Grid x:Name="KnobBody" Width="22" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <!-- Soft shadow: one translucent radial shape under the knob, no effect brush. Hidden under
+                                         reduced transparency and High Contrast. -->
+                                    <Grid x:Name="KnobShadow" IsHitTestVisible="False">
+                                        <!-- Negative margins make it 32 x 32, 1.5 DIP lower than the knob, without being clipped to the knob. -->
+                                        <Ellipse Margin="-5,-3.5,-5,-6.5" Fill="{ThemeResource GlassKnobShadowBrush}" IsHitTestVisible="False" />
+                                    </Grid>
+                                    <Ellipse x:Name="KnobFill" Width="22" Height="22"
+                                             Fill="{ThemeResource ToggleSwitchKnobFill}"
+                                             Stroke="{ThemeResource ToggleSwitchKnobStroke}"
+                                             StrokeThickness="{ThemeResource GlassKnobEdgeThickness}" />
+                                </Grid>
+                                </Grid>
+                                <Grid.RenderTransform>
+                                    <TranslateTransform x:Name="KnobTranslateTransform" />
+                                </Grid.RenderTransform>
+                            </Grid>
+                            <!-- Drag handle and click target: covers only the 44 x 26 switch, draws nothing. The label
+                                 and the gap beside it are not hit-testable, so a stray click there never flips a setting. -->
+                            <Thumb x:Name="SwitchThumb" AutomationProperties.AccessibilityView="Raw">
+                                <Thumb.Template>
+                                    <ControlTemplate TargetType="Thumb">
+                                        <Rectangle Fill="Transparent" />
+                                    </ControlTemplate>
+                                </Thumb.Template>
+                            </Thumb>
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Row toggle: the row's own label names the setting, the knob position and fill state the value, and Narrator reads
+         the state from the control. No Header, so the template's label column is empty and the switch sits flush right
+         at its natural 44 DIP width (no fixed Width). The parent row needs an Auto column for it. -->
+    <Style x:Key="GlassRowToggleStyle" TargetType="ToggleSwitch" BasedOn="{StaticResource GlassToggleStyle}">
+        <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+
+    <!-- ============================ GlassSlider ============================ -->
+    <!-- A Slider with its own template: 6 DIP capsule track with the value filled in the accent colour, 24 DIP white thumb
+         with a hairline edge and soft shadow. Native keyboard (arrows, Page Up/Down, Home/End), clicking the track and UIA
+         RangeValue stay with the control: the template keeps every part the Slider looks for (the horizontal and
+         vertical templates, tracks, decrease rects, thumbs and tick bars; the vertical set and the tick bars are collapsed
+         and unused). The thumb grows while dragged (Design/ControlFeel.cs). The container is Transparent, 34 DIP high, so
+         the whole strip is the hit target and clicking the track moves the value. -->
+    <Style x:Key="GlassSliderThumbStyle" TargetType="Thumb">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Grid x:Name="ThumbRoot" Background="Transparent">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver" />
+                                <VisualState x:Name="Pressed" />
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="ThumbFill.Fill" Value="{ThemeResource SliderThumbBackgroundDisabled}" />
+                                        <Setter Target="ThumbFill.Stroke" Value="{ThemeResource SliderThumbStrokeDisabled}" />
+                                        <Setter Target="ThumbShadow.Opacity" Value="0.4" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <!-- ThumbBody is scaled by Design/ControlFeel.cs through composition: no XAML transform on it. -->
+                        <Grid x:Name="ThumbBody" IsHitTestVisible="False">
+                            <Grid x:Name="ThumbShadow" IsHitTestVisible="False">
+                                <Ellipse Margin="-6,-4.5,-6,-7.5" Fill="{ThemeResource GlassKnobShadowBrush}" IsHitTestVisible="False" />
+                            </Grid>
+                            <Ellipse x:Name="ThumbFill"
+                                     Fill="{ThemeResource SliderThumbBackground}"
+                                     Stroke="{ThemeResource SliderThumbStroke}"
+                                     StrokeThickness="{ThemeResource GlassKnobEdgeThickness}" />
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GlassSliderStyle" TargetType="Slider">
+        <Setter Property="IsThumbToolTipEnabled" Value="True" />
+        <!-- No system focus rectangle (a box around the whole strip): the template draws a round ring on the thumb. -->
+        <Setter Property="UseSystemFocusVisuals" Value="False" />
+        <Setter Property="Foreground" Value="{ThemeResource SliderTrackValueFill}" />
+        <Setter Property="Background" Value="{ThemeResource SliderTrackFill}" />
+        <Setter Property="design:GlassMotion.ControlFeel" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Padding}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Focused">
+                                    <VisualState.Setters>
+                                        <Setter Target="ThumbFocusRing.Visibility" Value="Visible" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Unfocused" />
+                                <VisualState x:Name="PointerFocused" />
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver">
+                                    <VisualState.Setters>
+                                        <Setter Target="HorizontalTrackRect.Fill" Value="{ThemeResource SliderTrackFillPointerOver}" />
+                                        <Setter Target="HorizontalDecreaseRect.Fill" Value="{ThemeResource SliderTrackValueFillPointerOver}" />
+                                        <Setter Target="HorizontalDecreaseRect.Stroke" Value="{ThemeResource SliderTrackValueFillPointerOver}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <VisualState.Setters>
+                                        <Setter Target="HorizontalDecreaseRect.Fill" Value="{ThemeResource SliderTrackValueFillPressed}" />
+                                        <Setter Target="HorizontalDecreaseRect.Stroke" Value="{ThemeResource SliderTrackValueFillPressed}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Target="HeaderContentPresenter.Foreground" Value="{ThemeResource GlassTextDisabledBrush}" />
+                                        <Setter Target="HorizontalTrackRect.Fill" Value="{ThemeResource SliderTrackFillDisabled}" />
+                                        <Setter Target="HorizontalTrackRect.Stroke" Value="{ThemeResource SliderTrackStrokeDisabled}" />
+                                        <Setter Target="HorizontalDecreaseRect.Fill" Value="{ThemeResource SliderTrackValueFillDisabled}" />
+                                        <Setter Target="HorizontalDecreaseRect.Stroke" Value="{ThemeResource SliderTrackValueFillDisabled}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <ContentPresenter x:Name="HeaderContentPresenter"
+                                          Grid.Row="0"
+                                          Content="{TemplateBinding Header}"
+                                          ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                          Foreground="{ThemeResource GlassTextPrimaryBrush}"
+                                          Margin="0,0,0,4"
+                                          TextWrapping="Wrap"
+                                          Visibility="Collapsed" />
+                        <!-- Draws the focus rectangle around the strip. -->
+                        <Border x:Name="FocusBorder" Grid.Row="1" CornerRadius="12" Control.IsTemplateFocusTarget="True" />
+                        <Grid x:Name="SliderContainer" Grid.Row="1" Background="Transparent">
+                            <Grid x:Name="HorizontalTemplate" MinHeight="34">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="14" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="14" />
+                                </Grid.RowDefinitions>
+                                <Rectangle x:Name="HorizontalTrackRect" Grid.Row="1" Grid.ColumnSpan="3" Height="6" RadiusX="3" RadiusY="3"
+                                           Fill="{TemplateBinding Background}"
+                                           Stroke="{ThemeResource SliderTrackStroke}"
+                                           StrokeThickness="{ThemeResource GlassTrackEdgeThickness}" />
+                                <Rectangle x:Name="HorizontalDecreaseRect" Grid.Row="1" Height="6" RadiusX="3" RadiusY="3"
+                                           Fill="{TemplateBinding Foreground}"
+                                           Stroke="{TemplateBinding Foreground}"
+                                           StrokeThickness="{ThemeResource GlassTrackEdgeThickness}" />
+                                <TickBar x:Name="TopTickBar" Visibility="Collapsed" Fill="{ThemeResource SliderTrackStroke}" Height="4" VerticalAlignment="Bottom" Margin="0,0,0,4" Grid.ColumnSpan="3" />
+                                <TickBar x:Name="HorizontalInlineTickBar" Visibility="Collapsed" Fill="{ThemeResource SliderTrackStroke}" Height="6" Grid.Row="1" Grid.ColumnSpan="3" />
+                                <TickBar x:Name="BottomTickBar" Visibility="Collapsed" Fill="{ThemeResource SliderTrackStroke}" Height="4" VerticalAlignment="Top" Margin="0,4,0,0" Grid.Row="2" Grid.ColumnSpan="3" />
+                                <Thumb x:Name="HorizontalThumb"
+                                       Style="{StaticResource GlassSliderThumbStyle}"
+                                       DataContext="{TemplateBinding Value}"
+                                       Width="24" Height="24"
+                                       VerticalAlignment="Center"
+                                       Grid.Row="0" Grid.RowSpan="3" Grid.Column="1"
+                                       AutomationProperties.AccessibilityView="Raw" />
+                                <!-- Keyboard focus ring: a circle around the thumb (24 DIP; the ring sits outside the layout box). -->
+                                <Grid x:Name="ThumbFocusRing" Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Width="24" Height="24"
+                                      VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" Visibility="Collapsed"
+                                      AutomationProperties.AccessibilityView="Raw">
+                                    <Ellipse Margin="-6" Stroke="{ThemeResource GlassFocusHaloBrush}" StrokeThickness="1" />
+                                    <Ellipse Margin="-5" Stroke="{ThemeResource SystemControlFocusVisualPrimaryBrush}" StrokeThickness="2" />
+                                </Grid>
+                            </Grid>
+                            <!-- Required by the control, never shown (these sliders are all horizontal). -->
+                            <Grid x:Name="VerticalTemplate" MinWidth="34" Visibility="Collapsed">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="14" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="14" />
+                                </Grid.ColumnDefinitions>
+                                <Rectangle x:Name="VerticalTrackRect" Grid.Column="1" Grid.RowSpan="3" Width="6" RadiusX="3" RadiusY="3"
+                                           Fill="{TemplateBinding Background}" />
+                                <Rectangle x:Name="VerticalDecreaseRect" Grid.Column="1" Grid.Row="2" RadiusX="3" RadiusY="3"
+                                           Fill="{TemplateBinding Foreground}" />
+                                <TickBar x:Name="LeftTickBar" Visibility="Collapsed" Fill="{ThemeResource SliderTrackStroke}" Width="4" HorizontalAlignment="Right" Margin="0,0,4,0" Grid.RowSpan="3" />
+                                <TickBar x:Name="VerticalInlineTickBar" Visibility="Collapsed" Fill="{ThemeResource SliderTrackStroke}" Width="6" Grid.Column="1" Grid.RowSpan="3" />
+                                <TickBar x:Name="RightTickBar" Visibility="Collapsed" Fill="{ThemeResource SliderTrackStroke}" Width="4" HorizontalAlignment="Left" Margin="4,0,0,0" Grid.Column="2" Grid.RowSpan="3" />
+                                <Thumb x:Name="VerticalThumb"
+                                       Style="{StaticResource GlassSliderThumbStyle}"
+                                       DataContext="{TemplateBinding Value}"
+                                       Width="24" Height="24"
+                                       Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                                       AutomationProperties.AccessibilityView="Raw" />
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============================ AuroraEdge ============================ -->
+    <!-- The app icon's aurora rim around a window (Design/AuroraEdge.cs). Place it last in the window's root Grid. It takes no
+         space and no clicks. Twelve 1 DIP rings fade the aurora gradient inward (opacity (1 - i/12)^2.2, the same values as
+         AuroraEdgePolicy.RingOpacity), then a prism rim and a white hairline sit on the outer pixel. Corner radii of the rings
+         are set in code. RingsHost opacity is the resting level (AuroraEdgeRestOpacity); AuroraEdge.PlayOpenGlow animates it. -->
+    <Style TargetType="design:AuroraEdge">
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="CornerRadius" Value="{ThemeResource GlassWindowRadius}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="design:AuroraEdge">
+                    <Grid x:Name="Root" IsHitTestVisible="False">
+                        <Grid x:Name="RingsHost" Opacity="{ThemeResource AuroraEdgeRestOpacity}" IsHitTestVisible="False">
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="0" Opacity="1.000" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="1" Opacity="0.826" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="2" Opacity="0.670" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="3" Opacity="0.531" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="4" Opacity="0.410" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="5" Opacity="0.306" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="6" Opacity="0.218" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="7" Opacity="0.146" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="8" Opacity="0.089" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="9" Opacity="0.047" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="10" Opacity="0.019" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="11" Opacity="0.004" IsHitTestVisible="False" />
+                        </Grid>
+                        <Grid x:Name="RimHost" IsHitTestVisible="False">
+                            <Border BorderBrush="{ThemeResource AuroraEdgeRimBrush}" BorderThickness="1" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeHairlineBrush}" BorderThickness="1" IsHitTestVisible="False" />
+                        </Grid>
+                        <!-- Read by code for the glow peak (theme-aware); never visible. -->
+                        <Border x:Name="GlowProbe" Opacity="{ThemeResource AuroraEdgeGlowOpacity}" Visibility="Collapsed" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

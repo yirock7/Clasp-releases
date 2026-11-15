@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 230">
+  <style>
+    svg {
+      --band-hi: #9db8d4;
+      --band: #6a8cb0;
+      --band-lo: #4a6c92;
+      --band-edge: #35577d;
+      --cup-hi: #a3bedb;
+      --cup: #7597bb;
+      --cup-lo: #496c93;
+      --cup-edge: #34567c;
+      --cushion-hi: #6a84a2;
+      --cushion: #4d6682;
+      --cushion-lo: #34495f;
+      --cushion-edge: #263a50;
+      --metal-lo: #8b94a1;
+      --metal-mid: #c3c9d2;
+      --metal-hi: #f4f6f9;
+      --metal-edge: #7d8793;
+      --sheen: #ffffff;
+    }
+    svg[data-colorway="slate-blue"] {
+    }
+    svg[data-colorway="matte-black"] {
+      --band-hi: #50535a;
+      --band: #2d2f33;
+      --band-lo: #17181a;
+      --band-edge: #6b6f78;
+      --cup-hi: #5c5f67;
+      --cup: #303236;
+      --cup-lo: #1a1b1d;
+      --cup-edge: #6b6f78;
+      --cushion-hi: #3c3e43;
+      --cushion: #232427;
+      --cushion-lo: #141517;
+      --cushion-edge: #5a5d65;
+      --metal-lo: #5b6068;
+      --metal-mid: #9a9fa8;
+      --metal-hi: #d3d6db;
+      --metal-edge: #777c85;
+    }
+    svg[data-colorway="cloud-pink"] {
+      --band-hi: #f7e4e3;
+      --band: #e5c1c1;
+      --band-lo: #c99da0;
+      --band-edge: #b58487;
+      --cup-hi: #fbebea;
+      --cup: #eac9c9;
+      --cup-lo: #c9a0a3;
+      --cup-edge: #b58487;
+      --cushion-hi: #dcb4b6;
+      --cushion: #c99ea2;
+      --cushion-lo: #a87e83;
+      --cushion-edge: #946b70;
+      --metal-lo: #a8898b;
+      --metal-mid: #d9bfc1;
+      --metal-hi: #f7ecec;
+      --metal-edge: #a07e81;
+    }
+  </style>
+
+  <defs>
+    <linearGradient id="bandV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--band-hi)"/>
+      <stop offset=".4" stop-color="var(--band)"/>
+      <stop offset="1" stop-color="var(--band-lo)"/>
+    </linearGradient>
+    <linearGradient id="padV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--cushion-lo)"/>
+      <stop offset=".6" stop-color="var(--cushion)"/>
+      <stop offset="1" stop-color="var(--cushion-hi)"/>
+    </linearGradient>
+    <linearGradient id="cupH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--cup-lo)"/>
+      <stop offset=".28" stop-color="var(--cup-hi)"/>
+      <stop offset=".62" stop-color="var(--cup)"/>
+      <stop offset="1" stop-color="var(--cup-lo)"/>
+    </linearGradient>
+    <linearGradient id="cushH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--cushion-lo)"/>
+      <stop offset=".5" stop-color="var(--cushion)"/>
+      <stop offset="1" stop-color="var(--cushion-hi)"/>
+    </linearGradient>
+    <linearGradient id="metalH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--metal-lo)"/>
+      <stop offset=".3" stop-color="var(--metal-hi)"/>
+      <stop offset=".65" stop-color="var(--metal-mid)"/>
+      <stop offset="1" stop-color="var(--metal-lo)"/>
+    </linearGradient>
+    <linearGradient id="cupShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".14"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity=".22"/>
+    </linearGradient>
+    <radialGradient id="shadowSoft" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#000000" stop-opacity=".3"/>
+      <stop offset=".5" stop-color="#000000" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Left side below the crown: fold hinge, slider, yoke and the cup edge-on (outer housing, then cushion toward the head). The right side is this mirrored. -->
+    <g id="soloSide">
+      <g transform="rotate(-5 87 165)">
+        <path d="M91,133 L97,133 C102,133 105.5,136.5 105.5,142 L105.5,189 C105.5,195 102,199 97,199 L91,199 Z" fill="url(#cushH)" stroke="var(--cushion-edge)" stroke-width=".9"/>
+        <path d="M103.2,141 C104.2,155 104.2,178 103.2,191" stroke="#ffffff" stroke-opacity=".22" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+        <path d="M90,127 L82,127 C74,127 69,132.5 69,140 L69,191 C69,198.5 74,204 82,204 L90,204 C92,204 93,203 93,201 L93,130 C93,128 92,127 90,127 Z" fill="url(#cupH)" stroke="var(--cup-edge)" stroke-width=".9"/>
+        <path d="M90,127 L82,127 C74,127 69,132.5 69,140 L69,191 C69,198.5 74,204 82,204 L90,204 C92,204 93,203 93,201 L93,130 C93,128 92,127 90,127 Z" fill="url(#cupShade)"/>
+        <path d="M73.2,139 C72.6,156 72.6,176 73.2,192" stroke="#ffffff" stroke-opacity=".5" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M93,129 L93,203" stroke="#000000" stroke-opacity=".3" stroke-width="1" fill="none"/>
+        <path d="M94.2,131 L94.2,201" stroke="#ffffff" stroke-opacity=".18" stroke-width=".8" fill="none"/>
+      </g>
+      <rect x="79.5" y="119" width="9" height="20" rx="2" fill="url(#metalH)" stroke="var(--metal-edge)" stroke-width=".8"/>
+      <path d="M76,129 C76,125.5 78.5,123.5 82,123.5 L88,123.5 C91.5,123.5 93.5,125.5 93.5,129 L94,135 C94,139 91.5,141.5 88,141.5 L80,141.5 C76.5,141.5 74.5,139 75,135 Z" fill="url(#bandV)" stroke="var(--band-edge)" stroke-width=".9"/>
+      <path d="M79,127 C82,126 87,126 90,127" stroke="#ffffff" stroke-opacity=".4" stroke-width="1" fill="none" stroke-linecap="round"/>
+      <circle cx="84.5" cy="134" r="2.2" fill="var(--band-lo)" stroke="var(--band-edge)" stroke-width=".6"/>
+      <rect x="76" y="113" width="17" height="7.5" rx="3" fill="url(#metalH)" stroke="var(--metal-edge)" stroke-width=".8"/>
+      <path d="M81,113.5 L81,120 M88,113.5 L88,120" stroke="var(--metal-edge)" stroke-width=".7" fill="none"/>
+    </g>
+  </defs>
+
+  <g data-part="shadow">
+    <ellipse cx="150" cy="206" rx="98" ry="11" fill="url(#shadowSoft)"/>
+  </g>
+
+  <g data-part="body">
+    <!-- headband: one closed arch, slim at the sides and thicker at the crown -->
+    <path d="M78,120 C72,60 102,20 150,20 C198,20 228,60 222,120 L210,120 C210,66 190,34 150,34 C110,34 90,66 90,120 Z" fill="url(#bandV)" stroke="var(--band-edge)" stroke-width="1"/>
+    <path d="M81,112 C75.5,63 104,23.5 150,23.5 C196,23.5 224.5,63 219,112" stroke="#ffffff" stroke-opacity=".34" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <path d="M91,112 C91,68 112,36 150,36 C188,36 209,68 209,112" stroke="#000000" stroke-opacity=".18" stroke-width="1" fill="none"/>
+    <!-- padded underside of the crown -->
+    <path d="M105,57 C115,42 130,34 150,34 C170,34 185,42 195,57 C187,50 170,45 150,45 C130,45 113,50 105,57 Z" fill="url(#padV)" stroke="var(--cushion-edge)" stroke-width=".8"/>
+    <path d="M118,44 C128,39.5 138,38.5 150,38.5 C162,38.5 172,39.5 182,44" stroke="#ffffff" stroke-opacity=".16" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+    <use href="#soloSide"/>
+    <use href="#soloSide" transform="translate(300,0) scale(-1,1)"/>
+  </g>
+</svg>

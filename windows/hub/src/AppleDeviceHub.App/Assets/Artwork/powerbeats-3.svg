@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 230">
+  <style>
+    svg {
+      --hi: #5a5d66;
+      --mid: #2e3036;
+      --lo: #17181c;
+      --edge: #868a94;
+      --hook: #2a2c31;
+      --hook-lo: #17181c;
+      --tip: #1f2023;
+      --tip-in: #3f4249;
+      --face-hi: #6b6f79;
+      --face: #2e3036;
+      --face-edge: #868a94;
+      --cable: #2c2e33;
+      --cable-hi: #8e929c;
+      --spec: #aeb2bb;
+      --rim: #8a8e98;
+    }
+    svg[data-colorway="black"] {
+    }
+    svg[data-colorway="white"] {
+      --hi: #ffffff;
+      --mid: #eceef1;
+      --lo: #c0c5ce;
+      --edge: #9299a5;
+      --hook: #e3e6ea;
+      --hook-lo: #c0c5ce;
+      --tip: #dde0e6;
+      --tip-in: #f6f7f9;
+      --face-hi: #ffffff;
+      --face: #eceef1;
+      --face-edge: #9299a5;
+      --cable: #dfe2e7;
+      --cable-hi: #ffffff;
+      --spec: #ffffff;
+      --rim: #ffffff;
+    }
+    svg[data-colorway="siren-red"] {
+      --hi: #f0606a;
+      --mid: #d3202f;
+      --lo: #98121e;
+      --edge: #6e0b14;
+      --hook: #c41c2b;
+      --hook-lo: #98121e;
+      --tip: #ca1e2c;
+      --tip-in: #f0606a;
+      --face-hi: #f38088;
+      --face: #d3202f;
+      --face-edge: #6e0b14;
+      --cable: #c11c2a;
+      --cable-hi: #f49097;
+      --spec: #f9bfc3;
+      --rim: #f38088;
+    }
+    svg[data-colorway="flash-blue"] {
+      --hi: #62aef3;
+      --mid: #1f78d8;
+      --lo: #124f9a;
+      --edge: #0c3a74;
+      --hook: #1c6ec8;
+      --hook-lo: #124f9a;
+      --tip: #1d72cf;
+      --tip-in: #62aef3;
+      --face-hi: #81bef5;
+      --face: #1f78d8;
+      --face-edge: #0c3a74;
+      --cable: #1b6cc5;
+      --cable-hi: #91c6f7;
+      --spec: #c0dffa;
+      --rim: #81bef5;
+    }
+    svg[data-colorway="shock-yellow"] {
+      --hi: #fbe85e;
+      --mid: #f0cf12;
+      --lo: #c29d05;
+      --edge: #8c7003;
+      --hook: #e4c20f;
+      --hook-lo: #c29d05;
+      --tip: #e9c810;
+      --tip-in: #fbe85e;
+      --face-hi: #fced7e;
+      --face: #f0cf12;
+      --face-edge: #8c7003;
+      --cable: #e2c00e;
+      --cable-hi: #fcef8e;
+      --spec: #fdf6bf;
+      --rim: #fced7e;
+    }
+  </style>
+  <defs>
+    <radialGradient id="shadowSoft" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#000000" stop-opacity=".28"/>
+      <stop offset=".55" stop-color="#000000" stop-opacity=".15"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hsH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--lo)"/>
+      <stop offset=".3" stop-color="var(--hi)"/>
+      <stop offset=".65" stop-color="var(--mid)"/>
+      <stop offset="1" stop-color="var(--lo)"/>
+    </linearGradient>
+    <linearGradient id="hsV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".16"/>
+      <stop offset=".45" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity=".24"/>
+    </linearGradient>
+    <linearGradient id="modG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--hi)"/>
+      <stop offset=".5" stop-color="var(--mid)"/>
+      <stop offset="1" stop-color="var(--lo)"/>
+    </linearGradient>
+    <radialGradient id="faceG" cx=".36" cy=".3" r=".85">
+      <stop offset="0" stop-color="var(--face-hi)"/>
+      <stop offset="1" stop-color="var(--face)"/>
+    </radialGradient>
+    <radialGradient id="glossSoft" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".5"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <g id="ear">
+      <g transform="translate(97,118) rotate(-22)">
+        <rect x="0" y="-4.6" width="18" height="9.2" rx="3" fill="#000000" fill-opacity=".2" transform="translate(1 2)"/>
+        <rect x="0" y="-4.6" width="18" height="9.2" rx="3" fill="url(#hsV)" stroke="var(--edge)" stroke-width=".8"/>
+        <rect x="0" y="-4.6" width="18" height="9.2" rx="3" fill="var(--mid)" fill-opacity=".9" stroke="var(--edge)" stroke-width=".8"/>
+        <rect x="0" y="-4.6" width="18" height="9.2" rx="3" fill="url(#hsV)"/>
+        <path d="M17,-5.5 C22,-9.5 31,-8.5 31,0 C31,8.5 22,9.5 17,5.5 Z" fill="var(--tip)" stroke="var(--edge)" stroke-width=".8"/>
+        <path d="M20,-4.8 C24,-6.4 27.6,-5 28,-1.5" stroke="var(--tip-in)" stroke-opacity=".8" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+        <ellipse cx="29.6" cy="0" rx="1.3" ry="3" fill="#000000" fill-opacity=".5"/>
+      </g>
+      <path d="M87,76 C87,40 76,21 54,21 C32,21 24,48 26,84 C27,104 30,118 35,128" stroke="#000000" stroke-opacity=".12" stroke-width="11.4" stroke-linecap="round" fill="none" transform="translate(1.5 3)"/>
+      <path d="M87,76 C87,53.68 82.77,37.89 74.31,29.12" stroke="#000000" stroke-opacity=".12" stroke-width="14.6" stroke-linecap="round" fill="none" transform="translate(1.5 3)"/>
+      <path d="M87,76 C87,40 76,21 54,21 C32,21 24,48 26,84 C27,104 30,118 35,128" stroke="var(--edge)" stroke-width="11.3" stroke-linecap="round" fill="none"/>
+      <path d="M87,76 C87,53.68 82.77,37.89 74.31,29.12" stroke="var(--edge)" stroke-width="14.5" stroke-linecap="round" fill="none"/>
+      <path d="M87,76 C87,40 76,21 54,21 C32,21 24,48 26,84 C27,104 30,118 35,128" stroke="var(--hook)" stroke-width="10" stroke-linecap="round" fill="none"/>
+      <path d="M87,76 C87,53.68 82.77,37.89 74.31,29.12" stroke="var(--hook)" stroke-width="13.2" stroke-linecap="round" fill="none"/>
+      <path d="M87,76 C87,40 76,21 54,21 C32,21 24,48 26,84 C27,104 30,118 35,128" stroke="var(--hook-lo)" stroke-opacity=".55" stroke-width="3.8" stroke-linecap="round" fill="none" transform="translate(2.8 2)"/>
+      <path d="M87,76 C87,40 76,21 54,21 C32,21 24,48 26,84 C27,104 30,118 35,128" stroke="#ffffff" stroke-opacity=".34" stroke-width="1.4" stroke-linecap="round" fill="none" transform="translate(-2.6 -1.8)"/>
+      <path d="M84,154 C84,192 112,206 150,206.5" stroke="#000000" stroke-opacity=".12" stroke-width="7" stroke-linecap="round" fill="none" transform="translate(1.5 3)"/>
+      <path d="M84,154 C84,192 112,206 150,206.5" stroke="var(--edge)" stroke-width="6.9" stroke-linecap="round" fill="none"/>
+      <path d="M84,154 C84,192 112,206 150,206.5" stroke="var(--cable)" stroke-width="5.6" stroke-linecap="round" fill="none"/>
+      <path d="M84,154 C84,192 112,206 150,206.5" stroke="var(--cable-hi)" stroke-opacity=".6" stroke-width="1.12" stroke-linecap="round" fill="none" transform="translate(-.5 -.6)"/>
+      <path d="M84,154 C84,192 112,206 150,206.5" stroke="var(--edge)" stroke-opacity=".45" stroke-width=".6" stroke-linecap="round" fill="none"/>
+      
+      <path d="M84,64 C95.78,64 103,73.5 103,83.95 L103,121.04 C103,140.27 100.34,152 92.99,156 L75.01,156 C67.66,152 65,140.27 65,121.04 L65,83.95 C65,73.5 72.22,64 84,64 Z" fill="#000000" fill-opacity=".22" transform="translate(1.5 2.5)"/>
+      <path d="M84,64 C95.78,64 103,73.5 103,83.95 L103,121.04 C103,140.27 100.34,152 92.99,156 L75.01,156 C67.66,152 65,140.27 65,121.04 L65,83.95 C65,73.5 72.22,64 84,64 Z" fill="url(#hsH)" stroke="var(--edge)" stroke-width=".9"/>
+      <path d="M84,64 C95.78,64 103,73.5 103,83.95 L103,121.04 C103,140.27 100.34,152 92.99,156 L75.01,156 C67.66,152 65,140.27 65,121.04 L65,83.95 C65,73.5 72.22,64 84,64 Z" fill="url(#hsV)"/>
+      <path d="M68,90 C68,78 73,68 81,66.6" stroke="#ffffff" stroke-opacity=".32" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+      <path d="M68,98 L68.4,134" stroke="#ffffff" stroke-opacity=".16" stroke-width="1" stroke-linecap="round" fill="none"/>
+      <path d="M65.8,114 C74.5,117 93.5,117 102.2,114" stroke="var(--edge)" stroke-opacity=".7" stroke-width=".7" fill="none"/>
+      <path d="M65.8,114 C74.5,117 93.5,117 102.2,114" stroke="#ffffff" stroke-opacity=".16" stroke-width=".7" fill="none" transform="translate(0 1)"/>
+      <circle cx="84" cy="91.4" r="13.9" fill="#000000" fill-opacity=".2"/>
+      <circle cx="84" cy="90" r="13.5" fill="var(--lo)" stroke="var(--edge)" stroke-width=".8"/>
+      <circle cx="84" cy="90" r="11.5" fill="url(#faceG)" stroke="var(--face-edge)" stroke-width=".8"/>
+      <circle cx="84" cy="90" r="7.82" fill="none" stroke="#000000" stroke-opacity=".14" stroke-width=".8"/>
+      <path d="M77.1,87.7 C77.67,82.87 81.7,80.8 86.3,80.22" stroke="var(--spec)" stroke-opacity=".85" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+      <circle cx="84" cy="125" r="1.3" fill="var(--spec)" fill-opacity=".85" stroke="var(--edge)" stroke-width=".4"/>
+      <path d="M79,133 L79,139" stroke="var(--edge)" stroke-opacity=".6" stroke-width=".9" stroke-linecap="round" fill="none"/>
+      <path d="M84,133 L84,139" stroke="var(--edge)" stroke-opacity=".6" stroke-width=".9" stroke-linecap="round" fill="none"/>
+      <path d="M89,133 L89,139" stroke="var(--edge)" stroke-opacity=".6" stroke-width=".9" stroke-linecap="round" fill="none"/>
+      <rect x="79.5" y="153" width="9" height="7" rx="3" fill="url(#modG)" stroke="var(--edge)" stroke-width=".7"/>
+    </g>
+  </defs>
+
+  <g data-part="shadow">
+    <ellipse cx="150" cy="216" rx="104" ry="7.5" fill="url(#shadowSoft)"/>
+  </g>
+
+  <g data-part="body">
+    <use href="#ear"/>
+    <use href="#ear" transform="translate(300,0) scale(-1,1)"/>
+      <g transform="translate(110.35,198.75) rotate(25.58)">
+        <rect x="-11" y="-4.6" width="22" height="9.2" rx="4.4" fill="#000000" fill-opacity=".22" transform="translate(0 1.8)"/>
+        <rect x="-11" y="-4.6" width="22" height="9.2" rx="4.4" fill="url(#modG)" stroke="var(--edge)" stroke-width=".8"/>
+        <path d="M-7,-3 L7,-3" stroke="#ffffff" stroke-opacity=".4" stroke-width=".9" stroke-linecap="round" fill="none"/>
+        <rect x="-6.5" y="-1.8" width="13" height="3.6" rx="1.8" fill="var(--lo)" fill-opacity=".5" stroke="var(--edge)" stroke-width=".4"/>
+      </g>
+  </g>
+</svg>

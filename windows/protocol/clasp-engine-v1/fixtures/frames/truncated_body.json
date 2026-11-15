@@ -1,0 +1,5 @@
+{
+  "description": "Header says 40 bytes, 10 arrive",
+  "bytes_hex": "280000007b2274797065223a2268",
+  "expect": "reject_truncated"
+}

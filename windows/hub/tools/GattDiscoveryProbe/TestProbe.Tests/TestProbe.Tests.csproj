@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Pure helper tests only. This project has no Bluetooth or probe-executable reference. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>GattDiscoveryProbe.TestProbe.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../Analysis/BoundedOperation.cs" Link="Analysis/BoundedOperation.cs" />
+    <Compile Include="../Analysis/ProbeArguments.cs" Link="Analysis/ProbeArguments.cs" />
+    <Compile Include="../Analysis/ProbeModels.cs" Link="Analysis/ProbeModels.cs" />
+    <Compile Include="../Analysis/OutcomeClassifier.cs" Link="Analysis/OutcomeClassifier.cs" />
+    <Compile Include="../Analysis/DeviceIdentityHasher.cs" Link="Analysis/DeviceIdentityHasher.cs" />
+    <Compile Include="../Analysis/OutputFolder.cs" Link="Analysis/OutputFolder.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

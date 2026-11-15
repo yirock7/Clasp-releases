@@ -1,0 +1,5 @@
+{
+  "description": "Length 0xFFFFFFFF",
+  "bytes_hex": "ffffffff",
+  "expect": "reject_oversized"
+}

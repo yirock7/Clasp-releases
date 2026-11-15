@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Manual, passive-only BLE observation probe. Listens for Apple proximity broadcasts only when
+       run with explicit authorisation flags; never pairs, connects, opens GATT or writes.
+       Not part of AppleDeviceHub.sln (like EngineHandshakeProbe); build it directly. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>BleObservationProbe</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- The pure-helper tests live in Tests/ as their own project; keep them out of the probe. -->
+    <Compile Remove="Tests/**" />
+    <None Remove="Tests/**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/AppleDeviceHub.Core/AppleDeviceHub.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The app's own passive listener, compiled in unchanged so the probe exercises the same code. -->
+    <Compile Include="../../src/AppleDeviceHub.App/Ble/WinRtAdvertisementSource.cs" Link="Linked/WinRtAdvertisementSource.cs" />
+  </ItemGroup>
+</Project>

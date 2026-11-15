@@ -1,0 +1,10 @@
+{
+  "direction": "client_to_engine",
+  "description": "Open an observation session (setup writes only)",
+  "message": {
+    "type": "open_session",
+    "request_id": "0b7e4c2a-1f3d-4e5a-8b6c-9d0e1f2a3b4c",
+    "device_id": "dev-3f9a1c0e8b7d6a52",
+    "mode": "observe"
+  }
+}

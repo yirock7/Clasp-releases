@@ -1,0 +1,14 @@
+{
+  "description": "Status 0x03 is not a known charging status: level kept, charging unknown (never inferred false)",
+  "packet_hex": "0400040004000202014f03010401520201",
+  "expect_fields": {
+    "battery.left": {
+      "level": 82,
+      "charging": false
+    },
+    "battery.right": {
+      "level": 79,
+      "charging": null
+    }
+  }
+}

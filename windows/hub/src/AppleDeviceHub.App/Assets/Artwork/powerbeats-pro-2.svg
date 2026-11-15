@@ -1,0 +1,279 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 230">
+  <style>
+    svg {
+      --body-hi: #ff9b68;
+      --body: #ff7438;
+      --body-lo: #e4561d;
+      --edge: #c13a08;
+      --rim-fill: #ff8044;
+      --cavity-top: #6d2003;
+      --cavity-bottom: #b23b0b;
+      --lid-shade: #f2652a;
+      --lid-shade-right: #f06429;
+      --lid-mid: #fb7034;
+      --lid-hi: #ff7438;
+      --inside-hi: #f5703a;
+      --inside-lo: #c4440f;
+      --bud-hi: #ffa070;
+      --bud: #f2652a;
+      --bud-lo: #bf400d;
+      --bud-edge: #9f2d04;
+      --hook: #e95b20;
+      --hook-lo: #a73305;
+      --tip: #f0652b;
+      --tip-in: #ff8f5c;
+      --face-hi: #ffb487;
+      --face: #f4682c;
+      --face-edge: #c13a08;
+      --spec: #ffd9c4;
+      --vent: #7d2403;
+      --hinge-hi: #ff9460;
+      --hinge: #e4561d;
+      --hinge-lo: #b13a0b;
+      --hinge-edge: #962b05;
+      --lip: #ff9a66;
+      --light: #ffffff;
+      --light-core: #ffffff;
+    }
+    svg[data-colorway="electric-orange"] {
+    }
+    svg[data-colorway="jet-black"] {
+      --body-hi: #5a5d66;
+      --body: #2e3036;
+      --body-lo: #17181c;
+      --edge: #0c0d0f;
+      --rim-fill: #34363c;
+      --cavity-top: #08080a;
+      --cavity-bottom: #2a2c31;
+      --lid-shade: #222429;
+      --lid-shade-right: #212328;
+      --lid-mid: #2b2c32;
+      --lid-hi: #2e3036;
+      --inside-hi: #3a3c42;
+      --inside-lo: #1a1b1e;
+      --bud-hi: #666a74;
+      --bud: #33353b;
+      --bud-lo: #1a1b1f;
+      --bud-edge: #08090a;
+      --hook: #2a2c31;
+      --hook-lo: #121315;
+      --tip: #2e3035;
+      --tip-in: #494c54;
+      --face-hi: #6b6f79;
+      --face: #34363c;
+      --face-edge: #0c0d0f;
+      --spec: #aeb2bb;
+      --vent: #050506;
+      --hinge-hi: #70747e;
+      --hinge: #2b2d32;
+      --hinge-lo: #141517;
+      --hinge-edge: #08090a;
+      --lip: #6c707a;
+    }
+    svg[data-colorway="quick-sand"] {
+      --body-hi: #f6ead8;
+      --body: #e3d1b6;
+      --body-lo: #c8b390;
+      --edge: #a89169;
+      --rim-fill: #e8d8bf;
+      --cavity-top: #7a6a50;
+      --cavity-bottom: #b9a785;
+      --lid-shade: #d6c2a3;
+      --lid-shade-right: #d4c0a1;
+      --lid-mid: #dfccb0;
+      --lid-hi: #e3d1b6;
+      --inside-hi: #ddcbaa;
+      --inside-lo: #b09a76;
+      --bud-hi: #fbf1e2;
+      --bud: #e6d4b9;
+      --bud-lo: #c3ac86;
+      --bud-edge: #a18a62;
+      --hook: #dcc8a8;
+      --hook-lo: #b49d77;
+      --tip: #e5d3b8;
+      --tip-in: #f3e6d1;
+      --face-hi: #fff7ea;
+      --face: #e9d8bd;
+      --face-edge: #b49d77;
+      --spec: #ffffff;
+      --vent: #7a6548;
+      --hinge-hi: #f7ecdb;
+      --hinge: #d6c2a1;
+      --hinge-lo: #b09a76;
+      --hinge-edge: #94805c;
+      --lip: #fff6e8;
+    }
+    svg[data-colorway="hyper-purple"] {
+      --body-hi: #b48bf2;
+      --body: #8f5cd8;
+      --body-lo: #6d3fb5;
+      --edge: #4d288a;
+      --rim-fill: #976ae0;
+      --cavity-top: #2c1155;
+      --cavity-bottom: #623599;
+      --lid-shade: #7e4ec6;
+      --lid-shade-right: #7c4cc5;
+      --lid-mid: #8a58d3;
+      --lid-hi: #8f5cd8;
+      --inside-hi: #8554cc;
+      --inside-lo: #5a3396;
+      --bud-hi: #b992f4;
+      --bud: #8a57d3;
+      --bud-lo: #5c3199;
+      --bud-edge: #411e78;
+      --hook: #7e4bc8;
+      --hook-lo: #50287f;
+      --tip: #8858d0;
+      --tip-in: #a97ce8;
+      --face-hi: #c6a3f8;
+      --face: #8f5cd8;
+      --face-edge: #4d288a;
+      --spec: #e2d0fb;
+      --vent: #2d1357;
+      --hinge-hi: #b890f2;
+      --hinge: #7b49c4;
+      --hinge-lo: #54298f;
+      --hinge-edge: #3e1c72;
+      --lip: #b58cf3;
+    }
+  </style>
+
+  <defs>
+    <linearGradient id="bodyEdge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#000000" stop-opacity=".18"/>
+      <stop offset=".16" stop-color="#000000" stop-opacity="0"/>
+      <stop offset=".84" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity=".22"/>
+    </linearGradient>
+    <linearGradient id="wBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--body-hi)"/>
+      <stop offset=".55" stop-color="var(--body)"/>
+      <stop offset="1" stop-color="var(--body-lo)"/>
+    </linearGradient>
+    <radialGradient id="budTop" cx=".35" cy=".3" r=".9">
+      <stop offset="0" stop-color="var(--bud-hi)"/>
+      <stop offset=".65" stop-color="var(--bud)"/>
+      <stop offset="1" stop-color="var(--bud-lo)"/>
+    </radialGradient>
+    <radialGradient id="budFace" cx=".38" cy=".32" r=".85">
+      <stop offset="0" stop-color="var(--face-hi)"/>
+      <stop offset="1" stop-color="var(--face)"/>
+    </radialGradient>
+    <linearGradient id="hinge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--hinge-lo)"/>
+      <stop offset=".35" stop-color="var(--hinge-hi)"/>
+      <stop offset=".65" stop-color="var(--hinge)"/>
+      <stop offset="1" stop-color="var(--hinge-lo)"/>
+    </linearGradient>
+    <linearGradient id="cavity" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--cavity-top)"/>
+      <stop offset="1" stop-color="var(--cavity-bottom)"/>
+    </linearGradient>
+    <linearGradient id="lidSide" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--lid-shade)"/>
+      <stop offset=".16" stop-color="var(--lid-mid)"/>
+      <stop offset=".5" stop-color="var(--lid-hi)"/>
+      <stop offset=".84" stop-color="var(--lid-mid)"/>
+      <stop offset="1" stop-color="var(--lid-shade-right)"/>
+    </linearGradient>
+    <linearGradient id="lidIn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--inside-hi)"/>
+      <stop offset="1" stop-color="var(--inside-lo)"/>
+    </linearGradient>
+    <radialGradient id="shadowSoft" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#000000" stop-opacity=".26"/>
+      <stop offset=".5" stop-color="#000000" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glossSoft" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lightGlow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="var(--light)" stop-opacity=".55"/>
+      <stop offset=".45" stop-color="var(--light)" stop-opacity=".3"/>
+      <stop offset="1" stop-color="var(--light)" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- The tray and lid are drawn in plan view (millimetres of floor space at 1.47 px/mm) and squashed by sin(36 degrees) = 0.588. Plan y 0 is the hinge. -->
+    <!-- One earbud (left): ear hook looping out and back from the top of the housing, silicone tip toward the middle. -->
+    <g id="pbBud">
+      <g transform="translate(0 111) scale(1 0.588)">
+        <ellipse cx="136" cy="62" rx="17" ry="23" fill="#000000" fill-opacity=".2"/>
+        <path d="M129,42 C126,29 116,30 115,46 C114,62 117,78 127,85" stroke="var(--hook-lo)" stroke-width="9" stroke-linecap="round" fill="none" transform="translate(0 6)"/>
+        <path d="M129,42 C126,29 116,30 115,46 C114,62 117,78 127,85" stroke="var(--bud-edge)" stroke-width="10" stroke-linecap="round" fill="none"/>
+        <path d="M129,42 C126,29 116,30 115,46 C114,62 117,78 127,85" stroke="var(--hook)" stroke-width="7.6" stroke-linecap="round" fill="none"/>
+        <path d="M119,32 C115,35 114,40 114,46" stroke="var(--spec)" stroke-opacity=".75" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+        <ellipse cx="147" cy="67" rx="5.5" ry="8" fill="var(--tip)" stroke="var(--bud-edge)" transform="translate(0 4) rotate(-38 147 67)"/>
+        <ellipse cx="147" cy="67" rx="5.5" ry="8" fill="var(--tip)" stroke="var(--bud-edge)" transform="rotate(-38 147 67)"/>
+        <ellipse cx="148" cy="66" rx="2.8" ry="4.6" fill="var(--tip-in)" transform="rotate(-38 148 66)"/>
+        <ellipse cx="134" cy="54" rx="13.5" ry="18.5" fill="var(--bud-lo)" stroke="var(--bud-edge)" transform="translate(0 7) rotate(10 134 54)"/>
+        <ellipse cx="134" cy="54" rx="13.5" ry="18.5" fill="var(--bud-lo)" transform="translate(0 4) rotate(10 134 54)"/>
+        <ellipse cx="134" cy="54" rx="13.5" ry="18.5" fill="url(#budTop)" stroke="var(--bud-edge)" transform="rotate(10 134 54)"/>
+        <circle cx="133" cy="50" r="9.6" fill="url(#budFace)" stroke="var(--face-edge)" stroke-width=".8"/>
+        <path d="M126,46 C127,42 130,40 134,40" stroke="var(--spec)" stroke-opacity=".85" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </g>
+    </g>
+    <!-- Moulded well under each bud (the tray) -->
+    <g id="pbWell">
+      <g transform="translate(0 111) scale(1 0.588)" opacity=".3">
+        <path d="M129,42 C126,29 116,30 115,46 C114,62 117,78 127,85" stroke="#000000" stroke-width="12" stroke-linecap="round" fill="none"/>
+        <ellipse cx="137" cy="60" rx="16" ry="22" fill="#000000" transform="rotate(10 137 60)"/>
+      </g>
+    </g>
+    <!-- Matching recess in the lid, rim-local plan coordinates -->
+    <g id="pbRecess">
+      <g transform="scale(1 0.588)" opacity=".13">
+        <path d="M129,42 C126,29 116,30 115,46 C114,62 117,78 127,85" stroke="#000000" stroke-width="12" stroke-linecap="round" fill="none"/>
+      </g>
+    </g>
+  </defs>
+
+  <g data-part="shadow">
+    <ellipse cx="150" cy="204" rx="68" ry="13" fill="url(#shadowSoft)"/>
+  </g>
+
+  <!-- The open lid is painted here, behind the buds. Its inside face is in rim-local coordinates (y 0 at the hinge). -->
+  <g data-part="lid" data-lid="x=102;width=96;depth=65;rx=30;ry=17.6;hingeY=111;height=18;tilt=36;open=100;domeRadius=14;shine=0.12" data-side-fill="url(#lidSide)" data-rim-stroke="var(--edge)">
+    <g transform="scale(1 0.588)">
+      <rect x="107" y="8.5" width="86" height="93.5" rx="25" fill="url(#lidIn)"/>
+    </g>
+    <use href="#pbRecess"/>
+    <use href="#pbRecess" transform="translate(300,0) scale(-1,1)"/>
+    <rect x="132" y="58" width="36" height="2.2" rx="1.1" fill="#ffffff" opacity=".5"/>
+  </g>
+
+  <g data-part="body">
+    <!-- hinge barrel on the back rim -->
+    <rect x="128" y="107" width="44" height="8" rx="4" fill="url(#hinge)" stroke="var(--hinge-edge)" stroke-width=".8"/>
+    <path d="M139,107 L139,115 M161,107 L161,115" stroke="var(--hinge-edge)" stroke-width=".9" fill="none"/>
+    <path d="M130,109.5 L170,109.5" stroke="#ffffff" stroke-opacity=".6" stroke-width="1" fill="none"/>
+    <path d="M102,158.4 L102,184.4 A30,17.6 0 0 0 132,202 L168,202 A30,17.6 0 0 0 198,184.4 L198,158.4 A30,17.6 0 0 1 168,176 L132,176 A30,17.6 0 0 1 102,158.4 Z" fill="url(#wBody)" stroke="var(--edge)"/>
+    <path d="M102,158.4 L102,184.4 A30,17.6 0 0 0 132,202 L168,202 A30,17.6 0 0 0 198,184.4 L198,158.4 A30,17.6 0 0 1 168,176 L132,176 A30,17.6 0 0 1 102,158.4 Z" fill="url(#bodyEdge)"/>
+    <ellipse cx="150" cy="187" rx="42" ry="8" fill="url(#glossSoft)"/>
+    <rect x="102" y="111" width="96" height="65" rx="30" ry="17.6" fill="var(--rim-fill)" stroke="var(--edge)"/>
+    <g transform="translate(0 111) scale(1 0.588)">
+      <rect x="107" y="8.5" width="86" height="93.5" rx="25" fill="url(#cavity)"/>
+    </g>
+    <use href="#pbWell"/>
+    <use href="#pbWell" transform="translate(300,0) scale(-1,1)"/>
+  </g>
+
+  <g data-part="buds">
+    <g data-part="bud-left"><use href="#pbBud"/></g>
+    <g data-part="bud-right"><use href="#pbBud" transform="translate(300,0) scale(-1,1)"/></g>
+  </g>
+
+  <!-- Front lip: repaints the front part of the rim so the buds look seated inside the case. -->
+  <g id="front-lip">
+    <path d="M102,158.4 A30,17.6 0 0 0 132,176 L168,176 A30,17.6 0 0 0 198,158.4 L193,158.4 L193,156.3 A25,14.7 0 0 1 168,171 L132,171 A25,14.7 0 0 1 107,156.3 L107,158.4 Z" fill="var(--rim-fill)"/>
+    <path d="M102,158.4 A30,17.6 0 0 0 132,176 L168,176 A30,17.6 0 0 0 198,158.4" fill="none" stroke="var(--edge)"/>
+    <path d="M110,163.5 C116,169 124,171.5 132,172 L168,172 C176,171.5 184,169 190,163.5" stroke="var(--lip)" stroke-width="1.8" fill="none"/>
+  </g>
+
+  <g data-part="light">
+    <ellipse cx="150" cy="190" rx="9" ry="9" fill="url(#lightGlow)"/>
+    <circle cx="150" cy="190" r="2.1" fill="var(--light-core)"/>
+  </g>
+</svg>

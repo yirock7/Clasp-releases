@@ -1,0 +1,13 @@
+{
+  "direction": "engine_to_client",
+  "description": "Observe session open: no writable modes",
+  "message": {
+    "type": "session",
+    "seq": 4,
+    "session_id": 1,
+    "device_id": "dev-3f9a1c0e8b7d6a52",
+    "state": "open",
+    "reason": null,
+    "writable_modes": []
+  }
+}

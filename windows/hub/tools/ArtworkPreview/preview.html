@@ -1,0 +1,166 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clasp artwork preview</title>
+<!--
+  Artist preview for Clasp artwork SVGs (Assets\Artwork\*.svg). It implements the lid exactly as the app engine does
+  (same slice maths as AppleDeviceHub.Core.Artwork.LidSolid), so what you see here is what the app draws.
+
+  Open it in a browser, then either choose an .svg with the file picker, or use  ?src=path/to/file.svg  (this needs a
+  web server; browsers block fetch on file://). Other query options:
+    ?theta=NN        lid angle in degrees (0 closed .. the drawing's open angle)
+    ?colorway=id     a colourway declared in the file
+    ?bg=dark         dark background
+    ?inline=1        read the SVG from <script type="text/plain" id="art"> in this page (used by render.ps1)
+    ?clean=1         hide the controls
+-->
+<style>
+  :root { --pv-bg:#eef0f5; --pv-card1:#ffffff; --pv-card2:#f3f5fa; --pv-line:rgba(0,0,0,.1); --pv-text:#1c1d21; --pv-sub:#6b6f7a; }
+  :root[data-bg="dark"] { --pv-bg:#17181c; --pv-card1:#2a2c33; --pv-card2:#1f2126; --pv-line:rgba(255,255,255,.12); --pv-text:#f2f3f5; --pv-sub:#9aa0ac; }
+  html, body { margin:0; }
+  body { background:var(--pv-bg); color:var(--pv-text); font:13px "Segoe UI Variable","Segoe UI",system-ui,sans-serif; }
+  .card { max-width:440px; margin:0 auto; padding:8px; background:linear-gradient(180deg,var(--pv-card1),var(--pv-card2)); }
+  #host svg { width:100%; height:auto; display:block; }
+  #msg { color:var(--pv-sub); text-align:center; padding:24px 8px; }
+  .controls { max-width:440px; margin:0 auto; padding:8px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .controls input[type=range] { flex:1 1 160px; }
+  button, select { font:inherit; padding:4px 12px; border-radius:6px; border:1px solid var(--pv-line); background:var(--pv-card1); color:var(--pv-text); cursor:pointer; }
+  #deg { min-width:3.5em; text-align:right; color:var(--pv-sub); }
+  body.clean .controls { display:none; }
+</style>
+</head>
+<body>
+<div class="card"><div id="host"><div id="msg">Choose an artwork .svg file below, or open this page with ?src=...</div></div></div>
+<div class="controls">
+  <input type="file" id="file" accept=".svg,image/svg+xml">
+  <input type="range" id="slider" min="0" max="104" step="0.5" value="104">
+  <span id="deg">104&deg;</span>
+  <button id="openBtn">Open</button>
+  <button id="closeBtn">Close</button>
+  <select id="colorway" title="Colourway"></select>
+  <button id="bgBtn">Dark background</button>
+</div>
+<!--ART-->
+<script>
+'use strict';
+// ---- the lid maths: keep identical to LidSolid.cs ----------------------------------------------------------
+const N = 64;
+function sliceShape(s, i, n) {
+  const u = i / n, h = s.height * u, start = s.height - s.domeRadius;
+  let dx = 0;
+  if (s.domeRadius > 0 && h > start) { const t = h - start; dx = s.domeRadius - Math.sqrt(Math.max(0, s.domeRadius * s.domeRadius - t * t)); }
+  const kx = 1 - dx / (s.width / 2), kz = Math.sqrt(1 - 0.97 * u * u);
+  const w = s.width * kx, d = s.depth * kz, cx = s.x + s.width / 2;
+  return { h, x: cx - w / 2, yLocal: s.depth / 2 - d / 2, width: w, depth: d, rx: s.rx * kx, ry: s.ry * kz };
+}
+function projection(s, thetaDeg) {
+  const phi = s.tilt * Math.PI / 180, th = thetaDeg * Math.PI / 180;
+  return { scaleY: Math.sin(phi - th) / Math.sin(phi), shift: -Math.cos(phi - th), inside: thetaDeg > s.tilt };
+}
+const sliceLightness = (u, shine) => shine * u;
+const budOpacity = deg => Math.max(0, Math.min(1, (deg - 6) / 14));
+
+// ---- page ------------------------------------------------------------------------------------------------
+const NS = 'http://www.w3.org/2000/svg';
+const q = new URLSearchParams(location.search);
+const $ = id => document.getElementById(id);
+let svg = null, spec = null, sideFill = '', rimStroke = '', lidG = null, frontG = null, budsG = null, inside = [];
+let theta = 0, target = 0, raf = 0;
+
+function el(name, attrs) { const e = document.createElementNS(NS, name); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+function f(n) { return +n.toFixed(4); }
+
+function parseSpec(text) {
+  const o = {};
+  for (const part of text.split(';')) { const [k, v] = part.split('='); if (k && v !== undefined) o[k.trim()] = parseFloat(v); }
+  return o;
+}
+
+function slice(i, p, showInside) {
+  const sh = sliceShape(spec, i, N), u = i / N;
+  const g = el('g', { transform: `translate(0 ${f(spec.hingeY + p.shift * sh.h)}) scale(1 ${f(p.scaleY)})` });
+  const rim = { x: f(sh.x), y: f(sh.yLocal), width: f(sh.width), height: f(sh.depth), rx: f(sh.rx), ry: f(sh.ry), fill: sideFill };
+  if (i === 0 && rimStroke) { rim.stroke = rimStroke; rim['stroke-width'] = 1; rim['vector-effect'] = 'non-scaling-stroke'; }
+  g.append(el('rect', rim));
+  if (!showInside) g.append(el('rect', { x: rim.x, y: rim.y, width: rim.width, height: rim.height, rx: rim.rx, ry: rim.ry, fill: '#fff', opacity: f(sliceLightness(u, spec.shine === undefined ? 0.55 : spec.shine)) }));
+  if (i === 0 && showInside) for (const n of inside) g.append(n.cloneNode(true));
+  return g;
+}
+
+function draw(deg) {
+  if (!svg) return;
+  $('slider').value = deg; $('deg').textContent = Math.round(deg) + '°';
+  if (budsG) budsG.setAttribute('opacity', f(budOpacity(deg)));
+  if (!spec) return;
+  const p = projection(spec, deg), host = p.inside ? lidG : frontG, other = p.inside ? frontG : lidG;
+  other.replaceChildren();
+  const frag = document.createDocumentFragment();
+  if (p.inside) for (let i = N; i >= 0; i--) frag.append(slice(i, p, true));
+  else for (let i = 0; i <= N; i++) frag.append(slice(i, p, false));
+  host.replaceChildren(frag);
+}
+
+function step() {
+  const d = target - theta;
+  if (Math.abs(d) < 0.2) { theta = target; draw(theta); raf = 0; return; }
+  theta += d * 0.14; draw(theta); raf = requestAnimationFrame(step);
+}
+function animateTo(t) { target = t; if (!raf) raf = requestAnimationFrame(step); }
+
+function setColorway(id) {
+  if (!svg) return;
+  if (id) svg.setAttribute('data-colorway', id); else svg.removeAttribute('data-colorway');
+  $('colorway').value = id || '';
+}
+
+function load(text) {
+  let doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+  if (doc.querySelector('parsererror')) { $('host').innerHTML = '<div id="msg">That file is not well-formed SVG.</div>'; svg = null; return; }
+  svg = document.importNode(doc.documentElement, true);
+  $('host').replaceChildren(svg);
+  lidG = svg.querySelector('[data-part="lid"]'); budsG = svg.querySelector('[data-part="buds"]');
+  spec = null; frontG = null; inside = [];
+  const maxDeg = lidG ? 0 : 0;
+  if (lidG) {
+    spec = parseSpec(lidG.getAttribute('data-lid') || '');
+    sideFill = lidG.getAttribute('data-side-fill') || '#fff'; rimStroke = lidG.getAttribute('data-rim-stroke') || '';
+    inside = Array.from(lidG.children).map(c => c.cloneNode(true));
+    lidG.replaceChildren();
+    frontG = el('g', { 'data-generated': 'lid-front' });
+    const light = svg.querySelector('[data-part="light"]');
+    svg.insertBefore(frontG, light || null);
+    $('slider').max = spec.open;
+  }
+  // colourways: every svg[data-colorway="id"] rule in the style blocks
+  const ways = []; const re = /svg\[\s*data-colorway\s*=\s*["']([^"']+)["']\s*\]/g;
+  for (const st of svg.querySelectorAll('style')) { let m; while ((m = re.exec(st.textContent))) if (!ways.includes(m[1])) ways.push(m[1]); }
+  const sel = $('colorway'); sel.replaceChildren(new Option('Default colours', ''));
+  for (const w of ways) sel.append(new Option(w.split('-').map(s => s[0].toUpperCase() + s.slice(1)).join(' '), w));
+  setColorway(ways.includes(q.get('colorway')) ? q.get('colorway') : '');
+  theta = target = q.has('theta') ? parseFloat(q.get('theta')) : (spec ? spec.open : 0);
+  draw(theta);
+}
+
+async function start() {
+  if (q.get('bg') === 'dark') document.documentElement.dataset.bg = 'dark';
+  if (q.get('clean') === '1') document.body.classList.add('clean');
+  if (q.get('inline') === '1') { const a = $('art'); if (a) { load(a.textContent); return; } }
+  if (q.get('src')) {
+    try { const r = await fetch(q.get('src')); if (!r.ok) throw new Error(r.status); load(await r.text()); }
+    catch (e) { $('host').innerHTML = '<div id="msg">Could not fetch ' + q.get('src').replace(/[<&]/g, '') + ' (browsers block this on file://). Choose the file with the picker below.</div>'; }
+  }
+}
+
+$('file').onchange = async e => { const file = e.target.files[0]; if (file) load(await file.text()); };
+$('slider').oninput = e => { target = theta = parseFloat(e.target.value); draw(theta); };
+$('openBtn').onclick = () => animateTo(spec ? spec.open : 0);
+$('closeBtn').onclick = () => animateTo(0);
+$('colorway').onchange = e => setColorway(e.target.value);
+$('bgBtn').onclick = () => { const d = document.documentElement; const dark = d.dataset.bg === 'dark'; if (dark) delete d.dataset.bg; else d.dataset.bg = 'dark'; $('bgBtn').textContent = dark ? 'Dark background' : 'Light background'; };
+start();
+</script>
+</body>
+</html>

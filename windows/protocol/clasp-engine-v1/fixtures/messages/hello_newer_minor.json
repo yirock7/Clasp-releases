@@ -1,0 +1,12 @@
+{
+  "direction": "client_to_engine",
+  "description": "A newer client minor version with an extra field: accepted, extra field ignored",
+  "message": {
+    "type": "hello",
+    "protocol": "clasp-engine",
+    "major": 1,
+    "minor": 7,
+    "client": "Clasp 9",
+    "future_field": true
+  }
+}

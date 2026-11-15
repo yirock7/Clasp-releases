@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Plain .NET library: device contracts, the demo transport, the clasp-engine client, state logic and view
+       models. No WinUI, no Bluetooth, no driver access, no process launching; the only I/O is the
+       identity-checked client end of the clasp-engine pipe (Engine/), so it can be
+       unit-tested anywhere and cannot reach real hardware by accident. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>AppleDeviceHub.Core</RootNamespace>
+    <AssemblyName>AppleDeviceHub.Core</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591;CA1863</NoWarn>
+    <!-- Resource strings are looked up at run time (the UI language can be overridden at startup), so CA1863's advice to cache a
+         static CompositeFormat does not apply. English is the neutral resource language (no satellite probe for en-US). -->
+    <NeutralResourcesLanguage>en-US</NeutralResourcesLanguage>
+  </PropertyGroup>
+
+  <!-- User-facing text lives in Resources/Strings.resx (neutral English) plus Strings.<lang>.resx. MSBuild generates
+       the typed accessor AppleDeviceHub.Core.Resources.Strings into obj/ at build time, so there is no checked-in
+       designer file. Call sites that need placeholders use string.Format(CultureInfo.CurrentCulture, Strings.X, args). -->
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Strings.resx">
+      <Generator>MSBuild:Compile</Generator>
+      <StronglyTypedFileName>$(IntermediateOutputPath)Strings.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>AppleDeviceHub.Core.Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>Strings</StronglyTypedClassName>
+      <PublicClass>true</PublicClass>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AppleDeviceHub.Core.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,61 @@
+{
+  "description": "After a genuine initial mode reading, a write accepted by the driver without a new readback stays pending; actual remains the initial observed mode.",
+  "engine_messages": [
+    {
+      "type": "hello_ack",
+      "seq": 1,
+      "protocol": "clasp-engine",
+      "major": 1,
+      "minor": 0,
+      "engine": "clasp-engine 0.1.0",
+      "engine_epoch": "6f1c2a9e-3b7d-4c11-9a52-0d8e4f7b2c10",
+      "capabilities": [
+        "list_devices",
+        "observe",
+        "listening_mode_write"
+      ]
+    },
+    {
+      "type": "result",
+      "seq": 3,
+      "request_id": "0b7e4c2a-1f3d-4e5a-8b6c-9d0e1f2a3b4c",
+      "outcome": "accepted",
+      "detail": null,
+      "session_id": 1
+    },
+    {
+      "type": "session",
+      "seq": 4,
+      "session_id": 1,
+      "device_id": "dev-3f9a1c0e8b7d6a52",
+      "state": "open",
+      "reason": null,
+      "writable_modes": [
+        "noise_cancellation",
+        "transparency",
+        "adaptive"
+      ]
+    },
+    {
+      "type": "observation",
+      "seq": 5,
+      "session_id": 1,
+      "device_id": "dev-3f9a1c0e8b7d6a52",
+      "observed_at": "2026-10-15T18:04:05.000Z",
+      "fields": {
+        "listening_mode": "noise_cancellation"
+      }
+    },
+    {
+      "type": "result",
+      "seq": 6,
+      "request_id": "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c8d",
+      "outcome": "accepted",
+      "detail": null
+    }
+  ],
+  "expect": {
+    "listening_mode": "noise_cancellation",
+    "request_confirmed": false
+  }
+}

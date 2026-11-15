@@ -1,0 +1,8 @@
+{
+  "direction": "client_to_engine",
+  "description": "Read-only device listing",
+  "message": {
+    "type": "list_devices",
+    "request_id": "0b7e4c2a-1f3d-4e5a-8b6c-9d0e1f2a3b4c"
+  }
+}

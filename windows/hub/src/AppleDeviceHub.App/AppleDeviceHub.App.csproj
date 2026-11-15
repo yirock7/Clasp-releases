@@ -1,0 +1,90 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Native WinUI 3 desktop shell (tray, flyout, case card, settings): .NET 10, unpackaged,
+       self-contained, x64. Moved from upstream's Windows App SDK 1.7 (out of support) to 2.5.1
+       in phase two (the upstream client, since removed, pinned 1.7). Build with `dotnet build`
+       (see docs/TOOLCHAIN.md); on 2.x the PRI task loads under the .NET SDK's MSBuild. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>AppleDeviceHub.App</RootNamespace>
+    <!-- The program people see (Task Manager, Start menu, notifications) is Clasp. Project and namespace names stay as they are. -->
+    <AssemblyName>Clasp</AssemblyName>
+    <AssemblyTitle>Clasp</AssemblyTitle>
+    <Description>Clasp</Description>
+
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+
+    <UseWinUI>true</UseWinUI>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <SelfContained>true</SelfContained>
+    <EnableMsixTooling>false</EnableMsixTooling>
+
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+    <DefaultLanguage>en-US</DefaultLanguage>
+
+    <!-- Size: `dotnet publish` compiles the app and the parts of .NET it uses ahead of time into one native
+         Clasp.exe (Native AOT), so no .NET runtime, JIT or framework DLLs ship (see docs/TOOLCHAIN.md).
+         AOT has no built-in COM: the audio and Bluetooth COM interfaces use the source-generated
+         [GeneratedComInterface] form (AllowUnsafeBlocks is required by that generator). XAML-facing rules for
+         AOT are in Design/BindableItems.cs and Design/XamlCastTypes.cs. -->
+    <PublishAot>true</PublishAot>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- The native symbol file (~50 MB) stays in obj\ for crash analysis; it is not installed. -->
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Only the Windows App SDK parts the app uses (WinUI, which brings Foundation, InteractiveExperiences and
+         Base). The Microsoft.WindowsAppSDK metapackage also pulls in AI, ML, Search and Widgets, which added
+         ~45 MB (onnxruntime, DirectML) to every install without being used. -->
+    <PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.3.9" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.9169" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AppleDeviceHub.Core\AppleDeviceHub.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Clasp brand icons and logo (AppIcon.ico, ClaspLogo.png: tools/make-logo.py; TrayIcon-*.ico: tools/make-icons.py); loaded from disk at run time. -->
+    <Content Include="Assets\*.ico;Assets\*.png;Assets\Artwork\*.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!--
+    The WinUI markup compiler copies generated XBF files and the app PRI to the build output,
+    but the unpackaged self-contained publish output does not include them by default. Those
+    resources are required for ms-appx:/// XAML component loading after installation.
+  -->
+  <Target Name="CopyCompiledWinUiResourcesToPublish" AfterTargets="Publish">
+    <Error Condition="'$(PublishDir)' == ''" Text="PublishDir must be set to publish the WinUI XAML resources." />
+    <Error Condition="!Exists('$(TargetDir)$(TargetName).pri')" Text="The compiled app PRI was not found in the build output: $(TargetDir)$(TargetName).pri" />
+    <Error Condition="'@(ApplicationDefinition)' == ''" Text="The WinUI application XAML item was not found during publish." />
+    <Error Condition="'@(Page)' == ''" Text="The WinUI page XAML items were not found during publish." />
+
+    <Error Condition="!Exists('$(TargetDir)%(ApplicationDefinition.RecursiveDir)%(ApplicationDefinition.Filename).xbf')"
+           Text="A compiled XBF is missing for application XAML '%(ApplicationDefinition.Identity)'." />
+    <Error Condition="!Exists('$(TargetDir)%(Page.RecursiveDir)%(Page.Filename).xbf')"
+           Text="A compiled XBF is missing for page XAML '%(Page.Identity)'." />
+
+    <MakeDir Directories="@(ApplicationDefinition-&gt;'$(PublishDir)%(RecursiveDir)');@(Page-&gt;'$(PublishDir)%(RecursiveDir)')" />
+    <Copy
+      SourceFiles="@(ApplicationDefinition-&gt;'$(TargetDir)%(RecursiveDir)%(Filename).xbf');@(Page-&gt;'$(TargetDir)%(RecursiveDir)%(Filename).xbf')"
+      DestinationFiles="@(ApplicationDefinition-&gt;'$(PublishDir)%(RecursiveDir)%(Filename).xbf');@(Page-&gt;'$(PublishDir)%(RecursiveDir)%(Filename).xbf')"
+      SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetDir)$(TargetName).pri" DestinationFiles="$(PublishDir)$(TargetName).pri" SkipUnchangedFiles="true" />
+
+    <Error Condition="!Exists('$(PublishDir)%(ApplicationDefinition.RecursiveDir)%(ApplicationDefinition.Filename).xbf')"
+           Text="The published XBF is missing for application XAML '%(ApplicationDefinition.Identity)'." />
+    <Error Condition="!Exists('$(PublishDir)%(Page.RecursiveDir)%(Page.Filename).xbf')"
+           Text="The published XBF is missing for page XAML '%(Page.Identity)'." />
+    <Error Condition="!Exists('$(PublishDir)$(TargetName).pri')" Text="The compiled app PRI was not copied to the publish output." />
+  </Target>
+
+</Project>

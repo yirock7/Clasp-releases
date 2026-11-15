@@ -1,0 +1,5 @@
+{
+  "description": "Unknown message type",
+  "bytes_hex": "210000007b2274797065223a227261775f616170222c226279746573223a2230343030227d",
+  "expect": "reject_unknown_type"
+}

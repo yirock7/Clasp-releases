@@ -1,0 +1,235 @@
+name: Clasp driver-free build and draft release
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/clasp-release.yml'
+      - 'LICENSE'
+      - 'windows/hub/**'
+  push:
+    tags:
+      - 'clasp-v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: clasp-release-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Test and package the driver-free installer
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.value }}
+      ui_smoke: ${{ steps.package.outputs.ui_smoke }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Install .NET 10 SDK
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Resolve installer version
+        id: version
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -like 'refs/tags/*') {
+            if ($env:GITHUB_REF_NAME -notmatch '^clasp-v(?<version>\d+\.\d+\.\d+)$') {
+              throw "Release tags must use clasp-vX.Y.Z; received '$env:GITHUB_REF_NAME'."
+            }
+            $version = $Matches.version
+          } else {
+            # CI installers are test artifacts, not versioned releases.
+            $version = '0.0.0'
+          }
+          "value=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Write-Host "Installer version: $version"
+
+      - name: Run driver-free Core tests
+        shell: pwsh
+        run: dotnet test .\windows\hub\tests\AppleDeviceHub.Core.Tests\AppleDeviceHub.Core.Tests.csproj --configuration Release --verbosity minimal --logger "trx;LogFileName=clasp-core-tests.trx" --results-directory .\artifacts\test-results
+
+      - name: Upload Core test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: clasp-core-test-results
+          path: artifacts/test-results/*.trx
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Download and verify Inno Setup 6.7.3
+        id: inno
+        shell: pwsh
+        env:
+          INNO_SETUP_URL: https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe
+          INNO_SETUP_SHA256: 9C73C3BAE7ED48D44112A0F48E66742C00090BDB5BEF71D9D3C056C66E97B732
+        run: |
+          $setupPath = Join-Path $env:RUNNER_TEMP 'innosetup-6.7.3.exe'
+          Invoke-WebRequest -Uri $env:INNO_SETUP_URL -OutFile $setupPath
+
+          $downloadHash = (Get-FileHash -LiteralPath $setupPath -Algorithm SHA256).Hash
+          if ($downloadHash -cne $env:INNO_SETUP_SHA256) {
+            throw "Inno Setup SHA-256 mismatch: got $downloadHash."
+          }
+
+          $signature = Get-AuthenticodeSignature -FilePath $setupPath
+          $publisher = if ($signature.SignerCertificate) {
+            $signature.SignerCertificate.GetNameInfo(
+              [System.Security.Cryptography.X509Certificates.X509NameType]::SimpleName,
+              $false)
+          } else { '' }
+          if ($signature.Status -ne 'Valid' -or $publisher -ne 'Pyrsys B.V.') {
+            throw "Inno Setup signature check failed (status '$($signature.Status)', publisher '$publisher')."
+          }
+
+          $compilerDirectory = Join-Path $env:RUNNER_TEMP 'inno-setup-6.7.3'
+          New-Item -ItemType Directory -Force -Path $compilerDirectory | Out-Null
+          $arguments = @(
+            '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/SP-',
+            '/PORTABLE=1', '/CURRENTUSER', '/NOICONS', "/DIR=`"$compilerDirectory`""
+          )
+          $process = Start-Process -FilePath $setupPath -ArgumentList $arguments -Wait -PassThru -WindowStyle Hidden
+          if ($process.ExitCode -ne 0) { throw "Inno Setup extraction failed with exit code $($process.ExitCode)." }
+
+          $compilerPath = Join-Path $compilerDirectory 'ISCC.exe'
+          if (-not (Test-Path -LiteralPath $compilerPath -PathType Leaf)) {
+            throw "Inno Setup did not extract ISCC.exe to '$compilerPath'."
+          }
+          "compiler=$compilerPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Build the unsigned installer
+        id: package
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.value }}
+          INNO_COMPILER: ${{ steps.inno.outputs.compiler }}
+        run: |
+          $outputDirectory = Join-Path $env:GITHUB_WORKSPACE 'artifacts\installer'
+          & .\windows\hub\installer\Build-Installer.ps1 `
+            -Version $env:RELEASE_VERSION `
+            -OutputDirectory $outputDirectory `
+            -CompilerPath $env:INNO_COMPILER
+          if (-not $?) { throw 'Build-Installer.ps1 failed.' }
+
+      - name: Verify installer and SHA-256 sidecar
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          $outputDirectory = Join-Path $env:GITHUB_WORKSPACE 'artifacts\installer'
+          $installerName = "Clasp-$env:RELEASE_VERSION-win-x64-setup.exe"
+          $installerPath = Join-Path $outputDirectory $installerName
+          $checksumPath = "$installerPath.sha256"
+          $payloadManifestPath = "$installerPath.payload.txt"
+          foreach ($path in @($installerPath, $checksumPath, $payloadManifestPath)) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing installer output: $path" }
+          }
+
+          $checksumLine = (Get-Content -LiteralPath $checksumPath -Raw).Trim()
+          $checksumParts = $checksumLine -split '\s+', 2
+          if ($checksumParts.Count -ne 2 -or $checksumParts[1] -cne $installerName) {
+            throw "Unexpected SHA-256 sidecar format in '$checksumPath'."
+          }
+          $actualHash = (Get-FileHash -LiteralPath $installerPath -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($checksumParts[0] -cne $actualHash) {
+            throw "Installer SHA-256 mismatch: sidecar has '$($checksumParts[0])', file has '$actualHash'."
+          }
+          $payloadManifest = (Get-Content -LiteralPath $payloadManifestPath -Raw) -replace "`r", ''
+          foreach ($requiredResource in @('Clasp.pri', 'App.xbf', 'Views\FlyoutView.xbf')) {
+            $escapedResource = [regex]::Escape($requiredResource)
+            if ($payloadManifest -notmatch "(?im)^$escapedResource\t\d+\t[0-9a-f]{64}$") {
+              throw "Payload manifest is missing a required UI resource: $requiredResource"
+            }
+          }
+          Write-Host "Verified SHA-256 $actualHash for $installerName"
+          Write-Host "Verified required XAML resources in $payloadManifestPath"
+
+      - name: Upload unsigned installer artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: clasp-installer-${{ steps.version.outputs.value }}
+          path: artifacts/installer/Clasp-*.exe*
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+      - name: Require qualified Windows 11 client UI smoke before drafting a release
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/clasp-v') && steps.package.outputs.ui_smoke != 'PASS'
+        shell: pwsh
+        env:
+          UI_SMOKE_STATUS: ${{ steps.package.outputs.ui_smoke }}
+        run: |
+          throw "Refusing to create a release draft: Demo UI smoke status was '$env:UI_SMOKE_STATUS'. Run the builder on a qualified Windows 11 x64 client and record PASS first."
+
+  draft-release:
+    name: Create or update the GitHub draft release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/clasp-v') && needs.build.outputs.ui_smoke == 'PASS'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+
+    steps:
+      - name: Download this run's installer artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_NAME: clasp-installer-${{ needs.build.outputs.version }}
+        run: gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$ARTIFACT_NAME" --dir release
+
+      - name: Create or update the draft only
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          set -euo pipefail
+          tag="$GITHUB_REF_NAME"
+          installer="release/Clasp-${RELEASE_VERSION}-win-x64-setup.exe"
+          checksum="${installer}.sha256"
+          [[ -f "$installer" && -f "$checksum" ]] || { echo 'Installer artifact is incomplete.' >&2; exit 1; }
+
+          read -r expected_hash expected_name < <(tr -d '\r' < "$checksum")
+          actual_hash="$(sha256sum "$installer" | awk '{print $1}')"
+          [[ "$expected_name" == "$(basename "$installer")" && "$expected_hash" == "$actual_hash" ]] || {
+            echo 'Installer checksum verification failed.' >&2
+            exit 1
+          }
+
+          notes_file="$RUNNER_TEMP/clasp-release-notes.md"
+          cat > "$notes_file" <<EOF
+          Unsigned Windows x64 installer for Clasp $RELEASE_VERSION.
+
+          This installer is not code-signed, so Windows may show an unverified publisher notice.
+
+          Automated app startup was verified in Demo mode on a qualified Windows 11 x64 client. This does not verify Bluetooth pairing or hardware behavior.
+
+          GPL-3.0 source for this build is available at:
+          https://github.com/$GITHUB_REPOSITORY/tree/$tag
+          GitHub also provides source archives for the tagged commit.
+
+          This release remains a draft until a maintainer reviews and publishes it.
+          EOF
+
+          if existing_draft="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft' 2>/dev/null)"; then
+            if [[ "$existing_draft" != 'true' ]]; then
+              echo "Release $tag is already published; refusing to alter its publication state." >&2
+              exit 1
+            fi
+            gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --draft \
+              --title "Clasp $RELEASE_VERSION" --notes-file "$notes_file"
+            gh release upload "$tag" "$installer" "$checksum" --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$tag" "$installer" "$checksum" --repo "$GITHUB_REPOSITORY" \
+              --draft --verify-tag --title "Clasp $RELEASE_VERSION" --notes-file "$notes_file"
+          fi

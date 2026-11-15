@@ -1,0 +1,7 @@
+{
+  "description": "Control 0x09 id 0x0D value 4",
+  "packet_hex": "0400040009000d04000000",
+  "expect_fields": {
+    "listening_mode": "adaptive"
+  }
+}

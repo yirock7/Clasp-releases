@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Settings page (host: normal window on the clear GlassBackdrop, ~720 x 640 DIP).
+    Glass navigation chrome (left rail) around readable content surfaces (right, scrolling).
+-->
+<UserControl
+    x:Class="AppleDeviceHub.App.Views.SettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:design="using:AppleDeviceHub.App.Design"
+    xmlns:views="using:AppleDeviceHub.App.Views"
+    xmlns:presentation="using:AppleDeviceHub.Core.Presentation"
+    xmlns:connection="using:AppleDeviceHub.Core.Connection"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    FontWeight="Medium"
+    Background="Transparent">
+
+    <Grid>
+    <!-- Reduced transparency: an opaque page behind the (also opaque) surfaces. -->
+    <Border design:GlassFallback.ShowWhenOpaque="True"
+            Background="{ThemeResource GlassOpaqueFillBrush}"
+            Visibility="Collapsed" />
+    <!-- Top inset clears the caption buttons (the window extends content into the title bar). -->
+    <Grid Padding="16,44,16,16" ColumnSpacing="{StaticResource GlassSpace16}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="184" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ===== Glass navigation chrome ===== -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalScrollMode="Disabled">
+        <design:GlassSurface Style="{StaticResource GlassNestedSurfaceStyle}" VerticalAlignment="Top" TracksPointerLight="True">
+            <StackPanel Spacing="{StaticResource GlassSpace4}">
+                <StackPanel Orientation="Horizontal" Spacing="10" Margin="8,4,8,12" AutomationProperties.AccessibilityView="Raw">
+                    <views:ClaspLogo x:Name="BrandMark" Width="28" Height="28" VerticalAlignment="Center" />
+                    <TextBlock Text="Clasp" Style="{StaticResource GlassSectionTitleTextStyle}" FontSize="18" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock x:Uid="SettingsRailTitle"
+                           Style="{StaticResource GlassCaptionTextStyle}"
+                           FontWeight="SemiBold"
+                           Margin="10,0,8,4"
+                           AutomationProperties.HeadingLevel="Level1" />
+                <design:GlassButton x:Uid="SettingsNavGeneral" x:Name="NavGeneral" Style="{StaticResource GlassNavSelectedButtonStyle}" Tag="General" Click="OnNavClick" />
+                <design:GlassButton x:Uid="SettingsNavAirPods" x:Name="NavAirPods" Style="{StaticResource GlassNavButtonStyle}" Tag="AirPods" Click="OnNavClick" />
+                <design:GlassButton x:Uid="SettingsNavSound" x:Name="NavSound" Style="{StaticResource GlassNavButtonStyle}" Tag="Sound" Click="OnNavClick" />
+                <design:GlassButton x:Uid="SettingsNavShortcuts" x:Name="NavShortcuts" Style="{StaticResource GlassNavButtonStyle}" Tag="Shortcuts" Click="OnNavClick" />
+                <design:GlassButton x:Uid="SettingsNavAdvanced" x:Name="NavAdvanced" Style="{StaticResource GlassNavButtonStyle}" Tag="Advanced" Click="OnNavClick" />
+                <design:GlassButton x:Uid="SettingsNavAbout" x:Name="NavAbout" Style="{StaticResource GlassNavButtonStyle}" Tag="About" Click="OnNavClick" />
+            </StackPanel>
+        </design:GlassSurface>
+        </ScrollViewer>
+
+        <!-- ===== Readable content ===== -->
+        <ScrollViewer x:Name="ContentScroller"
+                      Grid.Column="1"
+                      HorizontalScrollMode="Disabled"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="{StaticResource GlassSpace16}" Padding="0,0,12,16">
+
+
+                <!-- ===== General: Appearance, Startup, Notices & tray ===== -->
+                <design:GlassSurface x:Name="GeneralSection" Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock x:Uid="SettingsGeneralTitle" Style="{StaticResource GlassSectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level2" />
+
+                        <TextBlock x:Uid="SettingsAppearanceHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <RadioButtons x:Uid="SettingsThemePicker"
+                                      MaxColumns="3"
+                                      SelectedIndex="{x:Bind Settings.ThemeIndex, Mode=TwoWay}">
+                            <RadioButton x:Uid="SettingsThemeSystemOption" />
+                            <RadioButton x:Uid="SettingsThemeLightOption" />
+                            <RadioButton x:Uid="SettingsThemeDarkOption" />
+                        </RadioButtons>
+                        <ToggleSwitch x:Uid="SettingsReduceMotionToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.ReduceMotion, Mode=TwoWay}" />
+                        <ToggleSwitch x:Uid="SettingsReduceTransparencyToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.ReduceTransparency, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsEffectsNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock x:Name="EffectsText"
+                                   Style="{StaticResource GlassCaptionTextStyle}"
+                                   TextWrapping="WrapWholeWords"
+                                   AutomationProperties.LiveSetting="Polite" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <!-- Startup: the sign-in entry lives in the registry; this toggle reads and writes it live. -->
+                        <TextBlock x:Uid="SettingsStartupHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch x:Uid="SettingsRunOnStartupToggle" x:Name="RunOnStartupToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      Toggled="OnRunOnStartupToggled" />
+                        <TextBlock x:Uid="SettingsRunOnStartupNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock x:Name="RunOnStartupStatus"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                   AutomationProperties.LiveSetting="Polite" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock x:Uid="SettingsNoticesHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch x:Uid="SettingsCaseCardToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.AutoShowCaseCard, Mode=TwoWay}"
+                                      IsEnabled="True" />
+                        <TextBlock x:Uid="SettingsCaseCardNote" Style="{StaticResource GlassCaptionTextStyle}"
+                                   TextWrapping="WrapWholeWords" />
+                        <Grid Opacity="{x:Bind design:GlassBind.DimIfDisabled(CaseSecondsSlider.IsEnabled), Mode=OneWay}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Uid="SettingsCaseHideAfterLabel" Style="{StaticResource GlassLabelTextStyle}" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{x:Bind views:SettingsView.SecondsText(Settings.CaseCardSeconds), Mode=OneWay}"
+                                       Style="{StaticResource GlassCaptionTextStyle}"
+                                       AutomationProperties.AccessibilityView="Raw" />
+                        </Grid>
+                        <Slider x:Uid="SettingsCaseSecondsSlider" x:Name="CaseSecondsSlider"
+                                Style="{StaticResource GlassSliderStyle}"
+                                IsThumbToolTipEnabled="False"
+                                IsEnabled="{x:Bind Settings.AutoShowCaseCard, Mode=OneWay}"
+                                Minimum="3"
+                                Maximum="15"
+                                StepFrequency="1"
+                                SmallChange="1"
+                                LargeChange="3"
+                                Value="{x:Bind design:GlassBind.ToDouble(Settings.CaseCardSeconds), Mode=OneWay}"
+                                ValueChanged="OnCaseSecondsChanged" />
+                        <ToggleSwitch x:Uid="SettingsHandoffToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.HandoffNoticeEnabled, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsHandoffNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ToggleSwitch x:Uid="SettingsTrayColourToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.ShowTrayBatteryPercentage, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsTrayColourNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ToggleSwitch x:Uid="SettingsTrayDimToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.DimTrayIconWhenAudioElsewhere, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsTrayDimNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+                </design:GlassSurface>
+
+                <!-- ===== AirPods: the chosen pair, connect/disconnect behaviour, Fix connection, battery history ===== -->
+                <StackPanel x:Name="AirPodsSection" Spacing="{StaticResource GlassSpace16}">
+                <design:GlassSurface Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock x:Uid="SettingsAirPodsTitle" Style="{StaticResource GlassSectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level2" />
+
+                        <!-- Paired identity is selected explicitly and stays separate from output routing. -->
+                        <TextBlock x:Uid="SettingsYourAirPodsHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <TextBlock x:Uid="SettingsYourAirPodsNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ComboBox x:Uid="SettingsPairedDevicePicker" x:Name="PairedDevicePicker"
+                                  HorizontalAlignment="Stretch"
+                                  ItemsSource="{x:Bind design:BindableItems.From(PairedDevices), Mode=OneTime}"
+                                  SelectedItem="{x:Bind SelectedPairedDevice, Mode=OneTime}"
+                                  IsEnabled="{x:Bind HasConnectionController, Mode=OneTime}"
+                                  SelectionChanged="OnPairedDeviceSelected">
+                                  <ComboBox.ItemTemplate>
+                                      <DataTemplate x:DataType="connection:ConnectionDevice">
+                                          <TextBlock Text="{x:Bind Name}" />
+                                      </DataTemplate>
+                                  </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <ComboBox x:Uid="SettingsColorwayPicker" x:Name="ArtworkColorwayPicker"
+                                  HorizontalAlignment="Stretch"
+                                  Visibility="Collapsed"
+                                  ItemsSource="{x:Bind ArtworkColorwayChoices, Mode=OneTime}"
+                                  SelectionChanged="OnArtworkColorwaySelectionChanged">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="views:ArtworkColorwayOption">
+                                    <TextBlock Text="{x:Bind Name, Mode=OneTime}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBlock Text="{x:Bind PairedDeviceStatusText, Mode=OneTime}"
+                                   Style="{StaticResource GlassLabelTextStyle}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                        <TextBlock Text="{x:Bind PairedDeviceDetailText, Mode=OneTime}"
+                                   Style="{StaticResource GlassCaptionTextStyle}"
+                                   TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(PairedDeviceDetailText), Mode=OneTime}" />
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
+                            <design:GlassButton x:Uid="SettingsRefreshPairedDevicesButton" x:Name="RefreshPairedDevicesButton"
+                                                IsPending="{x:Bind PairedConnectionIsRefreshing, Mode=OneTime}"
+                                                IsEnabled="{x:Bind CanRefreshPairedDevices, Mode=OneTime}"
+                                                Click="OnRefreshPairedDevicesClick" />
+                            <design:GlassButton x:Uid="SettingsOpenBluetoothButton"
+                                                Click="OnOpenBluetoothSettingsClick" />
+                            <design:GlassButton x:Uid="SettingsClearPairedDeviceButton"
+                                                Click="OnClearPairedDeviceClick" />
+                        </StackPanel>
+                        <views:PairingHelpView x:Name="PairingHelp" />
+                        <TextBlock x:Uid="SettingsPairedOutputNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock x:Uid="SettingsConnectingHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch x:Uid="SettingsNearbyDetectionToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.ObserveNearbyAirPods, Mode=TwoWay}"
+                                      IsEnabled="{x:Bind CanObserveNearbyAirPods, Mode=OneTime}" />
+                        <TextBlock Text="{x:Bind NearbyObservationHelpText, Mode=OneTime}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ToggleSwitch x:Uid="SettingsAutoConnectToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.AutoConnectAirPods, Mode=TwoWay}"
+                                      IsEnabled="{x:Bind Settings.ObserveNearbyAirPods, Mode=OneWay}" />
+                        <TextBlock x:Uid="SettingsAutoConnectNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock x:Uid="SettingsAutoConnectUnverifiedNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock x:Uid="SettingsConnectDisconnectHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch x:Uid="SettingsAutoPlayToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.AutoPlayOnConnect, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsAutoPlayNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ToggleSwitch x:Uid="SettingsAutoPauseToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.AutoPauseOnDisconnect, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsAutoPauseNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ToggleSwitch x:Uid="SettingsDefaultVolumeToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.DefaultVolumeEnabled, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsDefaultVolumeNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel Spacing="{StaticResource GlassSpace8}"
+                                    Visibility="{x:Bind design:GlassBind.Visible(Settings.DefaultVolumeEnabled), Mode=OneWay}">
+                            <Grid ColumnSpacing="{StaticResource GlassSpace8}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Uid="SettingsVolumeOnConnectLabel" Style="{StaticResource GlassLabelTextStyle}" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{x:Bind views:SettingsView.PercentText(Settings.DefaultVolumeSliderValue), Mode=OneWay}"
+                                           Style="{StaticResource GlassCaptionTextStyle}"
+                                           AutomationProperties.AccessibilityView="Raw" />
+                            </Grid>
+                            <Slider x:Uid="SettingsVolumeOnConnectSlider" Style="{StaticResource GlassSliderStyle}"
+                                    IsThumbToolTipEnabled="False"
+                                    Minimum="0" Maximum="100" StepFrequency="1" SmallChange="1" LargeChange="10"
+                                    Value="{x:Bind Settings.DefaultVolumeSliderValue, Mode=TwoWay}" />
+                        </StackPanel>
+                        <ToggleSwitch x:Uid="SettingsSwitchOutputToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.SwitchOutputToAirPodsOnConnect, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsSwitchOutputNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock x:Uid="SettingsEarDetectionHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch x:Uid="SettingsEarDetectionToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.BroadcastEarDetection, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsEarDetectionNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock x:Uid="SettingsEarDetectionUnverifiedNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel Spacing="{StaticResource GlassSpace8}"
+                                    Visibility="{x:Bind design:GlassBind.Visible(Settings.BroadcastEarDetection), Mode=OneWay}">
+                            <ComboBox x:Uid="SettingsEarOutputPicker" x:Name="EarOutputPicker"
+                                      HorizontalAlignment="Stretch"
+                                      ItemsSource="{x:Bind design:BindableItems.From(Audio.Outputs), Mode=OneWay}"
+                                      SelectedItem="{x:Bind SelectedEarOutput, Mode=OneWay}"
+                                      IsEnabled="{x:Bind IsAudioAvailable}"
+                                      SelectionChanged="OnEarOutputSelected">
+                                      <ComboBox.ItemTemplate>
+                                          <DataTemplate x:DataType="presentation:AudioOutputChoice">
+                                              <TextBlock Text="{x:Bind Label, Mode=OneWay}" />
+                                          </DataTemplate>
+                                      </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <design:GlassButton x:Uid="SettingsEarOutputClearButton"
+                                                HorizontalAlignment="Left"
+                                                Click="OnClearEarOutputClick" />
+                            <TextBlock x:Uid="SettingsEarOutputNote"
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        </StackPanel>
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock x:Uid="SettingsMicHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ComboBox x:Uid="SettingsHandsfreePicker"
+                                  HorizontalAlignment="Stretch"
+                                  SelectedIndex="{x:Bind Settings.HandsfreeModeIndex, Mode=TwoWay}">
+                            <ComboBoxItem x:Uid="SettingsHandsfreeAlwaysOnItem" />
+                            <ComboBoxItem x:Uid="SettingsHandsfreeAlwaysOffItem" />
+                            <ComboBoxItem x:Uid="SettingsHandsfreeSmartItem" />
+                        </ComboBox>
+                        <TextBlock Text="{x:Bind views:SettingsView.HandsfreeDescription(Settings.HandsfreeModeIndex), Mode=OneWay}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="{x:Bind CompanionState.HandsfreeText, Mode=OneWay}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(CompanionState.HandsfreeText), Mode=OneWay}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                        <ToggleSwitch x:Uid="SettingsLowLatencyToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.LowAudioLatency, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsLowLatencyNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="{x:Bind CompanionState.LowLatencyText, Mode=OneWay}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(CompanionState.LowLatencyText), Mode=OneWay}"
+                                   AutomationProperties.LiveSetting="Polite" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock x:Uid="SettingsBatteryHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ComboBox x:Uid="SettingsLowBatteryPicker"
+                                  HorizontalAlignment="Stretch"
+                                  SelectedIndex="{x:Bind Settings.LowBatteryThresholdIndex, Mode=TwoWay}">
+                            <ComboBoxItem x:Uid="SettingsLowBatteryOffItem" />
+                            <ComboBoxItem x:Uid="SettingsLowBatteryAt10Item" />
+                            <ComboBoxItem x:Uid="SettingsLowBatteryAt20Item" />
+                            <ComboBoxItem x:Uid="SettingsLowBatteryAt30Item" />
+                        </ComboBox>
+                        <TextBlock x:Uid="SettingsLowBatteryNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+                </design:GlassSurface>
+
+                <design:GlassSurface Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock x:Uid="SettingsFixConnectionHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <TextBlock x:Uid="SettingsFixConnectionNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
+                            <design:GlassButton x:Uid="SettingsFixConnectionButton" x:Name="FixConnectionButton"
+                                                IsEnabled="{x:Bind CompanionState.CanStartRepair, Mode=OneWay}"
+                                                IsPending="{x:Bind CompanionState.RepairIsRunning, Mode=OneWay}"
+                                                Click="OnFixConnectionClick" />
+                            <design:GlassButton x:Uid="SettingsFixConnectionCancelButton"
+                                                Visibility="{x:Bind design:GlassBind.Visible(CompanionState.RepairIsRunning), Mode=OneWay}"
+                                                Click="OnCancelFixConnectionClick" />
+                        </StackPanel>
+                        <TextBlock Text="{x:Bind CompanionState.RepairText, Mode=OneWay}"
+                                   Style="{StaticResource GlassLabelTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(CompanionState.RepairText), Mode=OneWay}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                    </StackPanel>
+                </design:GlassSurface>
+
+                <!-- Battery history: local readings only; nothing is invented. -->
+                <design:GlassSurface x:Name="BatteryHistorySection" Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace8}">
+                        <views:BatteryHistoryView x:Name="BatteryHistoryPanel" />
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
+                            <design:GlassButton x:Uid="SettingsBatteryHistoryRefreshButton" HorizontalAlignment="Left" Click="OnRefreshBatteryHistoryClick" />
+                            <design:GlassButton x:Uid="SettingsBatteryHistoryClearButton" HorizontalAlignment="Left" Click="OnClearBatteryHistoryClick" />
+                        </StackPanel>
+                    </StackPanel>
+                </design:GlassSurface>
+                </StackPanel>
+
+                <!-- ===== Sound: Audio output, Media controls, Phone audio ===== -->
+                <StackPanel x:Name="SoundSection" Spacing="{StaticResource GlassSpace16}">
+                <design:GlassSurface Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock x:Uid="SettingsSoundTitle" Style="{StaticResource GlassSectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level2" />
+
+                        <TextBlock x:Uid="SettingsAudioOutputHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch x:Uid="SettingsRestoreOutputToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.RestorePreviousAudioOutput, Mode=TwoWay}"
+                                      IsEnabled="{x:Bind IsAudioAvailable}" />
+                        <TextBlock x:Uid="SettingsRestoreOutputNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="{x:Bind AudioAvailabilityText}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.Collapsed(IsAudioAvailable)}" />
+                        <StackPanel Spacing="{StaticResource GlassSpace12}"
+                                    Visibility="{x:Bind design:GlassBind.Visible(IsAudioAvailable)}">
+                            <ComboBox x:Uid="SettingsAudioTargetPicker"
+                                      HorizontalAlignment="Stretch"
+                                      ItemsSource="{x:Bind design:BindableItems.From(Audio.Outputs), Mode=OneWay}"
+                                      SelectedItem="{x:Bind Audio.SelectedTarget, Mode=OneWay}"
+                                      SelectionChanged="OnAudioTargetSelected">
+                                      <ComboBox.ItemTemplate>
+                                          <DataTemplate x:DataType="presentation:AudioOutputChoice">
+                                              <TextBlock Text="{x:Bind Label, Mode=OneWay}" />
+                                          </DataTemplate>
+                                      </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <TextBlock Text="{x:Bind Audio.SelectedTargetStatusText, Mode=OneWay}"
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                       AutomationProperties.LiveSetting="Polite" />
+                            <design:GlassButton x:Uid="SettingsUseAudioTargetButton"
+                                                IsEnabled="{x:Bind CanUseAudioTarget, Mode=OneTime}"
+                                                Click="OnUseAudioTargetClick" />
+                            <TextBlock x:Uid="SettingsAudioTargetNote"
+                                       Style="{StaticResource GlassCaptionTextStyle}"
+                                       TextWrapping="WrapWholeWords" />
+                            <ComboBox x:Uid="SettingsFallbackPicker"
+                                      HorizontalAlignment="Stretch"
+                                      ItemsSource="{x:Bind design:BindableItems.From(Audio.Outputs), Mode=OneWay}"
+                                      SelectedItem="{x:Bind Audio.SelectedFallback, Mode=OneWay}"
+                                      SelectionChanged="OnAudioFallbackSelected">
+                                      <ComboBox.ItemTemplate>
+                                          <DataTemplate x:DataType="presentation:AudioOutputChoice">
+                                              <TextBlock Text="{x:Bind Label, Mode=OneWay}" />
+                                          </DataTemplate>
+                                      </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
+                                <design:GlassButton x:Uid="SettingsUseFallbackButton"
+                                                    IsEnabled="{x:Bind CanUseAudioFallback, Mode=OneTime}"
+                                                    Click="OnUseAudioFallbackClick" />
+                                <design:GlassButton x:Uid="SettingsClearFallbackButton"
+                                                    IsEnabled="{x:Bind HasAudioFallback, Mode=OneTime}"
+                                                    Click="OnClearAudioFallbackClick" />
+                            </StackPanel>
+                            <TextBlock x:Uid="SettingsFallbackNote"
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                            <TextBlock Text="{x:Bind Audio.StatusText, Mode=OneWay}" Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                       AutomationProperties.LiveSetting="Polite" />
+                            <TextBlock Text="{x:Bind Audio.LastActionText, Mode=OneWay}" Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                       AutomationProperties.LiveSetting="Polite" />
+                            <TextBlock Text="{x:Bind Audio.VolumeStatusText, Mode=OneWay}"
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                       AutomationProperties.LiveSetting="Polite" />
+                            <StackPanel Spacing="{StaticResource GlassSpace8}"
+                                        Visibility="{x:Bind design:GlassBind.Visible(HasSelectedOutputVolume), Mode=OneTime}">
+                                <Grid ColumnSpacing="{StaticResource GlassSpace8}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Uid="SettingsOutputVolumeLabel" Style="{StaticResource GlassLabelTextStyle}" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind OutputVolumePercentText, Mode=OneTime}" Style="{StaticResource GlassCaptionTextStyle}" />
+                                </Grid>
+                                <Slider x:Uid="SettingsOutputVolumeSlider" x:Name="AudioVolumeSlider"
+                                        Style="{StaticResource GlassSliderStyle}"
+                                        IsThumbToolTipEnabled="False"
+                                        Minimum="0" Maximum="100" StepFrequency="1"
+                                        Value="{x:Bind OutputVolumePercent, Mode=OneTime}"
+                                        ValueChanged="OnOutputVolumeChanged" />
+                            </StackPanel>
+                            <design:GlassButton x:Uid="SettingsRefreshAudioButton" Click="OnRefreshAudioClick" />
+                        </StackPanel>
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <!-- Media: opt-in ear-detection pause/resume (EarMediaPolicy). Off by default. -->
+                        <TextBlock x:Uid="SettingsMediaHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch x:Uid="SettingsPlaybackControlsToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsEnabled="{x:Bind CanUsePlaybackControls, Mode=OneTime}"
+                                      IsOn="{x:Bind Settings.ShowPlaybackControls, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsPlaybackControlsNote" Style="{StaticResource GlassCaptionTextStyle}"
+                                   TextWrapping="WrapWholeWords" />
+                        <ToggleSwitch x:Uid="SettingsPauseOnRemovalToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.PauseMediaOnEarRemoval, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsPauseOnRemovalNote" Style="{StaticResource GlassCaptionTextStyle}"
+                                   TextWrapping="WrapWholeWords" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <!-- Phone audio: the PC acts as a Bluetooth speaker for a phone; independent of the AirPods. -->
+                        <TextBlock x:Uid="SettingsPhoneAudioHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <TextBlock x:Uid="SettingsPhoneAudioNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <ComboBox x:Uid="SettingsPhonePicker" x:Name="PhonePicker"
+                                  HorizontalAlignment="Stretch"
+                                  SelectionChanged="OnPhoneSelected" />
+                        <TextBlock x:Uid="SettingsPhoneListNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
+                            <design:GlassButton x:Uid="SettingsPhoneRefreshButton" x:Name="PhoneRefreshButton" Click="OnPhoneRefreshClick" />
+                            <design:GlassButton x:Uid="SettingsPhoneConnectButton" x:Name="PhoneConnectButton" Click="OnPhoneConnectClick" />
+                        </StackPanel>
+                        <TextBlock x:Name="PhoneStatusText"
+                                   Style="{StaticResource GlassLabelTextStyle}" TextWrapping="WrapWholeWords"
+                                   AutomationProperties.LiveSetting="Polite" />
+                    </StackPanel>
+                </design:GlassSurface>
+                </StackPanel>
+
+                <!-- ===== Shortcuts: clasp:// links (off by default) and global hotkeys (all unassigned by default) ===== -->
+                <design:GlassSurface x:Name="ShortcutsSection" Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock x:Uid="SettingsShortcutsTitle" Style="{StaticResource GlassSectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level2" />
+
+                        <TextBlock x:Uid="SettingsLinksHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch x:Uid="SettingsAllowLinksToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.AllowClaspLinks, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsAllowLinksNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock x:Uid="SettingsLinksWebsiteNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="{x:Bind CompanionState.LinksText, Mode=OneWay}"
+                                   Style="{StaticResource GlassLabelTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(CompanionState.LinksText), Mode=OneWay}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                        <TextBlock Text="{x:Bind views:SettingsView.LinkListText}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                   IsTextSelectionEnabled="True"
+                                   Visibility="{x:Bind design:GlassBind.Visible(Settings.AllowClaspLinks), Mode=OneWay}" />
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock x:Uid="SettingsGlobalShortcutsHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <TextBlock x:Uid="SettingsGlobalShortcutsNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel x:Name="HotkeyRows" Spacing="{StaticResource GlassSpace8}" />
+                    </StackPanel>
+                </design:GlassSurface>
+
+                <!-- ===== Advanced: relies on Windows behaviour Clasp does not control. Everything is off by default. ===== -->
+                <design:GlassSurface x:Name="AdvancedSection" Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock x:Uid="SettingsAdvancedTitle" Style="{StaticResource GlassSectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level2" />
+                        <TextBlock x:Uid="SettingsAdvancedNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+
+                        <TextBlock x:Uid="SettingsStemHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch x:Uid="SettingsStemToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsOn="{x:Bind Settings.StemActionsEnabled, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsStemNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel Spacing="{StaticResource GlassSpace8}"
+                                    Visibility="{x:Bind design:GlassBind.Visible(Settings.StemActionsEnabled), Mode=OneWay}">
+                            <ComboBox x:Uid="SettingsStemPressOncePicker" HorizontalAlignment="Stretch"
+                                      SelectedIndex="{x:Bind Settings.StemPlayPauseActionIndex, Mode=TwoWay}">
+                                <ComboBoxItem x:Uid="SettingsStemLeaveAsIsItem" />
+                                <ComboBoxItem x:Uid="SettingsStemMuteItem" />
+                                <ComboBoxItem x:Uid="SettingsStemPlayPauseItem" />
+                                <ComboBoxItem x:Uid="SettingsStemNextItem" />
+                                <ComboBoxItem x:Uid="SettingsStemPreviousItem" />
+                                <ComboBoxItem x:Uid="SettingsStemNothingItem" />
+                            </ComboBox>
+                            <ComboBox x:Uid="SettingsStemPressTwicePicker" HorizontalAlignment="Stretch"
+                                      SelectedIndex="{x:Bind Settings.StemNextActionIndex, Mode=TwoWay}">
+                                <ComboBoxItem x:Uid="SettingsStemLeaveAsIsItem" />
+                                <ComboBoxItem x:Uid="SettingsStemMuteItem" />
+                                <ComboBoxItem x:Uid="SettingsStemPlayPauseItem" />
+                                <ComboBoxItem x:Uid="SettingsStemNextItem" />
+                                <ComboBoxItem x:Uid="SettingsStemPreviousItem" />
+                                <ComboBoxItem x:Uid="SettingsStemNothingItem" />
+                            </ComboBox>
+                            <ComboBox x:Uid="SettingsStemPressThricePicker" HorizontalAlignment="Stretch"
+                                      SelectedIndex="{x:Bind Settings.StemPreviousActionIndex, Mode=TwoWay}">
+                                <ComboBoxItem x:Uid="SettingsStemLeaveAsIsItem" />
+                                <ComboBoxItem x:Uid="SettingsStemMuteItem" />
+                                <ComboBoxItem x:Uid="SettingsStemPlayPauseItem" />
+                                <ComboBoxItem x:Uid="SettingsStemNextItem" />
+                                <ComboBoxItem x:Uid="SettingsStemPreviousItem" />
+                                <ComboBoxItem x:Uid="SettingsStemNothingItem" />
+                            </ComboBox>
+                            <TextBlock x:Uid="SettingsStemLeaveAsIsNote"
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                            <TextBlock Text="{x:Bind CompanionState.StemText, Mode=OneWay}"
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords"
+                                       Visibility="{x:Bind design:GlassBind.VisibleIfText(CompanionState.StemText), Mode=OneWay}"
+                                       AutomationProperties.LiveSetting="Polite" />
+                        </StackPanel>
+
+                        <Rectangle Height="1" Fill="{ThemeResource GlassDividerBrush}" />
+                        <TextBlock x:Uid="SettingsPerAppHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ToggleSwitch x:Uid="SettingsPerAppToggle"
+                                      Style="{StaticResource GlassToggleStyle}"
+                                      IsEnabled="{x:Bind views:SettingsView.CanToggle(CompanionState.PerAppSupported, Settings.PerAppOutputEnabled), Mode=OneWay}"
+                                      IsOn="{x:Bind Settings.PerAppOutputEnabled, Mode=TwoWay}" />
+                        <TextBlock x:Uid="SettingsPerAppNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="{x:Bind CompanionState.PerAppSupportText, Mode=OneWay}"
+                                   Style="{StaticResource GlassLabelTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(CompanionState.PerAppSupportText), Mode=OneWay}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                        <StackPanel Spacing="{StaticResource GlassSpace8}"
+                                    Visibility="{x:Bind design:GlassBind.Visible(Settings.PerAppOutputEnabled), Mode=OneWay}">
+                            <TextBox x:Uid="SettingsPerAppRulesBox"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     MinHeight="96"
+                                     Text="{x:Bind Settings.PerAppRulesText, Mode=TwoWay}" />
+                            <TextBlock x:Uid="SettingsPerAppSyntaxNote"
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                            <TextBlock Text="{x:Bind views:SettingsView.IgnoredRulesText(Settings.PerAppRulesText), Mode=OneWay}"
+                                       Style="{StaticResource GlassLabelTextStyle}" TextWrapping="WrapWholeWords"
+                                       Visibility="{x:Bind views:SettingsView.IgnoredRulesVisibility(Settings.PerAppRulesText), Mode=OneWay}"
+                                       AutomationProperties.LiveSetting="Polite" />
+                            <TextBlock x:Uid="SettingsPerAppTimingNote"
+                                       Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        </StackPanel>
+                    </StackPanel>
+                </design:GlassSurface>
+
+                <!-- ===== About: version, updates, links ===== -->
+                <StackPanel x:Name="AboutSection" Spacing="{StaticResource GlassSpace16}">
+                <design:GlassSurface Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace8}">
+                        <TextBlock x:Uid="SettingsAboutTitle" Style="{StaticResource GlassSectionTitleTextStyle}" AutomationProperties.HeadingLevel="Level2" />
+                        <TextBlock Text="Clasp" Style="{StaticResource GlassLabelTextStyle}" FontSize="18" />
+                        <TextBlock x:Uid="SettingsAboutTagline" Style="{StaticResource GlassBodyTextStyle}" Foreground="{ThemeResource GlassTextSecondaryBrush}" />
+                        <TextBlock Text="{x:Bind Updates.CurrentVersionText, Mode=OneWay, FallbackValue=''}" Style="{StaticResource GlassCaptionTextStyle}" />
+                        <design:GlassButton x:Uid="SettingsShowWelcomeButton" HorizontalAlignment="Left" Click="OnShowWelcomeClick" />
+                        <TextBlock x:Uid="SettingsDevelopedBy" Style="{StaticResource GlassBodyTextStyle}" />
+                        <HyperlinkButton x:Uid="SettingsLicensesLink"
+                                         Padding="0"
+                                         Click="OnOpenSourceLicensesClick" />
+                        <TextBlock x:Uid="SettingsTrademarkNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock x:Uid="SettingsDesignNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                    </StackPanel>
+                </design:GlassSurface>
+
+                <!-- Updates: checks GitHub releases; installs only releases signed with Clasp's release key. -->
+                <design:GlassSurface x:Name="UpdatesSection" Style="{StaticResource GlassReadableSurfaceStyle}">
+                    <StackPanel Spacing="{StaticResource GlassSpace12}">
+                        <TextBlock x:Uid="SettingsUpdatesHeading" Style="{StaticResource GlassLabelTextStyle}" AutomationProperties.HeadingLevel="Level3" />
+                        <ComboBox x:Uid="SettingsUpdateFrequencyPicker" x:Name="UpdateFrequencyPicker"
+                                  MinWidth="220"
+                                  IsEnabled="{x:Bind Updates.CanCheck, Mode=OneWay, FallbackValue=False}"
+                                  SelectedIndex="{x:Bind Settings.UpdateCheckFrequencyIndex, Mode=TwoWay}">
+                            <ComboBoxItem x:Uid="SettingsUpdateFreqManualOption" />
+                            <ComboBoxItem x:Uid="SettingsUpdateFreqDailyOption" />
+                            <ComboBoxItem x:Uid="SettingsUpdateFreqWeeklyOption" />
+                            <ComboBoxItem x:Uid="SettingsUpdateFreqMonthlyOption" />
+                        </ComboBox>
+                        <TextBlock x:Uid="SettingsUpdatesNote"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="{x:Bind Updates.StatusText, Mode=OneWay, FallbackValue=''}"
+                                   Style="{StaticResource GlassBodyTextStyle}" TextWrapping="WrapWholeWords"
+                                   Visibility="{x:Bind design:GlassBind.VisibleIfText(Updates.StatusText), Mode=OneWay, FallbackValue=Collapsed}"
+                                   AutomationProperties.LiveSetting="Polite" />
+                        <TextBlock Text="{x:Bind Updates.LastCheckedText, Mode=OneWay, FallbackValue=''}"
+                                   Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
+                            <design:GlassButton x:Uid="SettingsCheckNowButton" x:Name="CheckUpdatesButton"
+                                                IsEnabled="{x:Bind Updates.CanCheck, Mode=OneWay, FallbackValue=False}"
+                                                IsPending="{x:Bind Updates.IsBusy, Mode=OneWay, FallbackValue=False}"
+                                                Click="OnCheckUpdatesClick" />
+                            <design:GlassButton x:Uid="SettingsInstallUpdateButton" x:Name="InstallUpdateButton"
+                                                Content="{x:Bind Updates.InstallButtonText, Mode=OneWay, FallbackValue='Update'}"
+                                                Visibility="{x:Bind design:GlassBind.Visible(Updates.CanInstall), Mode=OneWay, FallbackValue=Collapsed}"
+                                                Click="OnInstallUpdateClick" />
+                            <design:GlassButton x:Uid="SettingsReleaseNotesButton" Click="OnReleaseNotesClick" />
+                        </StackPanel>
+                    </StackPanel>
+                </design:GlassSurface>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+    <!-- Aurora edge around the window (the app icon's rim); last, so it draws over the glass inside the padding. -->
+    <design:AuroraEdge />
+    </Grid>
+</UserControl>

@@ -1,0 +1,20 @@
+{
+  "direction": "engine_to_client",
+  "description": "1.1 control session with writable_settings",
+  "message": {
+    "type": "session",
+    "seq": 4,
+    "session_id": 1,
+    "device_id": "dev-3f9a1c0e8b7d6a52",
+    "state": "open",
+    "reason": null,
+    "writable_modes": [
+      "noise_cancellation",
+      "transparency",
+      "adaptive"
+    ],
+    "writable_settings": [
+      "listening_mode"
+    ]
+  }
+}

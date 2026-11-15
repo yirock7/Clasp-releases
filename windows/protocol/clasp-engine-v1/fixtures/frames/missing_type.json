@@ -1,0 +1,5 @@
+{
+  "description": "Object without a type",
+  "bytes_hex": "0b0000007b226d616a6f72223a317d",
+  "expect": "reject_malformed"
+}

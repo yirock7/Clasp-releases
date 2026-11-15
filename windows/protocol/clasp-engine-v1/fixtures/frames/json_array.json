@@ -1,0 +1,5 @@
+{
+  "description": "Body is a JSON array, not an object",
+  "bytes_hex": "070000005b312c322c335d",
+  "expect": "reject_malformed"
+}

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Per-button overrides merged into an accent GlassButton's own Resources (GlassButton.IsAccent).
+    The base button lightens on hover (white overlay, white sheen, white pointer light), which is
+    right on near-white glass but drops white-on-blue text below 4.5:1. On the accent fill these
+    keys darken instead and keep the light subtle (the lens highlight is shorter and fainter too: white text over
+    at the top of the glyphs, about 8% white in all (lens 3% + sheen 5%) on #275FD4, is about 4.9:1). Computed worst case (light 10% over the 10%
+    hover darkening at the top stop): about 5:1. High contrast keeps the system behaviour.
+-->
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="GlassHoverOverlayBrush" Color="#1A000000" />
+            <SolidColorBrush x:Key="GlassPressedOverlayBrush" Color="#33000000" />
+            <LinearGradientBrush x:Key="GlassControlSheenBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#1AFFFFFF" />
+                <GradientStop Offset="0.55" Color="#00FFFFFF" />
+            </LinearGradientBrush>
+            <RadialGradientBrush x:Key="GlassButtonLensBrush" Center="0.4,0" GradientOrigin="0.4,0" RadiusX="0.85" RadiusY="0.45">
+                <GradientStop Offset="0" Color="#26FFFFFF" />
+                <GradientStop Offset="0.4" Color="#0CFFFFFF" />
+                <GradientStop Offset="1" Color="#00FFFFFF" />
+            </RadialGradientBrush>
+            <Color x:Key="GlassPointerLightColor">#1AFFFFFF</Color>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="GlassHoverOverlayBrush" Color="#1A000000" />
+            <SolidColorBrush x:Key="GlassPressedOverlayBrush" Color="#33000000" />
+            <LinearGradientBrush x:Key="GlassControlSheenBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0" Color="#1AFFFFFF" />
+                <GradientStop Offset="0.55" Color="#00FFFFFF" />
+            </LinearGradientBrush>
+            <RadialGradientBrush x:Key="GlassButtonLensBrush" Center="0.4,0" GradientOrigin="0.4,0" RadiusX="0.85" RadiusY="0.45">
+                <GradientStop Offset="0" Color="#26FFFFFF" />
+                <GradientStop Offset="0.4" Color="#0CFFFFFF" />
+                <GradientStop Offset="1" Color="#00FFFFFF" />
+            </RadialGradientBrush>
+            <Color x:Key="GlassPointerLightColor">#1AFFFFFF</Color>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="HighContrast">
+            <SolidColorBrush x:Key="GlassHoverOverlayBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassPressedOverlayBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassControlSheenBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="GlassButtonLensBrush" Color="Transparent" />
+            <Color x:Key="GlassPointerLightColor">#00FFFFFF</Color>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

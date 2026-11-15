@@ -1,0 +1,5 @@
+{
+  "description": "v1.1: 0x04 is transitional (bud moving): no ear field at all",
+  "packet_hex": "0400040006000104",
+  "expect_fields": null
+}

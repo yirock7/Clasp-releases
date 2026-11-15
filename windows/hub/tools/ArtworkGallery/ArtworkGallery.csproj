@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Review harness for the model artwork: shows every ArtworkGroup in the REAL ModelArtwork / CaseArtwork
+       controls (linked from the App project, not copied). Not part of the solution, never published or
+       installed. Unpackaged, self-contained, x64, same package versions as AppleDeviceHub.App, but with
+       PublishAot off (so the product's AOT rules are not enforced here; the product build still enforces them).
+       No tray, single-instance lock, settings file or Bluetooth. See README.md. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>ArtworkGallery</RootNamespace>
+    <AssemblyName>ArtworkGallery</AssemblyName>
+
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+
+    <UseWinUI>true</UseWinUI>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <SelfContained>true</SelfContained>
+    <EnableMsixTooling>false</EnableMsixTooling>
+    <DefaultLanguage>en-US</DefaultLanguage>
+
+    <PublishAot>false</PublishAot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.3.9" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.9169" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AppleDeviceHub.Core\AppleDeviceHub.Core.csproj" />
+  </ItemGroup>
+
+  <!-- The real product sources, linked so the gallery can never drift from what ships. -->
+  <ItemGroup>
+    <Page Include="..\..\src\AppleDeviceHub.App\Views\ModelArtwork.xaml" Link="Views\ModelArtwork.xaml" />
+    <Compile Include="..\..\src\AppleDeviceHub.App\Views\ModelArtwork.xaml.cs" Link="Views\ModelArtwork.xaml.cs" />
+    <Page Include="..\..\src\AppleDeviceHub.App\Views\CaseArtwork.xaml" Link="Views\CaseArtwork.xaml" />
+    <Compile Include="..\..\src\AppleDeviceHub.App\Views\CaseArtwork.xaml.cs" Link="Views\CaseArtwork.xaml.cs" />
+    <Compile Include="..\..\src\AppleDeviceHub.App\Views\Artwork\*.cs" LinkBase="Views\Artwork" />
+    <Content Include="..\..\src\AppleDeviceHub.App\Assets\Artwork\*.svg" Link="Assets\Artwork\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Compile Include="..\..\src\AppleDeviceHub.App\Design\Motion.cs" Link="Design\Motion.cs" />
+    <Compile Include="..\..\src\AppleDeviceHub.App\Design\EffectsPolicy.cs" Link="Design\EffectsPolicy.cs" />
+    <Page Include="..\..\src\AppleDeviceHub.App\Design\GlassTokens.xaml" Link="Design\GlassTokens.xaml" />
+    <!-- The controls page (page=controls): the real toggle and slider templates and what GlassStyles.xaml needs to compile. -->
+    <Page Include="..\..\src\AppleDeviceHub.App\Design\GlassStyles.xaml" Link="Design\GlassStyles.xaml" />
+    <Page Include="..\..\src\AppleDeviceHub.App\Design\GlassAccentOverrides.xaml" Link="Design\GlassAccentOverrides.xaml" />
+    <Compile Include="..\..\src\AppleDeviceHub.App\Design\ControlFeel.cs" Link="Design\ControlFeel.cs" />
+    <Compile Include="..\..\src\AppleDeviceHub.App\Design\GlassSurface.cs" Link="Design\GlassSurface.cs" />
+    <Compile Include="..\..\src\AppleDeviceHub.App\Design\GlassLens.cs" Link="Design\GlassLens.cs" />
+    <Compile Include="..\..\src\AppleDeviceHub.App\Design\GlassButton.cs" Link="Design\GlassButton.cs" />
+    <Compile Include="..\..\src\AppleDeviceHub.App\Design\GlassStatusChip.cs" Link="Design\GlassStatusChip.cs" />
+    <Compile Include="..\..\src\AppleDeviceHub.App\Design\GlassBind.cs" Link="Design\GlassBind.cs" />
+  </ItemGroup>
+
+</Project>

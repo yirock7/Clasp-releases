@@ -1,0 +1,18 @@
+{
+  "direction": "engine_to_client",
+  "description": "One paired AirPods with a bound driver interface",
+  "message": {
+    "type": "devices",
+    "seq": 2,
+    "request_id": "0b7e4c2a-1f3d-4e5a-8b6c-9d0e1f2a3b4c",
+    "devices": [
+      {
+        "device_id": "dev-3f9a1c0e8b7d6a52",
+        "name": "AirPods Pro",
+        "aap_service": true,
+        "driver_interface": "bound",
+        "windows_connected": true
+      }
+    ]
+  }
+}

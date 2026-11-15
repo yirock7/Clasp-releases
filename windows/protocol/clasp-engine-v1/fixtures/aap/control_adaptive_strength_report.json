@@ -1,0 +1,5 @@
+{
+  "description": "Control id 0x2E: adaptive strength is not reported in 1.1 (no readback evidence)",
+  "packet_hex": "0400040009002e32000000",
+  "expect_fields": null
+}

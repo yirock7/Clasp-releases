@@ -1,0 +1,12 @@
+{
+  "direction": "engine_to_client",
+  "description": "Device not connected to Windows: the engine refuses to page it",
+  "message": {
+    "type": "result",
+    "seq": 3,
+    "request_id": "0b7e4c2a-1f3d-4e5a-8b6c-9d0e1f2a3b4c",
+    "outcome": "failed",
+    "detail": "not_connected: connect the AirPods to Windows first (Bluetooth settings), then start the session",
+    "session_id": null
+  }
+}

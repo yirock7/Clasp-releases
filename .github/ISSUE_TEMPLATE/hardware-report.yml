@@ -1,0 +1,121 @@
+name: Hardware report
+description: Tell me how Clasp behaves with your AirPods or Beats (this is the most useful kind of report)
+labels: [hardware-report]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks. I have only tested Clasp on real AirPods Pro 3, so what you saw on your own hardware matters a lot. Nothing here needs a bug. "It all worked" is a useful answer too.
+
+  - type: dropdown
+    id: model
+    attributes:
+      label: Model
+      options:
+        - AirPods Pro 3
+        - AirPods (1st generation)
+        - AirPods (2nd generation)
+        - AirPods (3rd generation)
+        - AirPods 4
+        - AirPods 4 (ANC)
+        - AirPods 5
+        - AirPods Pro
+        - AirPods Pro 2 (Lightning)
+        - AirPods Pro 2 (USB-C)
+        - AirPods Max (Lightning)
+        - AirPods Max (USB-C)
+        - AirPods Max 2
+        - Powerbeats Pro
+        - Powerbeats Pro 2
+        - Beats Fit Pro
+        - Beats Studio Buds+
+        - Beats Solo Buds
+        - Beats Solo 4
+        - Beats Studio Pro
+        - Beats Flex
+        - Beats 360
+        - BeatsX
+        - Powerbeats 3
+        - Powerbeats 4
+        - Powerbeats Fit
+        - Beats Solo 3
+        - Beats Solo Pro
+        - Beats Studio 3
+        - Beats Studio Buds
+        - Other (say which in the notes)
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Clasp version
+      description: Open Clasp's settings and look under **About**.
+      placeholder: "0.6.0"
+    validations:
+      required: true
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows build
+      description: Press Win+R, type `winver` and press Enter.
+      placeholder: "Windows 11 24H2, build 26100"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: left
+    attributes:
+      label: Left earbud battery
+      description: Compare with what your iPhone or the earbuds themselves show, remembering that Clasp reads in steps of 10%.
+      options:
+        - Read correctly
+        - Wrong or missing
+        - Not applicable (no left earbud on this model)
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: right
+    attributes:
+      label: Right earbud battery
+      options:
+        - Read correctly
+        - Wrong or missing
+        - Not applicable (no right earbud on this model)
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: case
+    attributes:
+      label: Case battery
+      options:
+        - Read correctly
+        - Wrong or missing
+        - Not applicable (this model has no case)
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: wear
+    attributes:
+      label: In-ear or worn detection
+      description: Optional in Clasp's settings and off by default. It is an estimate, so some lag is normal.
+      options:
+        - Behaves as expected
+        - Lags or misses changes
+        - Wrong most of the time
+        - Did not try it
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else (optional)
+      description: What looked wrong, what the real battery was, or what model "Other" is. Screenshots help.

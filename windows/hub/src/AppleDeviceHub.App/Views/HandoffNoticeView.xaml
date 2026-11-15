@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+    "AirPods moved to another device" notice (host: HandoffNoticeWindow, non-activating).
+    Title, one honest sentence, a status line for the Take back result, and two buttons.
+-->
+<UserControl
+    x:Class="AppleDeviceHub.App.Views.HandoffNoticeView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:design="using:AppleDeviceHub.App.Design"
+    FontWeight="Medium"
+    Background="Transparent">
+
+    <Grid>
+    <Border design:GlassFallback.ShowWhenOpaque="True"
+            Background="{ThemeResource GlassOpaqueFillBrush}"
+            Visibility="Collapsed" />
+    <design:GlassSurface x:Name="CardSurface" Margin="{StaticResource GlassPadding8}" VerticalAlignment="Top" Padding="18,16,18,18">
+        <StackPanel Spacing="{StaticResource GlassSpace12}">
+            <Grid ColumnSpacing="{StaticResource GlassSpace8}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="4" VerticalAlignment="Center">
+                    <TextBlock x:Name="TitleText"
+                               Style="{StaticResource GlassTitleTextStyle}"
+                               TextWrapping="WrapWholeWords" />
+                    <TextBlock x:Name="DetailText"
+                               Style="{StaticResource GlassCaptionTextStyle}"
+                               TextWrapping="WrapWholeWords" />
+                </StackPanel>
+                <design:GlassIconButton x:Uid="HandoffDismissButton" Grid.Column="1"
+                                        VerticalAlignment="Top"
+                                        Click="OnDismissClick">
+                    <FontIcon Glyph="&#xE711;" FontSize="14" />
+                </design:GlassIconButton>
+            </Grid>
+
+            <TextBlock x:Name="StatusText"
+                       Style="{StaticResource GlassCaptionTextStyle}"
+                       FontWeight="SemiBold"
+                       TextWrapping="WrapWholeWords"
+                       Visibility="Collapsed" />
+
+            <design:GlassButton x:Name="TakeBackButton"
+                                HorizontalAlignment="Stretch"
+                                MinHeight="40"
+                                CornerRadius="20"
+                                Style="{StaticResource GlassAccentButtonStyle}"
+                                Click="OnTakeBackClick" />
+        </StackPanel>
+    </design:GlassSurface>
+    </Grid>
+</UserControl>

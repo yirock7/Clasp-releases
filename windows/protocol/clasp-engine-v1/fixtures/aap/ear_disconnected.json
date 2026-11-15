@@ -1,0 +1,10 @@
+{
+  "description": "v1.1: 0x03 seen at rest on a bud that dropped off the link",
+  "packet_hex": "0400040006000203",
+  "expect_fields": {
+    "ear": {
+      "primary": "in_case",
+      "secondary": "disconnected"
+    }
+  }
+}

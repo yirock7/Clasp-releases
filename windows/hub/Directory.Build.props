@@ -1,0 +1,16 @@
+<Project>
+  <!-- Shared settings for every project under windows/hub. The Rust engine
+       (windows/daemon) is a sibling and is NOT affected by this file. -->
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <!-- Phase two: nullable warnings are build errors; recommended .NET analyzers are on. -->
+    <WarningsAsErrors>$(WarningsAsErrors);nullable</WarningsAsErrors>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <Company>Clasp contributors</Company>
+    <Product>Clasp</Product>
+    <Copyright>Copyright © 2026 Clasp contributors</Copyright>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+</Project>
