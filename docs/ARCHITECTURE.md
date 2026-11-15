@@ -32,6 +32,9 @@ Nearby detection and automatic reconnect are off by default. The app does not of
 |---|---|
 | `windows/hub/src/AppleDeviceHub.Core` | Plain .NET, no UI. Rules and decisions: battery parsing, the model catalog, identity matching, settings, update checks and signature verification, view models. Testable without a device. |
 | `windows/hub/src/AppleDeviceHub.App` | The WinUI 3 app: tray icon, flyout, case card, Settings, welcome guide, and the Windows audio and Bluetooth glue. |
+| `windows/hub/src/AppleDeviceHub.Core/Storage/AppDataFolder.cs` | Where Clasp keeps its data (`%LOCALAPPDATA%\Clasp`) and the one-time move from the pre-rename `%LOCALAPPDATA%\AppleDeviceHub`. It tries a rename first, then copies; the old folder stays authoritative until every file is copied and is removed only afterwards. |
+| `windows/hub/src/AppleDeviceHub.Core/Storage/CrashMarker.cs` | A tiny `crash.marker` file written when Clasp dies from an unhandled exception (time and exception type only, no message). The next start shows a notification and clears it. |
+| `windows/hub/src/AppleDeviceHub.Core/Startup/LegacyExecutable.cs` | Rewrites a sign-in or `clasp:` link command that still names the old `AppleDeviceHub.exe` in the running program's folder so it names `Clasp.exe`. |
 | `windows/hub/tests` | Core tests. |
 | `windows/hub/installer` | The per-user Inno Setup installer. |
 | `windows/hub/tools` | Developer tools: icon generator, the update signer, the signature-check script, and a few Bluetooth probes. |
@@ -55,6 +58,10 @@ Nearby detection and automatic reconnect are off by default. The app does not of
 - **Case card.** A small window that does not steal focus, shown near the bottom of the screen when a case is opened nearby. It stays quiet during full-screen apps and presentations.
 - **Settings.** A normal resizable window.
 - **Effects.** Windows' "Animation effects", "Transparency effects" and High contrast settings are respected, with overrides in Settings. Reduced transparency gives opaque surfaces; reduced motion removes movement and keeps short fades.
+
+## Data and logs
+
+Everything the app writes at run time (settings, battery history, `hub.log`, `crash.marker`, downloaded updates) lives under `%LOCALAPPDATA%\Clasp`, resolved by `AppDataFolder`. `hub.log` records errors by type and code, never by message, and never contains device names or Bluetooth addresses. User-visible text comes from resource files (`Strings` in Core, `Resources.resw` in the App) rather than string literals.
 
 ## Updates
 

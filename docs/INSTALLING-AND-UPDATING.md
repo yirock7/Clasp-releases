@@ -17,7 +17,7 @@ Download the installer and its `.sig` file from the Releases page into the same 
 
 ```powershell
 cd $env:USERPROFILE\Downloads
-Invoke-WebRequest https://raw.githubusercontent.com/yirock7/Clasp-releases/clasp-v0.4.2/windows/hub/tools/Verify-ClaspInstaller.ps1 -OutFile Verify-ClaspInstaller.ps1
+Invoke-WebRequest https://raw.githubusercontent.com/yirock7/Clasp-releases/clasp-v0.5.0/windows/hub/tools/Verify-ClaspInstaller.ps1 -OutFile Verify-ClaspInstaller.ps1
 powershell -ExecutionPolicy Bypass -File .\Verify-ClaspInstaller.ps1 -Installer .\Clasp-X.Y.Z-win-x64-setup.exe
 ```
 
@@ -50,7 +50,7 @@ You can also download a newer setup file by hand and run it. It upgrades in plac
 
 ## Where things live
 
-Settings, battery history and a small log are in `%LOCALAPPDATA%\Clasp`. Downloaded updates go to its `updates` subfolder. Earlier versions kept these in `%LOCALAPPDATA%\AppleDeviceHub`. The first start of a newer version moves them across, and an interactive uninstall that you answer Yes to deletes both folders.
+Settings, battery history and a small log are in `%LOCALAPPDATA%\Clasp`. Downloaded updates go to its `updates` subfolder. Earlier versions kept these in `%LOCALAPPDATA%\AppleDeviceHub`. The first start of a newer version moves them across; the old folder is deleted only after everything is safely copied. The program itself used to be `AppleDeviceHub.exe`; it is now `Clasp.exe`, so if you pinned the old one to the taskbar, pin Clasp again from the Start menu. Setup and the app repair the sign-in entry and `clasp:` link after the rename. An interactive uninstall that you answer Yes to deletes both folders.
 
 ## Uninstalling
 

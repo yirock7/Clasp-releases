@@ -81,7 +81,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools\Verify-ClaspInstal
 ```
 
 The README's one-line command downloads that script from the source repo at a fixed tag
-(currently `clasp-v0.4.2`), so when the script changes, update the tag in `README.md`,
+(currently `clasp-v0.5.0`), so when the script changes, update the tag in `README.md`,
 and `docs/INSTALLING-AND-UPDATING.md`. If the public key ever
 changes, update the fingerprint printed in those files too.
 

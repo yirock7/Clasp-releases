@@ -29,7 +29,8 @@ namespace AppleDeviceHub.App;
 /// Tray-first app: no main window. Startup picks the transport deliberately, then creates the
 /// tray icon and the reusable flyout (which also peeks when the AirPods case opens).
 ///
-/// Transports: --transport=demo (the default; synthetic data with a visible Demo badge), or
+/// Transports: --transport=ble (the default; nearby Bluetooth broadcasts), --transport=demo (synthetic data with a
+/// visible Demo badge), or
 /// --transport=hardware --engine-path=&lt;full path&gt; [--engine-sha256=&lt;hex&gt;]
 /// --device=&lt;dev-...&gt; [--session=observe|control] for the Clasp engine. Nothing here starts
 /// an engine process, searches PATH or asks for elevation; the engine must already be running.
