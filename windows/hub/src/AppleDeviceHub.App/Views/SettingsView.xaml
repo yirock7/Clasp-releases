@@ -34,7 +34,7 @@
         <design:GlassSurface Style="{StaticResource GlassNestedSurfaceStyle}" VerticalAlignment="Top" TracksPointerLight="True">
             <StackPanel Spacing="{StaticResource GlassSpace4}">
                 <StackPanel Orientation="Horizontal" Spacing="10" Margin="8,4,8,12" AutomationProperties.AccessibilityView="Raw">
-                    <views:ClaspGlyph x:Name="BrandMark" Width="28" Height="28" VerticalAlignment="Center" />
+                    <views:ClaspLogo x:Name="BrandMark" Width="28" Height="28" VerticalAlignment="Center" />
                     <TextBlock Text="Clasp" Style="{StaticResource GlassSectionTitleTextStyle}" FontSize="18" VerticalAlignment="Center" />
                 </StackPanel>
                 <TextBlock x:Uid="SettingsRailTitle"
