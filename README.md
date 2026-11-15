@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/clasp-icon.png" alt="Clasp icon: an open charging case with two earbuds on dark frosted glass with a coloured border" width="128"></p>
+
 # Clasp
 
 Clasp is a small, free Windows 11 tray app for AirPods and Beats. It shows the battery of each earbud and the case, connects your earbuds in one click, and keeps your sound going to the right place.

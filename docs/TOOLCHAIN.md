@@ -37,9 +37,10 @@ The installer is built with Inno Setup 6.7.3. `Build-Installer.ps1` looks for `I
 
 ## Python (icons only)
 
-Python is not needed to build or run Clasp. Two maintainer scripts in `windows/hub/tools` redraw the brand artwork:
+Python is not needed to build or run Clasp. Three maintainer scripts in `windows/hub/tools` redraw the brand artwork:
 
-- `make-icons.py` writes the app and tray icons, the tray glyph masks and `brand/clasp-icon-1024.png`.
+- `make-logo.py` writes the app icon (`AppIcon.ico`), the in-app logo, `brand/clasp-icon-1024.png`, the README mark and the social preview. It renders SVG with headless Microsoft Edge (or Chrome).
+- `make-icons.py` writes the tray icons and tray glyph masks.
 - `make-wordmark.py` draws the wordmark.
 
-Both need Pillow (`pip install pillow`). They read Segoe UI fonts from the Windows fonts folder, so they are meant to be run on Windows. Run them from `windows/hub`, for example `python tools/make-icons.py`. The generated files are committed, so you only need this if you change the artwork.
+All need Pillow (`pip install pillow`). They read Segoe UI fonts from the Windows fonts folder, so they are meant to be run on Windows. Run them from `windows/hub`, for example `python tools/make-logo.py`. The generated files are committed, so you only need this if you change the artwork.

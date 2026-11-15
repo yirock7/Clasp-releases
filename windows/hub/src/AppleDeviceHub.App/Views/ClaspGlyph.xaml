@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    The Clasp logo as vectors: the charging-case outline, lid seam and status light used by the
-    tray icon (Assets/TrayIcon-*.ico). Everything is drawn with the primary text brush, so it is
+    The Clasp mark as monochrome vectors: the charging-case outline, lid seam and status light used by the
+    tray icon (Assets/TrayIcon-*.ico). The in-app logo is the full-colour ClaspLogo; this glyph is its High
+    Contrast fallback and the stand-in for the tray icon in the welcome illustration. Everything is drawn with the primary text brush, so it is
     dark on the light theme, light on the dark theme, and a system colour in High Contrast.
 
     The numbers come from tools/make-icons.py (GRID/BOX/STROKE/...), shifted so the glyph's own

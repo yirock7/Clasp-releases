@@ -137,7 +137,10 @@ $requiredRuntimeFiles = @(
     'Clasp.exe',
     'Microsoft.ui.xaml.dll',
     'Microsoft.WindowsAppRuntime.dll',
-    'Microsoft.WindowsAppRuntime.Bootstrap.dll'
+    'Microsoft.WindowsAppRuntime.Bootstrap.dll',
+    # Brand assets loaded from disk at run time (window icons, in-app logo); see the Content item in the app csproj.
+    'Assets\AppIcon.ico',
+    'Assets\ClaspLogo.png'
 )
 foreach ($relativePath in $requiredRuntimeFiles) {
     Assert-NonEmptyFile -Path (Join-Path $publishPath $relativePath)

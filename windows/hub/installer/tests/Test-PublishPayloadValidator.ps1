@@ -27,7 +27,9 @@ $requiredRootFiles = @(
     'Clasp.pri',
     'Microsoft.ui.xaml.dll',
     'Microsoft.WindowsAppRuntime.dll',
-    'Microsoft.WindowsAppRuntime.Bootstrap.dll'
+    'Microsoft.WindowsAppRuntime.Bootstrap.dll',
+    'Assets\AppIcon.ico',
+    'Assets\ClaspLogo.png'
 )
 
 $sourceXamlFiles = @(
@@ -66,7 +68,9 @@ function Copy-ValidFixture {
         if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
             throw "Source publish is missing a validator-required file: $relativePath"
         }
-        Copy-Item -LiteralPath $sourcePath -Destination (Join-Path $DestinationPath $relativePath)
+        $targetPath = Join-Path $DestinationPath $relativePath
+        [void][System.IO.Directory]::CreateDirectory((Split-Path -Parent $targetPath))
+        Copy-Item -LiteralPath $sourcePath -Destination $targetPath
     }
 
     foreach ($relativePath in $sourceXbfRelativePaths) {
@@ -149,6 +153,11 @@ try {
     Copy-ValidFixture -DestinationPath $xamlRuntimeFixturePath
     Remove-Item -LiteralPath (Join-Path $xamlRuntimeFixturePath 'Microsoft.ui.xaml.dll') -Force
     Assert-ValidationResult -CaseName 'missing Microsoft.ui.xaml.dll' -PublishPath $xamlRuntimeFixturePath -ShouldPass $false -ExpectedErrorPattern 'Microsoft\.ui\.xaml\.dll'
+
+    $logoFixturePath = Join-Path $fixtureRoot 'missing-logo'
+    Copy-ValidFixture -DestinationPath $logoFixturePath
+    Remove-Item -LiteralPath (Join-Path $logoFixturePath 'Assets\ClaspLogo.png') -Force
+    Assert-ValidationResult -CaseName 'missing ClaspLogo.png' -PublishPath $logoFixturePath -ShouldPass $false -ExpectedErrorPattern 'ClaspLogo\.png'
 
     $jitRuntimeFixturePath = Join-Path $fixtureRoot 'jit-runtime'
     Copy-ValidFixture -DestinationPath $jitRuntimeFixturePath
