@@ -2,12 +2,14 @@
 
 What changed in each version of Clasp, written for people who use it. Each version's full release (with the installer) is on the [releases page](https://github.com/yirock7/Clasp-releases/releases).
 
-## Unreleased
+## 0.6.0
+
+A look-and-feel release: Clasp has a new app icon and a soft coloured edge on its windows.
 
 ### New
 
-- **A new app icon.** It shows the charging case from Clasp's own artwork, lid open with the earbuds peeking out, on dark frosted glass with a coloured edge. At the smallest sizes (taskbar and title bar) it shows the closed case with its green light, so it stays readable.
-- **A coloured glass edge.** Clasp's windows now have a soft coloured glass edge, matching the new icon. It's off in High Contrast and when transparency effects are off.
+- **A new app icon.** It shows the charging case from Clasp's own artwork, lid open with the earbuds peeking out, on dark frosted glass with a soft colour edge. At the smallest sizes (such as the taskbar) it shows the closed case with its green light, so it stays readable. The taskbar, Start menu, installer, notifications, Settings and the README all use it. The tray icon is unchanged: it is still the silhouette of your device, tinted by battery.
+- **A soft coloured glass edge on Clasp's windows.** The flyout, Settings and the welcome guide now have an edge that matches the icon. It glows briefly when a window opens, is softer on the light theme, and is off in High Contrast and when transparency effects are off.
 
 ## 0.5.0
 

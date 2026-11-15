@@ -30,6 +30,7 @@ Click the tray icon and a small panel opens with the battery level of each earbu
 - **Play and pause.** Optionally, it presses Play when your AirPods connect and pause when they leave. It can also pause when you take them out of your ears. That last one is an estimate from nearby signals, so it can lag or miss a change, and it is off by default.
 - **Battery history.** A chart for the last 24 hours or 7 days. If you only use your AirPods with this PC now and then, the long gaps shrink so the times you did use them stay readable.
 - **Heads-up notices.** Optionally, it tells you when the battery is low, when you open the case, or when your AirPods have moved to another device.
+- **A look that matches the icon.** The flyout, Settings and welcome guide have a soft coloured glass edge, which is off in High Contrast and when transparency effects are off.
 - **Your actual model.** Each of the 21 supported AirPods and Beats models has its own picture. If your model comes in more than one finish, **Settings > AirPods > Device color** lets you pick yours.
 - **Pair from Clasp.** The welcome guide lists AirPods and Beats that are in pairing mode, each with a **Pair** button, then connects the ones you pick. It also shows the right button presses to put your model into pairing mode, and a last page sets your main options before you finish.
 
@@ -77,7 +78,7 @@ Download the latest `Clasp-X.Y.Z-win-x64-setup.exe` from the [releases page](htt
 
 ```powershell
 cd $env:USERPROFILE\Downloads
-Invoke-WebRequest https://raw.githubusercontent.com/yirock7/Clasp-releases/clasp-v0.5.0/windows/hub/tools/Verify-ClaspInstaller.ps1 -OutFile Verify-ClaspInstaller.ps1
+Invoke-WebRequest https://raw.githubusercontent.com/yirock7/Clasp-releases/clasp-v0.6.0/windows/hub/tools/Verify-ClaspInstaller.ps1 -OutFile Verify-ClaspInstaller.ps1
 powershell -ExecutionPolicy Bypass -File .\Verify-ClaspInstaller.ps1 -Installer .\Clasp-X.Y.Z-win-x64-setup.exe
 ```
 
