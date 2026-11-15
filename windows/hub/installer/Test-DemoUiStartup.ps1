@@ -78,7 +78,19 @@ if (-not (Test-Path -LiteralPath $settingsPath -PathType Leaf) -and (Test-Path -
 else {
     $settingsHashBefore = Get-FileHashOrMissing -Path $settingsPath
 }
-$logStartOffset = if (Test-Path -LiteralPath $logPath -PathType Leaf) { (Get-Item -LiteralPath $logPath).Length } else { 0L }
+# The same migration moves the old hub.log into place (content preserved; if a new log already exists it is kept instead).
+# With no new log yet, the old file's length is the offset: otherwise every old line would count as written by this run
+# and an old error would fail the smoke.
+$legacyLogPath = Join-Path $appData 'AppleDeviceHub\hub.log'
+$logStartOffset = if (Test-Path -LiteralPath $logPath -PathType Leaf) {
+    (Get-Item -LiteralPath $logPath).Length
+}
+elseif (Test-Path -LiteralPath $legacyLogPath -PathType Leaf) {
+    (Get-Item -LiteralPath $legacyLogPath).Length
+}
+else {
+    0L
+}
 
 $hostQualified = $false
 $hostQualification = 'UNVERIFIED: could not read the Windows client/build/architecture details.'
