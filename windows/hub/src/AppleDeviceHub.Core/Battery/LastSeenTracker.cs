@@ -17,8 +17,8 @@ public enum SignalBucket
 public sealed record LastSeen(DateTimeOffset Time, SignalBucket Signal);
 
 /// <summary>
-/// Remembers when the user's AirPods (identity supported by an independent pairing clue) were last heard and roughly
-/// how strongly. Nothing is shown for a device that was never heard. Persisted through the same
+/// Remembers when the user's AirPods (a likely match, Probable or better: the confidence at which the flyout shows their
+/// battery) were last heard and roughly how strongly. Unknown or ambiguous sightings are never recorded. Nothing is shown for a device that was never heard. Persisted through the same
 /// store abstraction as the battery history. Not thread-safe.
 /// </summary>
 public sealed class LastSeenTracker
@@ -53,7 +53,7 @@ public sealed class LastSeenTracker
     /// <summary>Notes a sighting. Returns true when the stored record changed.</summary>
     public bool Observe(string deviceId, IdentityConfidence identity, short? rssi, DateTimeOffset now)
     {
-        if (string.IsNullOrEmpty(deviceId) || !identity.HasIndependentClue()) return false;
+        if (string.IsNullOrEmpty(deviceId) || !identity.IsLikely()) return false;
         var bucket = BucketFor(rssi);
         if (_seen.TryGetValue(deviceId, out var previous))
         {
@@ -86,8 +86,22 @@ public sealed class LastSeenTracker
 
     public LastSeen? Get(string deviceId) => _seen.TryGetValue(deviceId, out var seen) ? seen : null;
 
+    /// <summary>
+    /// What to show: the stored sighting, or the newest battery reading on show for the same device when that is newer
+    /// (a reading on screen means the device was heard at least then), with the current signal when known.
+    /// Null when neither exists. A reading from the future is ignored.
+    /// </summary>
+    public LastSeen? Effective(string deviceId, DateTimeOffset now, DateTimeOffset? newestReading = null, short? currentRssi = null)
+    {
+        var stored = Get(deviceId);
+        if (newestReading is not { } at || at > now || (stored is not null && at <= stored.Time)) return stored;
+        var bucket = BucketFor(currentRssi);
+        return new LastSeen(at, bucket != SignalBucket.Unknown ? bucket : stored?.Signal ?? SignalBucket.Unknown);
+    }
+
     /// <summary>"Last seen 10 min ago · near", or null when never heard. Short enough for one line.</summary>
-    public string? Text(string deviceId, DateTimeOffset now) => Get(deviceId) is { } seen ? Describe(seen, now) : null;
+    public string? Text(string deviceId, DateTimeOffset now, DateTimeOffset? newestReading = null, short? currentRssi = null)
+        => Effective(deviceId, now, newestReading, currentRssi) is { } seen ? Describe(seen, now) : null;
 
     public static string Describe(LastSeen seen, DateTimeOffset now)
     {

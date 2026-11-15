@@ -28,6 +28,7 @@ internal sealed partial class CompanionHost
     private HandoffNoticeWindow? _handoffWindow;
     private BatteryHistory? _history;
     private LastSeenTracker? _lastSeen;
+    private Microsoft.UI.Dispatching.DispatcherQueueTimer? _lastHeardTimer;
     private LastCaseMemory? _lastCaseMemory;
     /// <summary>The device whose remembered case level was last given to the transport (null = none), so it is given once per selection, never again after the transport dropped it.</summary>
     private string? _rememberedCaseDeviceId;
@@ -54,6 +55,12 @@ internal sealed partial class CompanionHost
         _lastSeen.Load();
         _lastCaseMemory = new LastCaseMemory(store);
         _lastCaseMemory.Load();
+        // Keeps "Last seen 5 min ago" ageing while the flyout stays open (the main tick only runs for other jobs).
+        _lastHeardTimer = _queue.CreateTimer();
+        _lastHeardTimer.Interval = TimeSpan.FromSeconds(30);
+        _lastHeardTimer.IsRepeating = true;
+        _lastHeardTimer.Tick += (_, _) => { if (_flyout is { IsOpen: true }) RefreshLastHeard(); };
+        _lastHeardTimer.Start();
     }
 
     // ----- P1-A: which nearby broadcast is mine -----
@@ -101,6 +108,29 @@ internal sealed partial class CompanionHost
             .OrderByDescending(source => source.Identity)
             .ThenByDescending(source => source.LastHeardAt)
             .FirstOrDefault();
+
+    /// <summary>
+    /// The nearby source Clasp presents as the selected AirPods (Probable or better): the one whose battery the flyout shows,
+    /// so last seen follows it. Looser than <see cref="MatchedSource"/>, which hand-off keeps strict.
+    /// </summary>
+    private BroadcastSource? LikelySource()
+        => _broadcast?.Sources
+            .Where(source => source.Identity.IsLikely())
+            .OrderByDescending(source => source.Identity)
+            .ThenByDescending(source => source.LastHeardAt)
+            .FirstOrDefault();
+
+    /// <summary>Time of the newest nearby battery reading on show for the selected AirPods, or null when none is shown.</summary>
+    private DateTimeOffset? NewestShownReading()
+    {
+        var state = _transport.Current;
+        if (state is null || state.IsDemo || state.Origin != DataOrigin.Broadcast) return null;
+        if (_broadcast is null || !_broadcast.IdentityConfidence.IsLikely()) return null;
+        DateTimeOffset? newest = null;
+        foreach (var part in new[] { state.Battery.Left, state.Battery.Right, state.Battery.Case })
+            if (part.Level.HasValue && part.Level.ObservedAt is { } at && (newest is null || at > newest)) newest = at;
+        return newest;
+    }
 
     private void EvaluateHandoff(DateTimeOffset now)
     {
@@ -248,7 +278,7 @@ internal sealed partial class CompanionHost
         if (_lastSeen is null) return;
         var deviceId = _settings.AirPodsDeviceId;
         if (string.IsNullOrEmpty(deviceId)) return;
-        if (MatchedSource() is { } source) _lastSeen.Observe(deviceId, source.Identity, source.Rssi, source.LastHeardAt);
+        if (LikelySource() is { } source) _lastSeen.Observe(deviceId, source.Identity, source.Rssi, source.LastHeardAt);
     }
 
     private void FlushBatteryData()
@@ -286,7 +316,8 @@ internal sealed partial class CompanionHost
 
     /// <summary>When a likely match for the selected AirPods was last heard, or null.</summary>
     public DateTimeOffset? LastHeardAt()
-        => _lastSeen is null || string.IsNullOrEmpty(_settings.AirPodsDeviceId) ? null : _lastSeen.Get(_settings.AirPodsDeviceId)?.Time;
+        => _lastSeen is null || string.IsNullOrEmpty(_settings.AirPodsDeviceId) ? null
+            : _lastSeen.Effective(_settings.AirPodsDeviceId, DateTimeOffset.UtcNow, NewestShownReading())?.Time;
 
     /// <summary>Updates the flyout's "Last heard ..." line: shown only while Windows has the AirPods disconnected.</summary>
     public void RefreshLastHeard()
@@ -295,7 +326,7 @@ internal sealed partial class CompanionHost
         string? text = null;
         var deviceId = _settings.AirPodsDeviceId;
         if (_lastSeen is not null && !string.IsNullOrEmpty(deviceId) && _observation?.Connected != true)
-            text = _lastSeen.Text(deviceId, DateTimeOffset.UtcNow);
+            text = _lastSeen.Text(deviceId, DateTimeOffset.UtcNow, NewestShownReading(), LikelySource()?.Rssi);
         _flyout.SetLastHeardText(text);
     }
 
@@ -388,6 +419,7 @@ internal sealed partial class CompanionHost
 
     private void DisposeAwareness()
     {
+        _lastHeardTimer?.Stop();
         FlushBatteryData();
         Toasts.Shutdown();
     }
