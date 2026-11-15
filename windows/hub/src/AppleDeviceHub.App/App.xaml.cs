@@ -109,6 +109,8 @@ public partial class App : Application
     {
         try
         {
+            // The WinUI and AppDomain handlers can both fire for one exception: record it once.
+            if (exception is not null && ReferenceEquals(Interlocked.Exchange(ref _lastFatal, exception), exception)) return;
             LocalLog.Write($"Fatal ({source}): {LogText.Exception(exception)}");
             if (!_quitCleanupDone) CrashMarker.TryWrite(DataFolder, DateTimeOffset.UtcNow, exception);
         }
@@ -117,6 +119,8 @@ public partial class App : Application
             // Already crashing; there is nothing more to do.
         }
     }
+
+    private Exception? _lastFatal;
 
     private void OnDomainUnhandledException(object sender, System.UnhandledExceptionEventArgs e)
         => RecordFatal("AppDomain", e.ExceptionObject as Exception);
@@ -130,13 +134,13 @@ public partial class App : Application
 
     private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
-        LocalLog.Write($"Unhandled: {LogText.Exception(e.Exception)}");
         if (!_quitCleanupDone)
         {
-            // Normal running: leave the default behaviour alone (the process ends); just leave the marker first.
+            // Normal running: leave the default behaviour alone (the process ends); just log and leave the marker first.
             RecordFatal("WinUI", e.Exception);
             return;
         }
+        LocalLog.Write($"Unhandled: {LogText.Exception(e.Exception)}");
         // Everything is already stopped and saved, so a fault while the windows tear down must not become a crash that
         // Windows Error Reporting keeps alive (which would also stop an update installer from replacing Clasp).
         e.Handled = true;
