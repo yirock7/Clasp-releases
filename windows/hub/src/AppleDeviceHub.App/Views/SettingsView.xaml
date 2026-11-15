@@ -653,5 +653,7 @@
             </StackPanel>
         </ScrollViewer>
     </Grid>
+    <!-- Aurora edge around the window (the app icon's rim); last, so it draws over the glass inside the padding. -->
+    <design:AuroraEdge />
     </Grid>
 </UserControl>

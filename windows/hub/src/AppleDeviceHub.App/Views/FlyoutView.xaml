@@ -49,6 +49,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
+    <Grid>
     <design:GlassSurface x:Name="RootSurface" Style="{StaticResource FlyoutRootSurfaceStyle}" TracksPointerLight="True">
         <ScrollViewer x:Name="Scroller"
                       HorizontalScrollMode="Disabled"
@@ -583,4 +584,7 @@
             </StackPanel>
         </ScrollViewer>
     </design:GlassSurface>
+    <!-- Aurora edge around the window (the app icon's rim); sits in the 16/12 DIP content padding, above the glass. -->
+    <design:AuroraEdge />
+    </Grid>
 </UserControl>

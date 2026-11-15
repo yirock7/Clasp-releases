@@ -895,4 +895,43 @@
         </Setter>
     </Style>
 
+    <!-- ============================ AuroraEdge ============================ -->
+    <!-- The app icon's aurora rim around a window (Design/AuroraEdge.cs). Place it last in the window's root Grid. It takes no
+         space and no clicks. Twelve 1 DIP rings fade the aurora gradient inward (opacity (1 - i/12)^2.2, the same values as
+         AuroraEdgePolicy.RingOpacity), then a prism rim and a white hairline sit on the outer pixel. Corner radii of the rings
+         are set in code. RingsHost opacity is the resting level (AuroraEdgeRestOpacity); AuroraEdge.PlayOpenGlow animates it. -->
+    <Style TargetType="design:AuroraEdge">
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="CornerRadius" Value="{ThemeResource GlassWindowRadius}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="design:AuroraEdge">
+                    <Grid x:Name="Root" IsHitTestVisible="False">
+                        <Grid x:Name="RingsHost" Opacity="{ThemeResource AuroraEdgeRestOpacity}" IsHitTestVisible="False">
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="0" Opacity="1.000" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="1" Opacity="0.826" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="2" Opacity="0.670" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="3" Opacity="0.531" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="4" Opacity="0.410" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="5" Opacity="0.306" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="6" Opacity="0.218" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="7" Opacity="0.146" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="8" Opacity="0.089" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="9" Opacity="0.047" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="10" Opacity="0.019" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeBrush}" BorderThickness="1" Margin="11" Opacity="0.004" IsHitTestVisible="False" />
+                        </Grid>
+                        <Grid x:Name="RimHost" IsHitTestVisible="False">
+                            <Border BorderBrush="{ThemeResource AuroraEdgeRimBrush}" BorderThickness="1" IsHitTestVisible="False" />
+                            <Border BorderBrush="{ThemeResource AuroraEdgeHairlineBrush}" BorderThickness="1" IsHitTestVisible="False" />
+                        </Grid>
+                        <!-- Read by code for the glow peak (theme-aware); never visible. -->
+                        <Border x:Name="GlowProbe" Opacity="{ThemeResource AuroraEdgeGlowOpacity}" Visibility="Collapsed" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>
