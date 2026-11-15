@@ -13,7 +13,7 @@ namespace AppleDeviceHub.App.Design;
 /// <item>The layers are shown when <see cref="IsActive"/>. Reduced transparency and High Contrast turn
 /// them off (every layer collapses), exactly like the other glass layers.</item>
 /// <item>When a window opens, <see cref="Materialise"/> ramps the layers from 0 to full once (about
-/// 300 ms, ease-out, compositor only). It replaces the old one-off rim glint of GlassSurface; reduced
+/// 300 ms, ease-out, compositor only), and every <see cref="AuroraEdge"/> plays its opening glow. It replaces the old one-off rim glint of GlassSurface; reduced
 /// motion skips it and the layers simply appear.</item>
 /// </list>
 /// </summary>
@@ -38,6 +38,7 @@ public static class GlassLens
         {
             case GlassSurface surface: surface.PlayMaterialise(); break;
             case GlassButton button: button.PlayMaterialise(); break;
+            case AuroraEdge aurora: aurora.PlayOpenGlow(); break;
         }
         int count = VisualTreeHelper.GetChildrenCount(node);
         for (int i = 0; i < count; i++) Walk(VisualTreeHelper.GetChild(node, i));

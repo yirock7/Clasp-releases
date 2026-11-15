@@ -39,3 +39,7 @@ rewrite the tray `.ico` files), then `python tools/make-wordmark.py`.
   `GlassHaloColor` token, so it follows light, dark and high contrast.
 - **Type:** Segoe UI Variable (Display, semibold for the name, regular for the tagline).
 - **Clear space:** at least 25% of the icon's width on every side of the wordmark lockup.
+
+## In the app
+
+The flyout, Settings and Welcome windows carry the same aurora edge around their outer edge (`Design/AuroraEdge.cs`). It glows a little brighter when a window opens, then settles; it is softer on the light theme and off in High Contrast and when transparency effects are off. Colours and opacities are the `AuroraEdge*` tokens (`AuroraEdgeBrush`, `AuroraEdgeRimBrush`, `AuroraEdgeHairlineBrush`, `AuroraEdgeRestOpacity`, `AuroraEdgeGlowOpacity`) in `windows/hub/src/AppleDeviceHub.App/Design/GlassTokens.xaml`.

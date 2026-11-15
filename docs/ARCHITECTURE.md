@@ -58,6 +58,7 @@ Nearby detection and automatic reconnect are off by default. The app does not of
 - **Case card.** A small window that does not steal focus, shown near the bottom of the screen when a case is opened nearby. It stays quiet during full-screen apps and presentations.
 - **Settings.** A normal resizable window.
 - **Effects.** Windows' "Animation effects", "Transparency effects" and High contrast settings are respected, with overrides in Settings. Reduced transparency gives opaque surfaces; reduced motion removes movement and keeps short fades.
+- **Window edge.** The flyout, Settings and Welcome windows carry the app icon's aurora edge (`Design/AuroraEdge.cs`): a soft coloured glass rim that fades inward from the outer edge, last in each window's root layout. It glows a little brighter for under a second each time a window opens, then settles. It is off in High contrast and when transparency is reduced, and shows without the glow under reduced motion. Colours and opacities are the `AuroraEdge*` tokens in `GlassTokens.xaml`; the on/off rule is `AuroraEdgePolicy` in Core.
 
 ## Data and logs
 

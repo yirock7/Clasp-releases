@@ -166,6 +166,24 @@
                 <GradientStop Offset="0.8" Color="#1FFFFFFF" />
                 <GradientStop Offset="1" Color="#14FFFFFF" />
             </LinearGradientBrush>
+            <!-- Aurora edge (Design/AuroraEdge.cs): the app icon's glowing glass rim around each window. Light theme: softer, so it does not look neon.
+                 Corners: cyan #1FB9C8 top-left, violet #6E4CF0 top-right, pink #D2488C bottom-right, blue #3456DA bottom-left,
+                 approximated by one diagonal gradient. Rest/Glow opacity scale the whole fade; Glow is the peak when a window opens. -->
+            <LinearGradientBrush x:Key="AuroraEdgeBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#FF1FB9C8" />
+                <GradientStop Offset="0.35" Color="#FF6E4CF0" />
+                <GradientStop Offset="0.7" Color="#FFD2488C" />
+                <GradientStop Offset="1" Color="#FF3456DA" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="AuroraEdgeRimBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#387FF3F8" />
+                <GradientStop Offset="0.38" Color="#38B6A2FF" />
+                <GradientStop Offset="0.7" Color="#38FF9FCF" />
+                <GradientStop Offset="1" Color="#388FA6FF" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="AuroraEdgeHairlineBrush" Color="#47FFFFFF" />
+            <x:Double x:Key="AuroraEdgeRestOpacity">0.34</x:Double>
+            <x:Double x:Key="AuroraEdgeGlowOpacity">0.62</x:Double>
             <LinearGradientBrush x:Key="GlassButtonShadeFillBrush" StartPoint="0,0" EndPoint="0,1">
                 <GradientStop Offset="0.55" Color="#000B1A33" />
                 <GradientStop Offset="1" Color="#1F0B1A33" />
@@ -386,6 +404,24 @@
                 <GradientStop Offset="0.8" Color="#1AFFFFFF" />
                 <GradientStop Offset="1" Color="#12FFFFFF" />
             </LinearGradientBrush>
+            <!-- Aurora edge (Design/AuroraEdge.cs): the app icon's glowing glass rim around each window. Same colours as Light, brighter.
+                 Corners: cyan #1FB9C8 top-left, violet #6E4CF0 top-right, pink #D2488C bottom-right, blue #3456DA bottom-left,
+                 approximated by one diagonal gradient. Rest/Glow opacity scale the whole fade; Glow is the peak when a window opens. -->
+            <LinearGradientBrush x:Key="AuroraEdgeBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#FF1FB9C8" />
+                <GradientStop Offset="0.35" Color="#FF6E4CF0" />
+                <GradientStop Offset="0.7" Color="#FFD2488C" />
+                <GradientStop Offset="1" Color="#FF3456DA" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="AuroraEdgeRimBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Offset="0" Color="#407FF3F8" />
+                <GradientStop Offset="0.38" Color="#40B6A2FF" />
+                <GradientStop Offset="0.7" Color="#40FF9FCF" />
+                <GradientStop Offset="1" Color="#408FA6FF" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="AuroraEdgeHairlineBrush" Color="#47FFFFFF" />
+            <x:Double x:Key="AuroraEdgeRestOpacity">0.55</x:Double>
+            <x:Double x:Key="AuroraEdgeGlowOpacity">1</x:Double>
             <LinearGradientBrush x:Key="GlassButtonShadeFillBrush" StartPoint="0,0" EndPoint="0,1">
                 <GradientStop Offset="0.55" Color="#00000000" />
                 <GradientStop Offset="1" Color="#33000000" />
@@ -530,6 +566,12 @@
             <SolidColorBrush x:Key="GlassButtonRimBrush" Color="Transparent" />
             <SolidColorBrush x:Key="GlassLensBandBrush" Color="Transparent" />
             <SolidColorBrush x:Key="GlassLensRimBrush" Color="Transparent" />
+            <!-- Aurora edge: not drawn in High Contrast (AuroraEdge also collapses itself). -->
+            <SolidColorBrush x:Key="AuroraEdgeBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="AuroraEdgeRimBrush" Color="Transparent" />
+            <SolidColorBrush x:Key="AuroraEdgeHairlineBrush" Color="Transparent" />
+            <x:Double x:Key="AuroraEdgeRestOpacity">0</x:Double>
+            <x:Double x:Key="AuroraEdgeGlowOpacity">0</x:Double>
             <SolidColorBrush x:Key="GlassButtonShadeFillBrush" Color="Transparent" />
             <SolidColorBrush x:Key="GlassButtonShadeLineBrush" Color="Transparent" />
 

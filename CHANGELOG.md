@@ -7,6 +7,7 @@ What changed in each version of Clasp, written for people who use it. Each versi
 ### New
 
 - **A new app icon.** It shows the charging case from Clasp's own artwork, lid open with the earbuds peeking out, on dark frosted glass with a coloured edge. At the smallest sizes (taskbar and title bar) it shows the closed case with its green light, so it stays readable.
+- **A coloured glass edge.** Clasp's windows now have a soft coloured glass edge, matching the new icon. It's off in High Contrast and when transparency effects are off.
 
 ## 0.5.0
 
