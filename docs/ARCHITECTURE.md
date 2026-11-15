@@ -53,7 +53,7 @@ Nearby detection and automatic reconnect are off by default. The app does not of
 
 ## The tray, flyout and rendering
 
-- **Tray icon.** A small wrapper over the Win32 notification area, so the flyout can be positioned next to the icon. It draws the silhouette of your selected device with the battery number, dimmed when disconnected, and picks a light or dark version from the taskbar theme. It re-adds itself after Explorer restarts.
+- **Tray icon.** A small wrapper over the Win32 notification area, so the flyout can be positioned next to the icon. It draws the silhouette of your selected device, tinted by battery level (no digits), dimmed when disconnected, and picks a light or dark version from the taskbar theme. It re-adds itself after Explorer restarts.
 - **Flyout.** One reusable borderless window with an acrylic backdrop and rounded corners, placed from the icon's rectangle onto the right monitor at that monitor's DPI. Clicking away or pressing Escape dismisses it.
 - **Case card.** A small window that does not steal focus, shown near the bottom of the screen when a case is opened nearby. It stays quiet during full-screen apps and presentations.
 - **Settings.** A normal resizable window.
