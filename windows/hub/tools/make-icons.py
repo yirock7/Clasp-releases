@@ -1,15 +1,14 @@
-﻿"""Generate Clasp's ORIGINAL brand icons (no third-party artwork).
+﻿"""Generate Clasp's tray glyphs (ORIGINAL artwork, no third-party artwork).
 
-The mark: the soft charging-case silhouette from the AirPods Pro artwork (rounded shoulders,
-lid seam, small status light). The tray glyph is that outline in one flat colour; the app icon
-puts the same case on a deep midnight-to-indigo squircle. The in-app logo is drawn as vectors by
-Views/ClaspGlyph.xaml from the same numbers (see GRID/BOX/... below).
+The glyph is the soft charging-case silhouette from the AirPods Pro artwork (rounded shoulders,
+lid seam, small status light) in one flat colour. Views/ClaspGlyph.xaml draws the same numbers as
+vectors for the High Contrast fallback of the in-app logo (see GRID/BOX/... below). The full-colour
+app icon and logo are NOT made here: tools/make-logo.py owns AppIcon.ico, ClaspLogo.png and
+brand/clasp-icon-1024.png.
 
 Writes:
-  src/AppleDeviceHub.App/Assets/AppIcon.ico          app / window / installer icon
   src/AppleDeviceHub.App/Assets/TrayIcon-Dark.ico    white glyph for a dark taskbar
   src/AppleDeviceHub.App/Assets/TrayIcon-Light.ico   near-black glyph for a light taskbar
-  brand/clasp-icon-1024.png                          store / README / social artwork
 
 Everything is drawn at 1024 px with Pillow and downsampled with Lanczos, so small sizes stay
 crisp. Tray glyphs get a slightly heavier stroke because 16 px eats thin lines.
@@ -20,7 +19,7 @@ Also writes (see "Tray glyph masks" below):
 
 Usage (from windows/hub):  python tools/make-icons.py [--tray-glyphs-only]
 
-  --tray-glyphs-only   rebuild only the tray glyph masks and their preview, skipping the app icons.
+  --tray-glyphs-only   rebuild only the tray glyph masks and their preview, skipping the tray .ico files.
   (Plain `python -I` ignores per-user packages, so Pillow installed per-user is not found.)
 """
 import io
@@ -35,40 +34,6 @@ ASSETS = os.path.join(HUB, "src", "AppleDeviceHub.App", "Assets")
 BRAND = os.path.join(HUB, "brand")
 
 S = 1024  # master canvas
-
-
-def lerp(a, b, t):
-    return tuple(int(round(a[i] + (b[i] - a[i]) * t)) for i in range(len(a)))
-
-
-def squircle_mask(size, inset=0.035):
-    """Apple-like continuous-corner tile approximated by a superellipse (n = 5)."""
-    m = Image.new("L", (size, size), 0)
-    px = m.load()
-    n = 4.6
-    half = size / 2
-    rad = half * (1 - 2 * inset)
-    for y in range(size):
-        for x in range(size):
-            u = abs((x + 0.5 - half) / rad)
-            v = abs((y + 0.5 - half) / rad)
-            px[x, y] = 255 if u ** n + v ** n <= 1.0 else 0
-    return m
-
-
-def vertical_gradient(size, stops):
-    """stops: list of (t, (r,g,b,a))."""
-    img = Image.new("RGBA", (size, size))
-    d = ImageDraw.Draw(img)
-    for y in range(size):
-        t = y / (size - 1)
-        for i in range(len(stops) - 1):
-            t0, c0 = stops[i]
-            t1, c1 = stops[i + 1]
-            if t0 <= t <= t1:
-                d.line([(0, y), (size, y)], fill=lerp(c0, c1, (t - t0) / max(t1 - t0, 1e-6)))
-                break
-    return img
 
 
 # --- The glyph -----------------------------------------------------------------------------
@@ -101,13 +66,11 @@ def rrect_points(x0, y0, x1, y1, r_top, r_bot, steps=24):
     return pts
 
 
-def glyph_mask(scale, offset, solid=False):
+def glyph_mask(scale, offset):
     """L-mode mask of the glyph. scale maps grid units to px; offset is the grid origin in px.
 
-    solid=False: outline + seam + light (the tray / UI glyph).
-    solid=True : filled body with the seam and light cut out separately (used by the app icon).
+    Outline + seam + light (the tray / High Contrast glyph).
     """
-    size = int(round(GRID * scale + 2 * max(offset[0], offset[1], 0)))
     m = Image.new("L", (S, S), 0)
 
     def P(pts):
@@ -116,15 +79,14 @@ def glyph_mask(scale, offset, solid=False):
     x0, y0, x1, y1 = BOX
     d = ImageDraw.Draw(m)
     d.polygon(P(rrect_points(x0, y0, x1, y1, R_TOP, R_BOT)), fill=255)
-    if not solid:
-        d.polygon(P(rrect_points(x0 + STROKE, y0 + STROKE, x1 - STROKE, y1 - STROKE,
-                                 R_TOP - STROKE, R_BOT - STROKE)), fill=0)
-        sy = SEAM_Y
-        d.rectangle([offset[0] + x0 * scale, offset[1] + (sy - SEAM_W / 2) * scale,
-                     offset[0] + x1 * scale, offset[1] + (sy + SEAM_W / 2) * scale], fill=255)
-        cx, cy, r = LIGHT
-        d.ellipse([offset[0] + (cx - r) * scale, offset[1] + (cy - r) * scale,
-                   offset[0] + (cx + r) * scale, offset[1] + (cy + r) * scale], fill=255)
+    d.polygon(P(rrect_points(x0 + STROKE, y0 + STROKE, x1 - STROKE, y1 - STROKE,
+                             R_TOP - STROKE, R_BOT - STROKE)), fill=0)
+    sy = SEAM_Y
+    d.rectangle([offset[0] + x0 * scale, offset[1] + (sy - SEAM_W / 2) * scale,
+                 offset[0] + x1 * scale, offset[1] + (sy + SEAM_W / 2) * scale], fill=255)
+    cx, cy, r = LIGHT
+    d.ellipse([offset[0] + (cx - r) * scale, offset[1] + (cy - r) * scale,
+               offset[0] + (cx + r) * scale, offset[1] + (cy + r) * scale], fill=255)
     return m
 
 
@@ -137,59 +99,6 @@ def master_glyph(color):
     img = Image.new("RGBA", (S, S), (*color, 0))
     img.putalpha(m)
     return img
-
-
-def master_app_icon():
-    tile = vertical_gradient(S, [
-        (0.00, (70, 72, 190, 255)),    # indigo-violet top
-        (0.55, (17, 22, 58, 255)),     # midnight
-        (1.00, (8, 10, 26, 255)),      # near-black base
-    ])
-    mask = squircle_mask(S)
-
-    # The case: same silhouette as the glyph, ~64% of the tile wide, centred.
-    scale = S * 0.64 / (BOX[2] - BOX[0])
-    gw, gh = (BOX[2] - BOX[0]) * scale, (BOX[3] - BOX[1]) * scale
-    off = ((S - gw) / 2 - BOX[0] * scale, (S - gh) / 2 - BOX[1] * scale)
-    body = glyph_mask(scale, off, solid=True)
-
-    # Soft glow behind the case so it lifts off the tile.
-    glow = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-    glow.paste((96, 150, 255, 150), (0, 0), body.filter(ImageFilter.GaussianBlur(S * 0.05)))
-    tile = Image.alpha_composite(tile, glow)
-
-    # Case: soft white, like the artwork (top lit, base a touch cooler).
-    pearl = vertical_gradient(S, [(0.0, (255, 255, 255, 255)), (1.0, (205, 214, 232, 255))])
-    tile.paste(pearl, (0, 0), body)
-
-    # Lid seam: a thin groove across the case.
-    seam = Image.new("L", (S, S), 0)
-    sy = off[1] + SEAM_Y * scale
-    t = SEAM_W * scale * 0.55
-    x0, _, x1, _ = BOX
-    ImageDraw.Draw(seam).rectangle([off[0] + x0 * scale, sy - t / 2, off[0] + x1 * scale, sy + t / 2], fill=255)
-    seam = ImageChops.multiply(seam, body)
-    tile.paste((150, 166, 206, 255), (0, 0), seam)
-
-    # Status light, softly glowing.
-    cx, cy, r = LIGHT
-    cx, cy, r = off[0] + cx * scale, off[1] + cy * scale, r * scale
-    dot = Image.new("RGBA", (S, S), (0, 0, 0, 0))
-    ImageDraw.Draw(dot).ellipse([cx - r * 2.2, cy - r * 2.2, cx + r * 2.2, cy + r * 2.2], fill=(52, 199, 89, 90))
-    dot = dot.filter(ImageFilter.GaussianBlur(S * 0.007))
-    ImageDraw.Draw(dot).ellipse([cx - r, cy - r, cx + r, cy + r], fill=(61, 220, 102, 255))
-    tile = Image.alpha_composite(tile, dot)
-
-    # Glass sheen across the top third, and a luminous rim.
-    sheen = vertical_gradient(S, [(0.0, (255, 255, 255, 70)), (0.42, (255, 255, 255, 0)), (1.0, (255, 255, 255, 0))])
-    tile = Image.alpha_composite(tile, sheen)
-    rim = ImageChops.subtract(mask, mask.filter(ImageFilter.MinFilter(9)))
-    rim_layer = Image.new("RGBA", (S, S), (255, 255, 255, 0))
-    rim_layer.putalpha(rim.point(lambda a: a * 0.35))
-    tile = Image.alpha_composite(tile, rim_layer)
-
-    tile.putalpha(ImageChops.multiply(tile.getchannel("A"), mask))
-    return tile
 
 
 def png_bytes(img):
@@ -483,10 +392,6 @@ if __name__ == "__main__":
     if "--tray-glyphs-only" in sys.argv:
         write_tray_glyphs()
         raise SystemExit(0)
-    app = master_app_icon()
-    app.save(os.path.join(BRAND, "clasp-icon-1024.png"))
-    write_ico(os.path.join(ASSETS, "AppIcon.ico"), app, [16, 20, 24, 32, 40, 48, 64, 256])
     write_ico(os.path.join(ASSETS, "TrayIcon-Dark.ico"), master_glyph((255, 255, 255)), [16, 20, 24, 32, 40, 48, 64])
     write_ico(os.path.join(ASSETS, "TrayIcon-Light.ico"), master_glyph((24, 24, 28)), [16, 20, 24, 32, 40, 48, 64])
-    print("wrote brand/clasp-icon-1024.png")
     write_tray_glyphs()

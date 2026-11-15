@@ -1,6 +1,6 @@
 ﻿"""Render the Clasp wordmark (mark + name + tagline) for README, store and social use.
 
-Usage (from windows/hub, after make-icons.py):  python -I tools/make-wordmark.py
+Usage (from windows/hub, after make-logo.py):  python -I tools/make-wordmark.py
 Needs Segoe UI Variable (ships with Windows 11).
 """
 import os
