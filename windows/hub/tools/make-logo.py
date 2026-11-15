@@ -90,34 +90,34 @@ CLOSED = """
     <circle cx="150" cy="160" r="6" fill="var(--light-core)"/>
   </g>"""
 
-# Tile: dark frosted pane, aurora border (blurred colour blobs visible only in a hairline edge band),
-# a darker cast shadow under the case, and two crisp strokes on the edge (a prism gradient and a
-# faint white line) inside the tile clip.
+# Tile: dark frosted pane, aurora border (blurred colour blobs masked to the edge and tapering off smoothly),
+# a darker cast shadow under the case, and two faint strokes on the edge (a prism gradient and a
+# white line) inside the tile clip.
 TILE_DEFS = """
-    <filter id="blurJ" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="55"/></filter>
-    <filter id="blurJm" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
-    <filter id="blurJ2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="40"/></filter>
-    <linearGradient id="paneJ" x1="0" y1="0" x2="0" y2="1">
+    <filter id="blurK" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="55"/></filter>
+    <filter id="blurKm" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="46"/></filter>
+    <filter id="blurK2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="40"/></filter>
+    <linearGradient id="paneK" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#3A4170"/><stop offset=".55" stop-color="#262B4D"/><stop offset="1" stop-color="#171A31"/></linearGradient>
-    <mask id="edgeJ" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+    <mask id="edgeK" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
       <rect x="0" y="0" width="1024" height="1024" fill="#fff"/>
-      <rect x="78" y="78" width="868" height="868" rx="194" fill="#000" filter="url(#blurJm)"/>
+      <rect x="40" y="40" width="944" height="944" rx="230" fill="#000" filter="url(#blurKm)"/>
     </mask>
-    <linearGradient id="prismJ" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="prismK" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#7FF3F8"/><stop offset=".35" stop-color="#B6A2FF"/><stop offset=".7" stop-color="#FF9FCF"/><stop offset="1" stop-color="#8FA6FF"/></linearGradient>
-    <clipPath id="tcJ"><rect """ + TILE + """/></clipPath>
+    <clipPath id="tcK"><rect """ + TILE + """/></clipPath>
 """
 
-TILE_LAYER = f"""<g clip-path="url(#tcJ)"><rect {TILE} fill="url(#paneJ)"/>
-      <g mask="url(#edgeJ)"><g filter="url(#blurJ)">
+TILE_LAYER = f"""<g clip-path="url(#tcK)"><rect {TILE} fill="url(#paneK)"/>
+      <g mask="url(#edgeK)"><g filter="url(#blurK)">
         <circle cx="140" cy="160" r="330" fill="#1FB9C8"/>
         <circle cx="910" cy="200" r="330" fill="#6E4CF0"/>
         <circle cx="900" cy="860" r="300" fill="#D2488C"/>
         <circle cx="400" cy="1000" r="260" fill="#C7579E"/>
         <circle cx="110" cy="880" r="280" fill="#3456DA"/>
       </g></g>
-      <ellipse cx="512" cy="700" rx="290" ry="110" fill="#05060F" opacity=".45" filter="url(#blurJ2)"/><rect x="60" y="60" width="904" height="904" rx="210" fill="none" stroke="url(#prismJ)" stroke-width="5" opacity=".95"/>
-      <rect x="64" y="64" width="896" height="896" rx="206" fill="none" stroke="#FFFFFF" stroke-width="1.6" opacity=".55"/></g>"""
+      <ellipse cx="512" cy="700" rx="290" ry="110" fill="#05060F" opacity=".45" filter="url(#blurK2)"/><rect x="60" y="60" width="904" height="904" rx="210" fill="none" stroke="url(#prismK)" stroke-width="3" opacity=".35"/>
+      <rect x="64" y="64" width="896" height="896" rx="206" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity=".28"/></g>"""
 
 # Glass finish: rim, top specular highlight, prism stroke.
 GLASS_DEFS = """
@@ -125,13 +125,14 @@ GLASS_DEFS = """
       <stop offset="0" stop-color="#FFFFFF" stop-opacity=".95"/><stop offset=".45" stop-color="#FFFFFF" stop-opacity=".25"/>
       <stop offset="1" stop-color="#2A3050" stop-opacity=".55"/></linearGradient>
     <linearGradient id="spec" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".55"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".30"/><stop offset=".6" stop-color="#FFFFFF" stop-opacity=".06"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+    <filter id="specBlur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
     <linearGradient id="prism" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#5FE3E0" stop-opacity=".9"/><stop offset=".5" stop-color="#8B6CFF" stop-opacity=".7"/>
       <stop offset="1" stop-color="#FF7FB8" stop-opacity=".9"/></linearGradient>
 """
 GLASS_LAYERS = f"""
-  <path d="M 120,270 C 140,120 260,80 512,80 C 764,80 884,120 904,270 C 760,220 640,206 512,206 C 384,206 264,220 120,270 Z" fill="url(#spec)"/>
+  <path d="M 120,270 C 140,120 260,80 512,80 C 764,80 884,120 904,270 C 760,220 640,206 512,206 C 384,206 264,220 120,270 Z" fill="url(#spec)" filter="url(#specBlur)"/>
   <rect {TILE} fill="none" stroke="url(#prism)" stroke-width="10" opacity=".55"/>
   <rect x="62" y="62" width="900" height="900" rx="208" fill="none" stroke="url(#rim)" stroke-width="7"/>"""
 

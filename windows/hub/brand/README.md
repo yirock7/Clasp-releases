@@ -3,7 +3,7 @@
 **Clasp** — *Connect your AirPods with one click.*
 
 The mark is the charging case from Clasp's own artwork (`Assets/Artwork/airpods-pro.svg`), lid open with the
-earbuds peeking out, on a dark frosted "liquid glass" tile with a hairline aurora-coloured border. At 16–24 px the
+earbuds peeking out, on a dark frosted "liquid glass" tile with an aurora-coloured edge that fades smoothly inward. At 16–24 px the
 icon shows the closed case with its seam and green light instead, because the open lid and buds blur at that
 size. The tray glyph is the case's soft silhouette in one flat colour. All artwork here is original vector art
 drawn in code (not a photo) and can be regenerated at any size.
@@ -32,9 +32,9 @@ rewrite the tray `.ico` files), then `python tools/make-wordmark.py`.
   "works with AirPods" is fine as description.
 - **No Apple marks.** Do not use the Apple logo, Apple product photography, SF Pro, or the
   words "Apple"/"AirPods" in the name or icon. The About page carries the non-affiliation line.
-- **Colours:** dark frosted pane (`#3A4170` → `#262B4D` → `#171A31`) with a hairline aurora border blending
-  teal `#1FB9C8`, violet `#6E4CF0`, magenta `#D2488C` / `#C7579E` and blue `#3456DA`, edged by a crisp prism stroke
-  (`#7FF3F8` → `#B6A2FF` → `#FF9FCF` → `#8FA6FF`) and a faint white line; the case keeps
+- **Colours:** dark frosted pane (`#3A4170` → `#262B4D` → `#171A31`) with an aurora edge that tapers off smoothly inward, blending
+  teal `#1FB9C8`, violet `#6E4CF0`, magenta `#D2488C` / `#C7579E` and blue `#3456DA`, a faint prism stroke
+  (`#7FF3F8` → `#B6A2FF` → `#FF9FCF` → `#8FA6FF`), a faint white edge line and a soft white sheen across the top; the case keeps
   its own soft whites and the green status light. In the UI, the halo/glow colour is the
   `GlassHaloColor` token, so it follows light, dark and high contrast.
 - **Type:** Segoe UI Variable (Display, semibold for the name, regular for the tagline).
