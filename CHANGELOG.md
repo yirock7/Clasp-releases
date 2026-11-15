@@ -86,7 +86,7 @@ None of these are known to have affected anyone. They close gaps that a careful 
 
 ### Credits
 
-Thanks to everyone whose work Clasp builds on: arctumn (NTPods), the LibrePods contributors, and the CAPod and MagicPodsCore projects.
+Thanks to everyone whose work Clasp builds on: Kavish Devar and the LibrePods contributors, and the CAPod and MagicPodsCore projects.
 
 ## Earlier versions
 

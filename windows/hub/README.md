@@ -17,6 +17,6 @@ For what Clasp does and how it handles your data, read the [main README](../../R
 
 ## Attribution and licence
 
-Derived from **NTPods** by arctumn (https://github.com/arctumn/ntpods), GPL-3.0, which began as the Windows port of LibrePods. New code here is GPL-3.0-or-later. The hub includes NTPods' wire-DTO file unchanged as `Core/Interop/Upstream/NtpodsMessages.cs`. The artwork is original, and no upstream product images are used.
+Clasp is built on the research of LibrePods (https://github.com/kavishdevar/librepods) by Kavish Devar and contributors, with model data from CAPod and MagicPodsCore; see [THIRD-PARTY-NOTICES.md](../../THIRD-PARTY-NOTICES.md). New code here is GPL-3.0-or-later. The artwork is original, and no upstream product images are used.
 
 Not affiliated with or endorsed by Apple. "AirPods", "iPhone", and "Apple Watch" are Apple trademarks, used only to describe compatibility.

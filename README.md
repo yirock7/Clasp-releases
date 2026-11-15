@@ -138,6 +138,6 @@ You need the .NET 10 SDK. The short version is `dotnet test windows/hub/tests/Ap
 
 ## Credits and licence
 
-Clasp is licensed under the [GNU General Public License v3.0](LICENSE). Portions are derived from [NTPods](https://github.com/arctumn/ntpods) by arctumn, which began as a Windows port of [LibrePods](https://github.com/kavishdevar/librepods). Model data also draws on CAPod and MagicPodsCore. The artwork is original. The full list of projects and libraries Clasp builds on, with their licences, is in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+Clasp is licensed under the [GNU General Public License v3.0](LICENSE). Clasp is built on the research of [LibrePods](https://github.com/kavishdevar/librepods) by Kavish Devar and contributors, who documented how AirPods talk over Bluetooth. Model identifiers and battery layouts also draw on [CAPod](https://github.com/d4rken-org/capod) and [MagicPodsCore](https://github.com/steam3d/MagicPodsCore). The artwork is original. The full list of projects and libraries Clasp builds on, with their licences, is in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 Made by [yirock7](https://github.com/yirock7).

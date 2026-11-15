@@ -4,21 +4,21 @@ Clasp stands on other people's work. This page lists what it uses, where it came
 
 If I have got something wrong here, please [open an issue](https://github.com/yirock7/Clasp-releases/issues/new/choose) and I will fix it.
 
-## Projects Clasp is derived from or learned from
-
-### NTPods
-
-Clasp began as a fork of [NTPods](https://github.com/arctumn/ntpods) by arctumn, a Windows port of LibrePods. Most of its code has since been replaced, but some parts remain, for example the wire-format file `windows/hub/src/AppleDeviceHub.Core/Interop/Upstream/NtpodsMessages.cs` (its licence notice is in the file header), and the optional engine and driver sources under `windows/daemon` and `windows/drivers/aap`.
-Licence: GPL-3.0.
+## Projects Clasp is built on
 
 ### LibrePods
 
-[LibrePods](https://github.com/kavishdevar/librepods) by Kavish Devar and contributors documented how AirPods talk over Bluetooth. The protocol notes in [`docs/`](docs/README.md) (`AAP Definitions.md`, `opcodes.md`, `control_commands.md`, `device-info.md`) come from that project.
+Clasp is built on the research of [LibrePods](https://github.com/kavishdevar/librepods) by Kavish Devar and contributors, who documented how AirPods talk over Bluetooth. The protocol notes in [`docs/`](docs/README.md) (`AAP Definitions.md`, `opcodes.md`, `control_commands.md`, `device-info.md`) come from that project.
 Licence: GPL-3.0. Copyright (C) 2025 LibrePods contributors. `docs/AAP Definitions.md` was copied from LibrePods when it carried AGPL-3.0 text, and it keeps that licence text. The AGPL-3.0 permits combining with GPL-3.0 work, and Clasp as a whole is distributed under GPL-3.0.
 
 ### CAPod and MagicPodsCore
 
 I used two other open-source projects as references for facts about devices: [CAPod](https://github.com/d4rken-org/capod) and [MagicPodsCore](https://github.com/steam3d/MagicPodsCore). From them I took model identifiers and battery layouts (which Bluetooth model number is which device, and where the left, right and case values sit in a broadcast), written into Clasp's own model catalog. Both are GPL-3.0 projects: [CAPod](https://github.com/d4rken-org/capod) is GPL-3.0 and [MagicPodsCore](https://github.com/steam3d/MagicPodsCore) is GPL-3.0. Facts such as a model number are not copyrightable, and I have not copied their source code, but they deserve the credit.
+
+## Code from NTPods
+
+[NTPods](https://github.com/arctumn/ntpods): copyright arctumn and NTPods contributors. Code from it is in `windows/hub/src/AppleDeviceHub.Core/Interop/Upstream/NtpodsMessages.cs`, `windows/daemon/src/aap.rs` and `windows/drivers/aap`.
+Licence: GPL-3.0.
 
 ## Tools used to build Clasp
 
