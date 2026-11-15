@@ -37,7 +37,7 @@ Nearby detection and automatic reconnect are off by default. The app does not of
 | `windows/hub/src/AppleDeviceHub.Core/Startup/LegacyExecutable.cs` | Rewrites a sign-in or `clasp:` link command that still names the old `AppleDeviceHub.exe` in the running program's folder so it names `Clasp.exe`. |
 | `windows/hub/tests` | Core tests. |
 | `windows/hub/installer` | The per-user Inno Setup installer. |
-| `windows/hub/tools` | Developer tools: icon generator, the update signer, the signature-check script, and a few Bluetooth probes. |
+| `windows/hub/tools` | Developer tools: logo and icon generators, the update signer, the signature-check script, and a few Bluetooth probes. |
 | `windows/daemon` | `clasp-engine`, an optional Rust program for hardware control. The app does not ship or start it. |
 | `windows/drivers/aap` | Source of the optional Bluetooth driver. Not part of the app. |
 | `windows/protocol/clasp-engine-v1` | The wire protocol between the app and the optional engine. |

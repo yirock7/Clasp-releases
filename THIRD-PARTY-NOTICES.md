@@ -28,7 +28,7 @@ The installer is built with [Inno Setup](https://jrsoftware.org/isinfo.php) by J
 
 ### Python (icon generator)
 
-`windows/hub/tools/make-icons.py` draws the icons and tray glyph shapes. It is a developer tool and is not shipped.
+`windows/hub/tools/make-logo.py` draws the app icon and logo, and `windows/hub/tools/make-icons.py` draws the tray glyph shapes. It is a developer tool and is not shipped.
 
 ## Libraries and runtimes inside the app
 

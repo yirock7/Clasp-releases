@@ -2,6 +2,12 @@
 
 What changed in each version of Clasp, written for people who use it. Each version's full release (with the installer) is on the [releases page](https://github.com/yirock7/Clasp-releases/releases).
 
+## Unreleased
+
+### New
+
+- **A new app icon.** It shows the charging case from Clasp's own artwork, lid open with the earbuds peeking out, on dark frosted glass with a coloured edge. At the smallest sizes (taskbar and title bar) it shows the closed case with its green light, so it stays readable.
+
 ## 0.5.0
 
 A tidy-up release: the program is renamed Clasp.exe, with a safer log and a notice after a crash.
