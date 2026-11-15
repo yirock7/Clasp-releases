@@ -51,7 +51,7 @@ body:
     attributes:
       label: Clasp version
       description: Open Clasp's settings and look under **About**.
-      placeholder: "0.6.0"
+      placeholder: "0.6.1"
     validations:
       required: true
 

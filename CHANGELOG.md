@@ -2,11 +2,19 @@
 
 What changed in each version of Clasp, written for people who use it. Each version's full release (with the installer) is on the [releases page](https://github.com/yirock7/Clasp-releases/releases).
 
-## Unreleased
+## 0.6.1
+
+A fix for the "Last seen" time, plus behind-the-scenes clean-up.
 
 ### Fixed
 
 - **The flyout's "Last seen" time now matches the battery readings it shows.** It could say "Last seen 37 min ago" or "1 day ago" while the earbuds and case showed readings from a few minutes earlier, because it only counted sightings Clasp was extra sure about. It now follows the same sightings as the battery rows, never reads older than the newest reading on show, and keeps ageing while the flyout is open.
+- **A crash is written to `hub.log` once instead of twice.**
+
+### Behind the scenes
+
+- The credits now lead with LibrePods, whose research Clasp is built on, followed by CAPod and MagicPodsCore (README, THIRD-PARTY-NOTICES and Settings > About).
+- A test that occasionally failed in CI and the installer build's start-up check were made reliable.
 
 ## 0.6.0
 
