@@ -1,4 +1,5 @@
 using AppleDeviceHub.Core.Ble;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.Presentation;
 
@@ -200,21 +201,20 @@ public sealed class HandoffDetector
 /// <summary>Plain-language wording for the hand-off notice. Honest: "probably", never a claim of which device.</summary>
 public static class HandoffNoticeText
 {
-    public const string Title = "Your AirPods moved to another device";
+    public static string Title => Strings.Handoff_Notice_Title;
 
-    public const string Detail =
-        "They probably switched to another device, such as your iPhone. Clasp can ask Windows to take them back.";
+    public static string Detail => Strings.Handoff_Notice_Detail;
 
-    public const string TakeBackLabel = "Take back";
-    public const string DismissLabel = "Dismiss";
+    public static string TakeBackLabel => Strings.Handoff_Notice_TakeBackButton;
+    public static string DismissLabel => Strings.Handoff_Notice_DismissButton;
 
     public static string Status(bool isConnecting, bool isConnected, bool attempted, string? detail)
     {
-        if (isConnecting) return "Taking your AirPods back…";
-        if (isConnected) return "Your AirPods are connected to this PC again.";
+        if (isConnecting) return Strings.Handoff_Status_TakingBack;
+        if (isConnected) return Strings.Handoff_Status_ConnectedAgain;
         if (!attempted) return "";
         return string.IsNullOrWhiteSpace(detail)
-            ? "Windows couldn't take them back yet. They may still be in use on the other device."
+            ? Strings.Handoff_Status_CouldntTakeBack
             : detail;
     }
 }

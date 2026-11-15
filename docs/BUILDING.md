@@ -6,7 +6,9 @@ You need Windows 11 (64-bit) and the .NET 10 SDK:
 winget install --id Microsoft.DotNet.SDK.10 --exact
 ```
 
-Open a new terminal afterwards so `dotnet` is on your PATH. You do not need Visual Studio. The exact SDK version Clasp expects is pinned in `windows/hub/global.json`.
+Open a new terminal afterwards so `dotnet` is on your PATH. The exact SDK version Clasp expects is pinned in `windows/hub/global.json`.
+
+The tests and the normal `dotnet build` below need only the SDK. Building the installer is different: it compiles the app to native code (Native AOT), which needs the Visual Studio C++ build tools. [TOOLCHAIN.md](TOOLCHAIN.md) lists everything, including Inno Setup and Python.
 
 ## Run the tests
 
@@ -29,14 +31,14 @@ dotnet build windows/hub/src/AppleDeviceHub.App/AppleDeviceHub.App.csproj -c Rel
 
 ## Demo mode
 
-Demo mode uses made-up AirPods data and no Bluetooth, which makes it good for working on the interface. Anything synthetic is labelled "Demo" on screen. Start the built executable with arguments:
+Demo mode uses made-up AirPods data and no Bluetooth, which makes it good for working on the interface. Anything synthetic is labelled "Demo" on screen. Demo mode is opt-in: running the executable with no arguments uses real nearby detection, and only `--transport=demo` switches to made-up data. Start the built executable with arguments:
 
 ```powershell
-$exe = 'windows\hub\src\AppleDeviceHub.App\bin\x64\Release\net10.0-windows10.0.19041.0\win-x64\AppleDeviceHub.exe'
+$exe = 'windows\hub\src\AppleDeviceHub.App\bin\x64\Release\net10.0-windows10.0.19041.0\win-x64\Clasp.exe'
 & $exe --transport=demo --show=flyout
 ```
 
-Some useful arguments:
+Some useful arguments (the `--demo-...` ones only apply together with `--transport=demo`):
 
 | Argument | Effect |
 | --- | --- |
@@ -53,7 +55,7 @@ Only one copy of Clasp runs at a time, and a second launch exits quietly. If you
 
 ## Build the installer
 
-You need Inno Setup 6.7.3 as well (its `ISCC.exe` is the compiler). From the repository root:
+You need Inno Setup 6.7.3 (its `ISCC.exe` is the compiler) and the Visual Studio C++ build tools, as described in [TOOLCHAIN.md](TOOLCHAIN.md). From the repository root:
 
 ```powershell
 .\windows\hub\installer\Build-Installer.ps1 -Version 0.0.1 -OutputDirectory .\artifacts\installer -CompilerPath '<path to ISCC.exe>'

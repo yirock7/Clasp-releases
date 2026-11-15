@@ -9,7 +9,10 @@
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>AppleDeviceHub.App</RootNamespace>
-    <AssemblyName>AppleDeviceHub</AssemblyName>
+    <!-- The program people see (Task Manager, Start menu, notifications) is Clasp. Project and namespace names stay as they are. -->
+    <AssemblyName>Clasp</AssemblyName>
+    <AssemblyTitle>Clasp</AssemblyTitle>
+    <Description>Clasp</Description>
 
     <Platforms>x64</Platforms>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -25,7 +28,7 @@
     <DefaultLanguage>en-US</DefaultLanguage>
 
     <!-- Size: `dotnet publish` compiles the app and the parts of .NET it uses ahead of time into one native
-         AppleDeviceHub.exe (Native AOT), so no .NET runtime, JIT or framework DLLs ship (see docs/TOOLCHAIN.md).
+         Clasp.exe (Native AOT), so no .NET runtime, JIT or framework DLLs ship (see docs/TOOLCHAIN.md).
          AOT has no built-in COM: the audio and Bluetooth COM interfaces use the source-generated
          [GeneratedComInterface] form (AllowUnsafeBlocks is required by that generator). XAML-facing rules for
          AOT are in Design/BindableItems.cs and Design/XamlCastTypes.cs. -->

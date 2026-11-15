@@ -1,8 +1,10 @@
+using AppleDeviceHub.Core.Presentation;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using System.Runtime.InteropServices.WindowsRuntime;
 using AppleDeviceHub.Core.Connection;
 using AppleDeviceHub.App.Shell;
+using AppleDeviceHub.Core.Resources;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Enumeration;
 
@@ -60,7 +62,7 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
     private Task<ConnectionAttemptResult>? _activeConnect;
     private Task? _activeOperation;
     private ConnectionSnapshot? _pendingReadResult;
-    private ConnectionSnapshot _lastSnapshot = ConnectionSnapshot.Incomplete("Still checking your devices.");
+    private ConnectionSnapshot _lastSnapshot = ConnectionSnapshot.Incomplete(Strings.WinConn_StillChecking);
     private bool _activeReadTimedOut;
     private bool _disposed;
 
@@ -79,7 +81,7 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
         lock (_gate)
         {
             if (_disposed)
-                return ConnectionSnapshot.Incomplete("The connection has closed.");
+                return ConnectionSnapshot.Incomplete(Strings.WinConn_Closed);
 
             if (_pendingReadResult is not null)
             {
@@ -89,7 +91,7 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
             }
             else if (_activeConnect is not null)
             {
-                busyResult = IncompleteWithLastSnapshot("Windows is busy. Try again in a moment.");
+                busyResult = IncompleteWithLastSnapshot(Strings.WinConn_WindowsBusy);
                 task = null;
             }
             else
@@ -112,7 +114,7 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
                 // return its result directly instead of discarding it or retaining a duplicate.
                 if (task!.IsCompletedSuccessfully) return task.Result;
                 if (ReferenceEquals(_activeRead, task)) _activeReadTimedOut = true;
-                return IncompleteWithLastSnapshot("Windows is taking a while to check your devices.");
+                return IncompleteWithLastSnapshot(Strings.WinConn_SlowCheck);
             }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -150,6 +152,24 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
     {
         public static readonly OneShot Reconnect = new(KsPropertyOneshotReconnect, "reconnect");
         public static readonly OneShot Disconnect = new(KsPropertyOneshotDisconnect, "disconnect");
+
+        // Noun stays English: it only appears in log lines. User-facing text is one whole sentence per request kind.
+        private bool IsReconnect => PropertyId == KsPropertyOneshotReconnect;
+
+        /// <summary>"Windows can't reconnect/disconnect this device."</summary>
+        public string CantText => IsReconnect ? Strings.WinConn_CantReconnect : Strings.WinConn_CantDisconnect;
+
+        /// <summary>"Windows is still trying to reconnect/disconnect. Wait a moment, then try again."</summary>
+        public string StillTryingText => IsReconnect ? Strings.WinConn_StillTryingReconnect : Strings.WinConn_StillTryingDisconnect;
+
+        /// <summary>"Couldn't reconnect/disconnect. Try again."</summary>
+        public string CouldntText => IsReconnect ? Strings.WinConn_CouldntReconnect : Strings.WinConn_CouldntDisconnect;
+
+        /// <summary>"Windows couldn't reconnect/disconnect. Try again."</summary>
+        public string WindowsCouldntText => IsReconnect ? Strings.WinConn_WindowsCouldntReconnect : Strings.WinConn_WindowsCouldntDisconnect;
+
+        /// <summary>"Asking Windows to reconnect/disconnect…"</summary>
+        public string AskingText => IsReconnect ? Strings.WinConn_AskingWindowsToReconnect : Strings.WinConn_AskingWindowsToDisconnect;
     }
 
     private async Task<ConnectionAttemptResult> RequestOneShotAsync(
@@ -161,17 +181,17 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
         cancellationToken.ThrowIfCancellationRequested();
         if (string.IsNullOrWhiteSpace(deviceId)
             || !ConnectionIdentity.IsUsableContainerId(expectedContainerId))
-            return new(ConnectionAttemptKind.Unsupported, "Choose a paired device first.");
+            return new(ConnectionAttemptKind.Unsupported, Strings.WinConn_ChooseDeviceFirst);
 
         Task<ConnectionAttemptResult>? task;
         lock (_gate)
         {
             if (_disposed)
-                return new(ConnectionAttemptKind.Failed, "The connection has closed.");
+                return new(ConnectionAttemptKind.Failed, Strings.WinConn_Closed);
             if (_activeOperation is not null)
-                return new(ConnectionAttemptKind.Busy, "Windows is busy. Try again in a moment.");
+                return new(ConnectionAttemptKind.Busy, Strings.WinConn_WindowsBusy);
             if (!_lastSnapshot.IsComplete)
-                return new(ConnectionAttemptKind.Unsupported, "Still checking your devices. Try again in a moment.");
+                return new(ConnectionAttemptKind.Unsupported, Strings.WinConn_StillCheckingTryAgain);
 
             var matchingIds = _lastSnapshot.Devices.Where(item =>
                 string.Equals(item.Id, deviceId, StringComparison.Ordinal)).ToArray();
@@ -185,8 +205,7 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
                 || !matchingIds[0].HasAvailableAudioEndpoint
                 || !matchingIds[0].CanReconnect)
             {
-                return new(ConnectionAttemptKind.Unsupported,
-                    $"Windows can't {request.Noun} this device.");
+                return new(ConnectionAttemptKind.Unsupported, request.CantText);
             }
 
             task = StartConnectLocked(
@@ -204,7 +223,7 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
         {
             // The worker is deliberately kept as the active operation. A KS call that does not
             // return cannot be safely canceled, so no second native request may overlap it.
-            return new(ConnectionAttemptKind.TimedOut, $"Windows is still trying to {request.Noun}. Wait a moment, then try again.");
+            return new(ConnectionAttemptKind.TimedOut, request.StillTryingText);
         }
     }
     private Task<ConnectionSnapshot> StartReadLocked()
@@ -227,8 +246,7 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
         catch (Exception exception)
         {
             LocalLog.Write($"Windows device metadata could not be read ({exception.GetType().Name}, 0x{exception.HResult:X8}).");
-            snapshot = ConnectionSnapshot.Incomplete(
-                "Couldn't read your devices from Windows.");
+            snapshot = ConnectionSnapshot.Incomplete(Strings.WinConn_CouldntReadDevices);
         }
 
         lock (_gate)
@@ -277,13 +295,12 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            result = new(ConnectionAttemptKind.Failed, "Canceled before Windows got the request.");
+            result = new(ConnectionAttemptKind.Failed, Strings.WinConn_CanceledBeforeRequest);
         }
         catch (Exception exception)
         {
             LocalLog.Write($"Windows audio {request.Noun} request failed ({exception.GetType().Name}, 0x{exception.HResult:X8}).");
-            result = new(ConnectionAttemptKind.Failed,
-                $"Couldn't {request.Noun}. Try again.");
+            result = new(ConnectionAttemptKind.Failed, request.CouldntText);
         }
 
         lock (_gate)
@@ -333,17 +350,17 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
                 var currentOutput = matches.Any(endpoint => endpoint.IsCurrentOutput);
                 var supportsReconnect = matches.Any(endpoint => endpoint.SupportsReconnect);
                 var detail = ambiguousContainer
-                    ? "Windows can't tell which device this audio belongs to."
+                    ? Strings.WinConn_AmbiguousAudio
                     : connected
                         ? null
                         : !hasEndpoint
-                            ? "Paired, but not ready for audio yet."
+                            ? Strings.WinConn_PairedNotReady
                             : supportsReconnect
                                 ? null
                                 : matches.Select(endpoint => endpoint.Detail).Contains(ConnectionDriverState.MissingDriverDetail)
                                     ? ConnectionDriverState.MissingDriverDetail
                                     : matches.Select(endpoint => endpoint.Detail).FirstOrDefault(text => !string.IsNullOrWhiteSpace(text))
-                                    ?? "Windows can't reconnect this device.";
+                                    ?? Strings.WinConn_CantReconnect;
                 // Ambiguous containers cannot be tied to one identity, so read nothing for them.
                 var (modelId, windowsBattery, hasHandsfree) = ambiguousContainer
                     ? ((ushort?)null, (int?)null, (bool?)null)
@@ -368,7 +385,7 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
         }
         catch (Exception exception)
         {
-            LocalLog.Write($"Windows Bluetooth metadata failed at {stage} ({exception.GetType().Name}): {exception}");
+            LocalLog.Write($"Windows Bluetooth metadata failed at {stage}: {LogText.Exception(exception)}");
             throw;
         }
     }
@@ -609,7 +626,7 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
             Check(endpoint.Activate(ref iid, ClsctxAll, IntPtr.Zero, out var rawTopology));
             topology = CastComInterface<IDeviceTopology>(rawTopology);
             Check(topology.GetConnectorCount(out var connectorCount));
-            var lastError = "Windows can't reconnect this device.";
+            var lastError = Strings.WinConn_CantReconnect;
 
             for (uint index = 0; index < connectorCount; index++)
             {
@@ -640,11 +657,11 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
                 {
                     lastError = ConnectionDriverState.IsMissingInterface(exception.HResult)
                         ? ConnectionDriverState.MissingDriverDetail
-                        : "Windows can't reconnect this device.";
+                        : Strings.WinConn_CantReconnect;
                 }
                 catch (InvalidCastException)
                 {
-                    lastError = "Windows can't reconnect this device.";
+                    lastError = Strings.WinConn_CantReconnect;
                 }
                 finally
                 {
@@ -662,12 +679,12 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
         {
             detail = ConnectionDriverState.IsMissingInterface(exception.HResult)
                 ? ConnectionDriverState.MissingDriverDetail
-                : "Windows can't reconnect this device.";
+                : Strings.WinConn_CantReconnect;
             return false;
         }
         catch (InvalidCastException)
         {
-            detail = "Windows can't reconnect this device.";
+            detail = Strings.WinConn_CantReconnect;
             return false;
         }
         finally { Release(topology); }
@@ -695,14 +712,14 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
                 out var bytesReturned);
             if (result < 0)
             {
-                detail = $"Windows can't {request.Noun} this device.";
+                detail = request.CantText;
                 return false;
             }
 
             var access = unchecked((uint)Marshal.ReadInt32(accessBuffer));
             if (bytesReturned < sizeof(uint) || (access & KsPropertyGet) == 0)
             {
-                detail = $"Windows can't {request.Noun} this device.";
+                detail = request.CantText;
                 return false;
             }
 
@@ -734,14 +751,14 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
             || !string.Equals(matchingIds[0].ContainerId, containerId, StringComparison.OrdinalIgnoreCase))
         {
             return new(ConnectionAttemptKind.Unsupported,
-                "This device has changed. Refresh and try again.");
+                Strings.WinConn_DeviceChanged);
         }
 
         if (paired.Any(device => !string.Equals(device.Id, deviceId, StringComparison.Ordinal)
             && string.Equals(device.ContainerId, containerId, StringComparison.OrdinalIgnoreCase)))
         {
             return new(ConnectionAttemptKind.Unsupported,
-                "Windows can't tell which device to use.");
+                Strings.WinConn_AmbiguousDevice);
         }
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -754,7 +771,7 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
             Check(collection.GetCount(out var count));
 
             var foundEndpoint = false;
-            var lastError = $"Windows can't {request.Noun} this device.";
+            var lastError = request.CantText;
             for (uint index = 0; index < count; index++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -786,14 +803,14 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
                             var connectedResult = connector.GetDeviceIdConnectedTo(out adapterId);
                             if (connectedResult < 0 || adapterId == IntPtr.Zero)
                             {
-                                lastError = $"Windows can't {request.Noun} this device.";
+                                lastError = request.CantText;
                                 continue;
                             }
 
                             var adapterDeviceId = Marshal.PtrToStringUni(adapterId);
                             if (string.IsNullOrWhiteSpace(adapterDeviceId))
                             {
-                                lastError = $"Windows can't {request.Noun} this device.";
+                                lastError = request.CantText;
                                 continue;
                             }
 
@@ -828,19 +845,18 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
                                     || requestResult == unchecked((int)0x80070032)
                                     ? ConnectionAttemptKind.Unsupported
                                     : ConnectionAttemptKind.Failed;
-                                return new(kind, $"Windows couldn't {request.Noun}. Try again.");
+                                return new(kind, request.WindowsCouldntText);
                             }
 
-                            return new(ConnectionAttemptKind.Attempted,
-                                $"Asking Windows to {request.Noun}…");
+                            return new(ConnectionAttemptKind.Attempted, request.AskingText);
                         }
                         catch (COMException)
                         {
-                            lastError = $"Windows can't {request.Noun} this device.";
+                            lastError = request.CantText;
                         }
                         catch (InvalidCastException)
                         {
-                            lastError = $"Windows can't {request.Noun} this device.";
+                            lastError = request.CantText;
                         }
                         finally
                         {
@@ -853,11 +869,11 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
                 }
                 catch (COMException)
                 {
-                    lastError = "Windows can't reconnect this device.";
+                    lastError = Strings.WinConn_CantReconnect;
                 }
                 catch (InvalidCastException)
                 {
-                    lastError = "Windows can't reconnect this device.";
+                    lastError = Strings.WinConn_CantReconnect;
                 }
                 finally
                 {
@@ -868,8 +884,7 @@ public sealed partial class WindowsAirPodsConnectionController : IAirPodsConnect
 
             if (!foundEndpoint)
             {
-                return new(ConnectionAttemptKind.Unsupported,
-                    "Paired, but not ready for audio yet.");
+                return new(ConnectionAttemptKind.Unsupported, Strings.WinConn_PairedNotReady);
             }
 
             return new(ConnectionAttemptKind.Unsupported, lastError);

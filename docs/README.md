@@ -10,6 +10,7 @@ Start with the [main README](../README.md) if you just want to use Clasp.
 ## For people who want to build or change Clasp
 
 - [Building](BUILDING.md): build, test, run in Demo mode, build the installer.
+- [Toolchain](TOOLCHAIN.md): the SDK, C++ build tools, Inno Setup and Python needed, and which job needs which.
 - [Architecture](ARCHITECTURE.md): how the app is put together.
 - [Contributing](../CONTRIBUTING.md) and the [Code of Conduct](../CODE_OF_CONDUCT.md).
 - [Releasing an update](RELEASING-UPDATES.md): how releases are built, signed and published (mostly of interest to the maintainer).

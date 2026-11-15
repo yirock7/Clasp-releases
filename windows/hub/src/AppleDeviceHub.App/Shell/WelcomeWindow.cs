@@ -3,6 +3,7 @@ using AppleDeviceHub.App.Design;
 using AppleDeviceHub.App.Views;
 using AppleDeviceHub.Core.Pairing;
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -35,7 +36,7 @@ internal sealed class WelcomeWindow : Window
         _view.Setup(viewModel, settings, connection, companion, pairingDiscovery);
         _view.Finished += (_, completed) => End();
         Content = _view;
-        Title = viewModel.IsDemo ? "Welcome to Clasp (Demo)" : "Welcome to Clasp";
+        Title = viewModel.IsDemo ? Strings.Welcome_Window_TitleDemo : Strings.Welcome_Window_Title;
 
         ExtendsContentIntoTitleBar = true;
         if (AppWindow.Presenter is OverlappedPresenter presenter)

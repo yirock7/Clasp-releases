@@ -1,3 +1,6 @@
+using AppleDeviceHub.Core.Resources;
+using System.Globalization;
+
 namespace AppleDeviceHub.Core.Commands;
 
 /// <summary>
@@ -24,11 +27,15 @@ public static class CommandConfirmation
         var name = string.IsNullOrWhiteSpace(outputName) ? null : outputName.Trim();
         return command switch
         {
-            ClaspCommand.OutputAirPods => $"A link asked Clasp to switch your sound to {name ?? "your AirPods"}. Allow?",
-            ClaspCommand.OutputPrevious => $"A link asked Clasp to switch your sound to {name ?? "your previous speakers"}. Allow?",
-            ClaspCommand.Connect => "A link asked Clasp to connect your AirPods and switch your sound to them. Allow?",
-            ClaspCommand.PlayPause => "A link asked Clasp to play or pause your media. Allow?",
-            ClaspCommand.FixConnection => "A link asked Clasp to fix the AirPods connection. Allow?",
+            ClaspCommand.OutputAirPods => name is null
+                ? Strings.Command_Confirm_OutputAirPodsUnnamed
+                : string.Format(CultureInfo.CurrentCulture, Strings.Command_Confirm_OutputNamed, name),
+            ClaspCommand.OutputPrevious => name is null
+                ? Strings.Command_Confirm_OutputPreviousUnnamed
+                : string.Format(CultureInfo.CurrentCulture, Strings.Command_Confirm_OutputNamed, name),
+            ClaspCommand.Connect => Strings.Command_Confirm_Connect,
+            ClaspCommand.PlayPause => Strings.Command_Confirm_PlayPause,
+            ClaspCommand.FixConnection => Strings.Command_Confirm_FixConnection,
             _ => throw new ArgumentOutOfRangeException(nameof(command), "This command does not need confirmation."),
         };
     }

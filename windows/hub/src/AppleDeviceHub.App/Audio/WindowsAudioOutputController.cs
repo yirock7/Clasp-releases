@@ -1,7 +1,9 @@
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using System.Diagnostics;
+using System.Globalization;
 using AppleDeviceHub.Core.Audio;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.App.Audio;
 
@@ -97,13 +99,13 @@ public sealed partial class WindowsAudioOutputController : IAudioOutputControlle
         if (!Enum.IsDefined(request.Role) || string.IsNullOrWhiteSpace(request.RestoreEndpointId)
             || request.TargetEndpointIds is null || request.TargetEndpointIds.Count == 0
             || request.TargetEndpointIds.Any(string.IsNullOrWhiteSpace))
-            return new(false, "Couldn't switch back. Nothing was changed.");
+            return new(false, Strings.WinAudio_Restore_CouldntSwitchBack);
 
         IPolicyConfig? policy = null;
         try
         {
             if (request.IsCurrent is not null && !request.IsCurrent())
-                return new(false, "That request expired. Nothing was changed.");
+                return new(false, Strings.WinAudio_Restore_RequestExpired);
             // Activate before the guards: activation can be slow, and must not
             // lengthen the interval between validating state and the write.
             Check(CoCreateInstance(PolicyConfigClientId, IntPtr.Zero, ClsctxAll, PolicyConfigIid, out policy));
@@ -111,7 +113,7 @@ public sealed partial class WindowsAudioOutputController : IAudioOutputControlle
             var fresh = Read();
             if (!fresh.Defaults.TryGetValue(request.Role, out var current)
                 || !string.Equals(current, request.ExpectedCurrentEndpointId, StringComparison.Ordinal))
-                return new(false, "The output changed, so your newer choice was kept.");
+                return new(false, Strings.WinAudio_Restore_OutputChangedKept);
 
             var targetIds = new HashSet<string>(request.TargetEndpointIds, StringComparer.OrdinalIgnoreCase);
             var targetContainer = NormalizeContainerId(request.TargetContainerId);
@@ -119,13 +121,13 @@ public sealed partial class WindowsAudioOutputController : IAudioOutputControlle
                 || (targetContainer is not null && endpoint.ContainerId is not null
                     && string.Equals(endpoint.ContainerId, targetContainer, StringComparison.OrdinalIgnoreCase));
             if (fresh.Endpoints.Any(endpoint => endpoint.IsAvailable && IsTarget(endpoint)))
-                return new(false, "Your AirPods are still connected. Nothing was changed.");
+                return new(false, Strings.WinAudio_Restore_AirPodsStillConnected);
             var destination = fresh.Endpoints.FirstOrDefault(endpoint =>
                 string.Equals(endpoint.Id, request.RestoreEndpointId, StringComparison.Ordinal));
             if (destination is null || !destination.IsAvailable || IsTarget(destination))
-                return new(false, "The previous output isn't available.");
+                return new(false, Strings.WinAudio_Restore_PreviousUnavailable);
             if (string.Equals(current, destination.Id, StringComparison.Ordinal))
-                return new(false, "Sound is already going to the previous output.");
+                return new(false, Strings.WinAudio_Restore_AlreadyPrevious);
 
             // Read a second complete snapshot immediately before writing. The endpoint-change
             // tracker catches state/property notifications for only this destination and the
@@ -140,27 +142,27 @@ public sealed partial class WindowsAudioOutputController : IAudioOutputControlle
             var final = Read();
             if (!final.Defaults.TryGetValue(request.Role, out var finalCurrent)
                 || !string.Equals(finalCurrent, current, StringComparison.Ordinal))
-                return new(false, "The output changed, so your newer choice was kept.");
+                return new(false, Strings.WinAudio_Restore_OutputChangedKept);
             if (final.Endpoints.Any(endpoint => endpoint.IsAvailable && IsTarget(endpoint)))
-                return new(false, "Your AirPods are still connected. Nothing was changed.");
+                return new(false, Strings.WinAudio_Restore_AirPodsStillConnected);
             var finalDestination = final.Endpoints.FirstOrDefault(endpoint =>
                 string.Equals(endpoint.Id, request.RestoreEndpointId, StringComparison.Ordinal));
             if (finalDestination is null || !finalDestination.IsAvailable || IsTarget(finalDestination))
-                return new(false, "The previous output isn't available. Nothing was changed.");
+                return new(false, Strings.WinAudio_Restore_PreviousUnavailableNothingChanged);
 
             if (!string.Equals(ReadDefault(request.Role), finalCurrent, StringComparison.Ordinal)
                 || !_changeTracker.IsUnchangedSince(changes, relevantEndpointIds))
-                return new(false, "Your audio devices changed. Nothing was changed.");
+                return new(false, Strings.WinAudio_Restore_DevicesChanged);
             if (request.IsCurrent is not null && !request.IsCurrent())
-                return new(false, "That request expired. Nothing was changed.");
+                return new(false, Strings.WinAudio_Restore_RequestExpired);
             Check(policy.SetDefaultEndpoint(finalDestination.Id, (int)request.Role));
             if (!string.Equals(ReadDefault(request.Role), finalDestination.Id, StringComparison.Ordinal))
-                return new(false, "Windows didn't confirm the switch.");
-            return new(true, $"Switched back to {finalDestination.Name}.");
+                return new(false, Strings.WinAudio_Restore_NotConfirmed);
+            return new(true, string.Format(CultureInfo.CurrentCulture, Strings.WinAudio_Restore_Switched, finalDestination.Name));
         }
         catch (Exception exception) when (exception is COMException or InvalidCastException)
         {
-            return new(false, $"Windows audio restoration failed (0x{exception.HResult:X8}).");
+            return new(false, string.Format(CultureInfo.CurrentCulture, Strings.WinAudio_Restore_Failed, exception.HResult));
         }
         finally { Release(policy); }
     }
@@ -170,7 +172,7 @@ public sealed partial class WindowsAudioOutputController : IAudioOutputControlle
     {
         CheckAccess();
         if (string.IsNullOrWhiteSpace(endpointId))
-            return new(false, "Choose an output first.");
+            return new(false, Strings.WinAudio_Output_ChooseFirst);
 
         IPolicyConfig? policy = null;
         try
@@ -178,7 +180,7 @@ public sealed partial class WindowsAudioOutputController : IAudioOutputControlle
             var endpoint = Read().Endpoints.FirstOrDefault(item =>
                 string.Equals(item.Id, endpointId, StringComparison.OrdinalIgnoreCase));
             if (endpoint is null || !endpoint.IsAvailable)
-                return new(false, "That output is disconnected, so nothing was changed.");
+                return new(false, Strings.WinAudio_Output_Disconnected);
 
             Check(CoCreateInstance(PolicyConfigClientId, IntPtr.Zero, ClsctxAll, PolicyConfigIid, out policy));
             foreach (var role in Enum.GetValues<AudioOutputRole>())
@@ -187,19 +189,19 @@ public sealed partial class WindowsAudioOutputController : IAudioOutputControlle
                 endpoint = fresh.Endpoints.FirstOrDefault(item =>
                     string.Equals(item.Id, endpointId, StringComparison.OrdinalIgnoreCase));
                 if (endpoint is null || !endpoint.IsAvailable)
-                    return new(false, "The output disconnected partway. Some settings may already have changed.");
+                    return new(false, Strings.WinAudio_Output_DisconnectedPartway);
                 if (string.Equals(fresh.Defaults.GetValueOrDefault(role), endpoint.Id, StringComparison.Ordinal)) continue;
 
                 Check(policy.SetDefaultEndpoint(endpoint.Id, (int)role));
                 if (!string.Equals(ReadDefault(role), endpoint.Id, StringComparison.Ordinal))
-                    return new(false, "Windows didn't confirm the change. Some settings may already have changed.");
+                    return new(false, Strings.WinAudio_Output_NotConfirmed);
             }
-            return new(true, $"{endpoint.Name} is now your sound output.");
+            return new(true, string.Format(CultureInfo.CurrentCulture, Strings.WinAudio_Output_Switched, endpoint.Name));
         }
         catch (Exception exception) when (exception is COMException or InvalidCastException)
         {
             AppleDeviceHub.App.Shell.LocalLog.Write($"Windows could not change default output (0x{exception.HResult:X8}, {AppleDeviceHub.Core.Presentation.LogText.OpaqueRef(endpointId)}).");
-            return new(false, "Couldn't switch the sound output.");
+            return new(false, Strings.WinAudio_Output_SwitchFailed);
         }
         finally { Release(policy); }
     }
@@ -236,7 +238,7 @@ public sealed partial class WindowsAudioOutputController : IAudioOutputControlle
     {
         CheckAccess();
         if (string.IsNullOrWhiteSpace(endpointId) || !float.IsFinite(scalar) || scalar < 0f || scalar > 1f)
-            return new(false, "Choose a volume from 0% to 100%.");
+            return new(false, Strings.WinAudio_Volume_Invalid);
 
         IMMDevice? device = null;
         IAudioEndpointVolume? volume = null;
@@ -244,19 +246,19 @@ public sealed partial class WindowsAudioOutputController : IAudioOutputControlle
         {
             var endpoint = ReadEndpointById(endpointId);
             if (endpoint is not { IsAvailable: true })
-                return new(false, "That output is disconnected, so its volume wasn't changed.");
+                return new(false, Strings.WinAudio_Volume_OutputDisconnected);
             volume = ActivateVolume(endpoint.Id, out device);
             var eventContext = Guid.Empty;
             Check(volume.SetMasterVolumeLevelScalar(scalar, ref eventContext));
             Check(volume.GetMasterVolumeLevelScalar(out var readback));
             if (Math.Abs(readback - scalar) > 0.01f)
-                return new(false, $"Volume changed, but Windows reports about {Math.Round(readback * 100)}%.");
-            return new(true, $"{endpoint.Name} volume is now {Math.Round(readback * 100)}%.");
+                return new(false, string.Format(CultureInfo.CurrentCulture, Strings.WinAudio_Volume_ReadbackDiffers, Math.Round(readback * 100)));
+            return new(true, string.Format(CultureInfo.CurrentCulture, Strings.WinAudio_Volume_Changed, endpoint.Name, Math.Round(readback * 100)));
         }
         catch (Exception exception) when (exception is COMException or InvalidCastException)
         {
             AppleDeviceHub.App.Shell.LocalLog.Write($"Windows could not change output volume (0x{exception.HResult:X8}, {AppleDeviceHub.Core.Presentation.LogText.OpaqueRef(endpointId)}).");
-            return new(false, "Couldn't change the volume.");
+            return new(false, Strings.WinAudio_Volume_ChangeFailed);
         }
         finally
         {
@@ -309,14 +311,14 @@ public sealed partial class WindowsAudioOutputController : IAudioOutputControlle
             Check(device.OpenPropertyStore(0, out store)); // STGM_READ
             var name = ReadString(store, new(new("A45C254E-DF1C-4EFD-8020-67D146A850E0"), 14));
             var container = ReadContainer(store);
-            return new(id, string.IsNullOrWhiteSpace(name) ? "Unnamed output" : name, available, container);
+            return new(id, string.IsNullOrWhiteSpace(name) ? Strings.WinAudio_UnnamedOutput : name, available, container);
         }
         catch (COMException exception) when (!available && IsMissingDeviceInstanceFailure(exception.HResult))
         {
             // A phantom inactive endpoint can remain in MMDevice enumeration after
             // its device instance has disappeared. Preserve its exact ID and state;
             // only the unavailable metadata falls back to a generic name/no group.
-            return new(id, "Unnamed output", false, null);
+            return new(id, Strings.WinAudio_UnnamedOutput, false, null);
         }
         finally { Release(store); }
     }

@@ -13,6 +13,9 @@
 // MagicPodsCore (https://github.com/steam3d/MagicPodsCore). See docs/MODEL-AWARE-BATTERY-PLAN.md for
 // the model table and its weaker rows. Rows marked provisional have no captured broadcast.
 
+using System.Globalization;
+using AppleDeviceHub.Core.Resources;
+
 namespace AppleDeviceHub.Core.Ble;
 
 /// <summary>How a broadcast's model id relates to the allow-list.</summary>
@@ -94,7 +97,7 @@ public sealed record AppleModelInfo(ushort Id, string Name, ModelFamily Family, 
 public static class AppleModelCatalog
 {
     /// <summary>What the UI says when the id is not in the allow-list. Never a specific model name.</summary>
-    public const string UnrecognisedName = "Unrecognised Apple audio device";
+    public static string UnrecognisedName => Strings.Ble_Model_Unrecognised;
 
     private const BatteryLayout Case = BatteryLayout.EarbudsWithCase;
     private const BatteryLayout NoCaseBattery = BatteryLayout.EarbudsNoCaseBattery;
@@ -161,13 +164,13 @@ public static class AppleModelCatalog
 
     /// <summary>Display text: the listed name, or <see cref="UnrecognisedName"/> with the raw id.</summary>
     public static string DisplayNameOf(ushort modelId)
-        => NameOf(modelId) ?? $"{UnrecognisedName} (id 0x{modelId:X4})";
+        => NameOf(modelId) ?? string.Format(CultureInfo.CurrentCulture, Strings.Ble_Model_UnrecognisedWithId, UnrecognisedName, modelId);
 
     /// <summary>"AirPods" or "Beats" for a listed id; "headphones" when the id is missing or unlisted.</summary>
     public static string FamilyNounOf(ushort? modelId)
         => modelId is ushort id && Find(id) is { } info
             ? (info.Family == ModelFamily.Beats ? "Beats" : "AirPods")
-            : "headphones";
+            : Strings.Ble_Noun_Headphones;
 
     /// <summary>The drawing group for a model id; <see cref="ArtworkGroup.Generic"/> for null or an unlisted id.</summary>
     public static ArtworkGroup ArtworkOf(ushort? modelId)

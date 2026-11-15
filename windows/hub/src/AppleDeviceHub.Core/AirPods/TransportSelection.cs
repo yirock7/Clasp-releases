@@ -14,7 +14,7 @@ public enum TransportKind
 
     /// <summary>
     /// Driver-free, read-only observation of nearby Apple proximity broadcasts
-    /// (<c>--transport=ble</c>). Opt-in only by launch flag; listening starts automatically while nearby detection is on (the default).
+    /// (<c>--transport=ble</c>). The default when no <c>--transport</c> argument is given; listening starts automatically while nearby detection is on (the default).
     /// </summary>
     Broadcast = 3,
 }
@@ -25,12 +25,13 @@ public enum TransportKind
 /// <param name="Hardware">The engine configuration, only for an available <see cref="TransportKind.Hardware"/> choice.</param>
 public sealed record TransportChoice(TransportKind Kind, bool IsAvailable, string Explanation, ClaspEngineOptions? Hardware = null)
 {
-    /// <summary>Only an explicit, valid demo choice (or no choice) may show demo data.</summary>
+    /// <summary>Only an explicit <c>--transport=demo</c> may show demo data; running the program with no arguments never does.</summary>
     public bool IsDemo => Kind == TransportKind.Demo && IsAvailable;
 }
 
 /// <summary>
-/// Picks the AirPods transport from the command line. Demo is the default. Hardware is only
+/// Picks the AirPods transport from the command line. Broadcast observation (<c>--transport=ble</c>) is the default, so
+/// running the program with no arguments never shows made-up data; Demo is opt-in with <c>--transport=demo</c>. Hardware is only
 /// ever an explicit request:
 /// <c>--transport=hardware --engine-path=&lt;full path&gt; [--engine-sha256=&lt;hex&gt;] --device=&lt;dev-...&gt; [--session=observe|control]</c>.
 /// A hardware request that is incomplete or invalid is refused with the reason; the caller must
@@ -67,10 +68,10 @@ public static class TransportSelection
             return new TransportChoice(TransportKind.Hardware, false,
                 "Hardware arguments (--engine-path, --engine-sha256, --device, --session) were given without --transport=hardware.");
 
-        if (transport is null || transport.Equals("demo", StringComparison.OrdinalIgnoreCase))
+        if (transport is not null && transport.Equals("demo", StringComparison.OrdinalIgnoreCase))
             return new TransportChoice(TransportKind.Demo, true, "Demo transport: synthetic data, no hardware access.");
 
-        if (transport.Equals("ble", StringComparison.OrdinalIgnoreCase))
+        if (transport is null || transport.Equals("ble", StringComparison.OrdinalIgnoreCase))
             return new TransportChoice(TransportKind.Broadcast, true,
                 "Bluetooth LE broadcast observation: read-only, approximate, identity unconfirmed; listening starts automatically while Nearby detection is on, and can be turned off in Settings.");
 

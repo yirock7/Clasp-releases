@@ -130,11 +130,11 @@ foreach ($xamlFile in $sourceXamlFiles) {
     $expectedXbfPaths.Add($xbfPath)
 }
 
-$appPriPath = Join-Path $publishPath 'AppleDeviceHub.pri'
+$appPriPath = Join-Path $publishPath 'Clasp.pri'
 Assert-NonEmptyFile -Path $appPriPath
 
 $requiredRuntimeFiles = @(
-    'AppleDeviceHub.exe',
+    'Clasp.exe',
     'Microsoft.ui.xaml.dll',
     'Microsoft.WindowsAppRuntime.dll',
     'Microsoft.WindowsAppRuntime.Bootstrap.dll'
@@ -148,7 +148,7 @@ if (Test-Path -LiteralPath (Join-Path $publishPath 'coreclr.dll')) {
     Stop-PayloadValidation 'The payload contains coreclr.dll; expected a Native AOT publish with no .NET runtime files.'
 }
 
-$appExecutable = Join-Path $publishPath 'AppleDeviceHub.exe'
+$appExecutable = Join-Path $publishPath 'Clasp.exe'
 $peMachine = Get-PeMachine -Path $appExecutable
 if ($peMachine -ne 0x8664) {
     Stop-PayloadValidation ('The app executable must be native x64 (PE machine 0x8664); found 0x{0:X4}.' -f $peMachine)
@@ -173,7 +173,7 @@ if (-not [string]::IsNullOrWhiteSpace($OutputManifestPath)) {
 
     $manifestLines = [System.Collections.Generic.List[string]]::new()
     $manifestLines.Add('Clasp self-contained x64 publish payload')
-    $manifestLines.Add('Required XAML resources: {0} XBF files plus AppleDeviceHub.pri.' -f $expectedXbfPaths.Count)
+    $manifestLines.Add('Required XAML resources: {0} XBF files plus Clasp.pri.' -f $expectedXbfPaths.Count)
     $manifestLines.Add('Publish files: {0}; LICENSE is added by the installer.' -f $publishedFiles.Count)
     $manifestLines.Add('')
     $manifestLines.Add("Relative path`tBytes`tSHA-256")
@@ -193,7 +193,7 @@ if (-not [string]::IsNullOrWhiteSpace($OutputManifestPath)) {
     MinimumWindows = 'Windows 11 build 22000, workstation SKU'
     Runtime = '.NET and Windows App SDK self-contained'
     XbfCount = $expectedXbfPaths.Count
-    Pri = 'AppleDeviceHub.pri'
+    Pri = 'Clasp.pri'
     PublishFileCount = $publishedFiles.Count
     ForbiddenFileCount = $forbiddenFiles.Count
 }

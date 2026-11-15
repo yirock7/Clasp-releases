@@ -1,4 +1,5 @@
 using AppleDeviceHub.Core.Contracts;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.State;
 
@@ -102,7 +103,7 @@ public static class RequestReconciler
 
         // A readback that arrives after the timeout still proves the change landed.
         if (request.Status == RequestStatus.TimedOut && EqualityComparer<T>.Default.Equals(value, request.Requested))
-            return request with { Status = RequestStatus.Confirmed, Detail = "Confirmed after the timeout" };
+            return request with { Status = RequestStatus.Confirmed, Detail = Strings.Hub_Request_ConfirmedAfterTimeout };
 
         if (!request.IsPending) return request;
 
@@ -116,7 +117,7 @@ public static class RequestReconciler
         bool changedElsewhere = request.ActualWhenRequested is not T before
             || !EqualityComparer<T>.Default.Equals(value, before);
         return changedElsewhere
-            ? request with { Status = RequestStatus.Superseded, Detail = "Changed on the device" }
+            ? request with { Status = RequestStatus.Superseded, Detail = Strings.Hub_Request_ChangedOnDevice }
             : request;
     }
 
@@ -124,16 +125,16 @@ public static class RequestReconciler
     public static PendingRequest<T> OnTick<T>(PendingRequest<T> request, DateTimeOffset now, TimeSpan timeout)
         where T : struct
         => request.IsPending && now - request.IssuedAt >= timeout
-            ? request with { Status = RequestStatus.TimedOut, Detail = "No confirmation from the device" }
+            ? request with { Status = RequestStatus.TimedOut, Detail = Strings.Hub_Request_NoConfirmation }
             : request;
 
     private static string Describe(CommandOutcome outcome) => outcome switch
     {
-        CommandOutcome.Rejected => "The device rejected the change",
-        CommandOutcome.Failed => "The change could not be delivered",
-        CommandOutcome.TimedOut => "The engine did not answer in time",
-        CommandOutcome.Unsupported => "Not supported by this device",
-        CommandOutcome.TransportUnavailable => "The device engine is not running",
+        CommandOutcome.Rejected => Strings.Hub_Request_DeviceRejected,
+        CommandOutcome.Failed => Strings.Hub_Request_NotDelivered,
+        CommandOutcome.TimedOut => Strings.Hub_Request_EngineNoAnswer,
+        CommandOutcome.Unsupported => Strings.Hub_Request_NotSupported,
+        CommandOutcome.TransportUnavailable => Strings.Hub_Request_EngineNotRunning,
         _ => outcome.ToString(),
     };
 }

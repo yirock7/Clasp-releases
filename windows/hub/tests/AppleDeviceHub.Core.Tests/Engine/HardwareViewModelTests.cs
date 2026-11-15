@@ -382,13 +382,16 @@ public class HardwareTransportSelectionTests
     }
 
     [Fact]
-    public void Unrelated_arguments_still_start_the_demo()
-        => Assert.True(TransportSelection.FromArgs(["--show=flyout", "--demo=nearby"]).IsDemo);
+    public void Unrelated_arguments_do_not_start_the_demo_without_the_flag()
+    {
+        Assert.False(TransportSelection.FromArgs(["--show=flyout", "--demo=nearby"]).IsDemo);
+        Assert.True(TransportSelection.FromArgs(["--transport=demo", "--show=flyout", "--demo=nearby"]).IsDemo);
+    }
 
     [Fact]
-    public void The_demo_is_only_chosen_explicitly_or_by_default()
+    public void The_demo_is_only_chosen_explicitly()
     {
-        Assert.True(TransportSelection.FromArgs([]).IsDemo);
+        Assert.False(TransportSelection.FromArgs([]).IsDemo);
         Assert.True(TransportSelection.FromArgs(["--transport=demo"]).IsDemo);
         Assert.False(TransportSelection.FromArgs(["--transport=ntpods"]).IsDemo);
     }

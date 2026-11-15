@@ -82,18 +82,17 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Battery history" VerticalAlignment="Center"
+            <TextBlock x:Uid="HistoryTitle" VerticalAlignment="Center"
                        Style="{StaticResource GlassLabelTextStyle}"
                        AutomationProperties.HeadingLevel="Level3" />
             <Border Grid.Column="1" Background="{ThemeResource GlassTrackBrush}"
                     BorderBrush="{ThemeResource GlassControlEdgeBrush}"
                     BorderThickness="{ThemeResource GlassTileEdgeThickness}"
                     CornerRadius="16" Padding="2">
-                <StackPanel Orientation="Horizontal" XYFocusKeyboardNavigation="Enabled" TabFocusNavigation="Once"
-                            AutomationProperties.Name="Time range">
-                    <RadioButton x:Name="DayButton" Content="24 hours" GroupName="BatteryHistoryRange"
+                <StackPanel x:Uid="HistoryRangeGroup" Orientation="Horizontal" XYFocusKeyboardNavigation="Enabled" TabFocusNavigation="Once">
+                    <RadioButton x:Name="DayButton" x:Uid="HistoryDayButton" GroupName="BatteryHistoryRange"
                                  Style="{StaticResource BatteryRangeRadioStyle}" Checked="OnRangeChecked" />
-                    <RadioButton x:Name="WeekButton" Content="7 days" GroupName="BatteryHistoryRange"
+                    <RadioButton x:Name="WeekButton" x:Uid="HistoryWeekButton" GroupName="BatteryHistoryRange"
                                  Style="{StaticResource BatteryRangeRadioStyle}" Checked="OnRangeChecked" />
                 </StackPanel>
             </Border>
@@ -101,32 +100,32 @@
 
         <!-- Legend: the swatch repeats each line's style. The swatch brushes also colour the drawn lines. -->
         <StackPanel Orientation="Horizontal" Spacing="16">
-            <StackPanel Orientation="Horizontal" Spacing="6" AutomationProperties.Name="Left earbud">
+            <StackPanel x:Uid="HistoryLegendLeftChip" Orientation="Horizontal" Spacing="6">
                 <Line x:Name="LegendLeft" X1="0" Y1="0" X2="20" Y2="0" VerticalAlignment="Center" Width="20"
                       Stroke="{ThemeResource GlassChartLeftBrush}" StrokeThickness="2.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                <TextBlock Text="L" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" />
+                <TextBlock x:Uid="HistoryLegendLeftText" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" />
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Spacing="6" AutomationProperties.Name="Right earbud">
+            <StackPanel x:Uid="HistoryLegendRightChip" Orientation="Horizontal" Spacing="6">
                 <Line x:Name="LegendRight" X1="0" Y1="0" X2="20" Y2="0" VerticalAlignment="Center" Width="20"
                       Stroke="{ThemeResource GlassChartRightBrush}" StrokeThickness="2.5" StrokeDashArray="2 1.2" />
-                <TextBlock Text="R" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" />
+                <TextBlock x:Uid="HistoryLegendRightText" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" />
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Spacing="6" AutomationProperties.Name="Case">
+            <StackPanel x:Uid="HistoryLegendCaseChip" Orientation="Horizontal" Spacing="6">
                 <Line x:Name="LegendCase" X1="0" Y1="0" X2="20" Y2="0" VerticalAlignment="Center" Width="20"
                       Stroke="{ThemeResource GlassChartCaseBrush}" StrokeThickness="2.5" StrokeDashArray="0.01 1.6"
                       StrokeDashCap="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                <TextBlock Text="Case" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" />
+                <TextBlock x:Uid="HistoryLegendCaseText" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" />
             </StackPanel>
-            <StackPanel x:Name="ChargingChip" Orientation="Horizontal" Spacing="6" Visibility="Collapsed" AutomationProperties.Name="Charging">
+            <StackPanel x:Name="ChargingChip" x:Uid="HistoryLegendChargingChip" Orientation="Horizontal" Spacing="6" Visibility="Collapsed">
                 <Border x:Name="LegendCharging" Width="16" Height="10" CornerRadius="2" VerticalAlignment="Center"
                         Background="{ThemeResource GlassChartChargingBandBrush}"
                         BorderBrush="{ThemeResource GlassChartChargingEdgeBrush}" BorderThickness="0,2,0,0" />
-                <TextBlock Text="Charging" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" />
+                <TextBlock x:Uid="HistoryLegendChargingText" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" />
             </StackPanel>
         </StackPanel>
 
         <!-- The chart is one focusable control: arrow keys move the guide between readings. -->
-        <views:ChartFocusControl x:Name="ChartFocus" Height="142" IsTabStop="True" UseSystemFocusVisuals="True"
+        <views:ChartFocusControl x:Name="ChartFocus" x:Uid="HistoryChart" Height="142" IsTabStop="True" UseSystemFocusVisuals="True"
                         FocusVisualMargin="-3" CornerRadius="8" HorizontalContentAlignment="Stretch"
                         VerticalContentAlignment="Stretch"
                         SizeChanged="OnChartSizeChanged" KeyDown="OnChartKeyDown"
@@ -135,8 +134,7 @@
                         PointerPressed="OnChartPointerPressed" PointerReleased="OnChartPointerReleased"
                         PointerCanceled="OnChartPointerReleased" PointerCaptureLost="OnChartPointerReleased"
                         PointerExited="OnChartPointerExited"
-                        AutomationProperties.Name="Battery history chart"
-                        AutomationProperties.HelpText="Use Left and Right arrows to read values">
+                        >
             <Grid>
                 <Canvas x:Name="Surface" Width="340" Height="142" Background="Transparent"
                         HorizontalAlignment="Left" VerticalAlignment="Top">
@@ -147,11 +145,11 @@
                     <Line x:Name="GridBottom" Stroke="{ThemeResource GlassDividerBrush}" StrokeThickness="1" />
                     <Canvas x:Name="SeriesLayer" />
                     <Canvas x:Name="LabelLayer" />
-                    <TextBlock x:Name="Label100" Text="100%" Style="{StaticResource GlassCaptionTextStyle}"
+                    <TextBlock x:Name="Label100" Style="{StaticResource GlassCaptionTextStyle}"
                                TextAlignment="Right" TextWrapping="NoWrap" Width="30" />
-                    <TextBlock x:Name="Label50" Text="50%" Style="{StaticResource GlassCaptionTextStyle}"
+                    <TextBlock x:Name="Label50" Style="{StaticResource GlassCaptionTextStyle}"
                                TextAlignment="Right" TextWrapping="NoWrap" Width="30" />
-                    <TextBlock x:Name="Label0" Text="0%" Style="{StaticResource GlassCaptionTextStyle}"
+                    <TextBlock x:Name="Label0" Style="{StaticResource GlassCaptionTextStyle}"
                                TextAlignment="Right" TextWrapping="NoWrap" Width="30" />
 
                     <!-- Hover / keyboard readout. Hidden until used. -->

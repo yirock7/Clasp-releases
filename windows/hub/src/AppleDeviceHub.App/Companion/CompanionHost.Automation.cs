@@ -7,6 +7,7 @@ using AppleDeviceHub.Core.Automation;
 using AppleDeviceHub.Core.Ble;
 using AppleDeviceHub.Core.Connection;
 using AppleDeviceHub.Core.Media;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.App.Companion;
 
@@ -87,7 +88,7 @@ internal sealed partial class CompanionHost
             var result = _audio.TrySetDefaultOutput(endpoint.Id);
             LocalLog.Write(result.Applied
                 ? "Disconnected; audio returned to the output used before Connect."
-                : $"Disconnected; the previous output could not be restored ({result.Detail}).");
+                : "Disconnected; the previous output could not be restored.");
         }
         catch (Exception ex)
         {
@@ -401,7 +402,7 @@ internal sealed partial class CompanionHost
                 }
                 var write = _audio.TrySetDefaultOutput(request.EndpointId);
                 _earSwitch.ReportResult(request.Role, write.Applied);
-                LocalLog.Write($"Ear output switch role={request.Role}; switchBack={request.SwitchBack}; applied={write.Applied}; result={write.Detail}");
+                LocalLog.Write($"Ear output switch role={request.Role}; switchBack={request.SwitchBack}; applied={write.Applied}");
             }
         }
         catch (Exception ex)
@@ -436,7 +437,7 @@ internal sealed partial class CompanionHost
     {
         if (_disposed || _repair is null || _connection?.SelectedDevice is not { } device)
         {
-            const string choose = "Choose your AirPods in Settings first.";
+            var choose = Strings.CompHost_Repair_ChooseDevice;
             Status.RepairSucceeded = false;
             Status.RepairText = choose;
             return choose;
@@ -457,7 +458,7 @@ internal sealed partial class CompanionHost
         catch (Exception ex)
         {
             LocalLog.Write($"Fix connection failed ({ex.GetType().Name}).");
-            result = new RepairResult(RepairOutcome.Failed, "Fix connection stopped. Make sure Bluetooth is on in Windows Settings.");
+            result = new RepairResult(RepairOutcome.Failed, Strings.CompHost_Repair_Stopped);
         }
         finally
         {

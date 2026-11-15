@@ -23,8 +23,8 @@ if (-not (Test-Path -LiteralPath $sourcePublishPath -PathType Container)) {
 
 $appDirectory = Split-Path -Parent $appProjectPath
 $requiredRootFiles = @(
-    'AppleDeviceHub.exe',
-    'AppleDeviceHub.pri',
+    'Clasp.exe',
+    'Clasp.pri',
     'Microsoft.ui.xaml.dll',
     'Microsoft.WindowsAppRuntime.dll',
     'Microsoft.WindowsAppRuntime.Bootstrap.dll'
@@ -130,8 +130,8 @@ try {
 
     $priFixturePath = Join-Path $fixtureRoot 'missing-pri'
     Copy-ValidFixture -DestinationPath $priFixturePath
-    Remove-Item -LiteralPath (Join-Path $priFixturePath 'AppleDeviceHub.pri') -Force
-    Assert-ValidationResult -CaseName 'missing AppleDeviceHub.pri' -PublishPath $priFixturePath -ShouldPass $false -ExpectedErrorPattern 'AppleDeviceHub\.pri'
+    Remove-Item -LiteralPath (Join-Path $priFixturePath 'Clasp.pri') -Force
+    Assert-ValidationResult -CaseName 'missing Clasp.pri' -PublishPath $priFixturePath -ShouldPass $false -ExpectedErrorPattern 'Clasp\.pri'
 
     $flyoutXaml = Join-Path $appDirectory 'Views\FlyoutView.xaml'
     if (-not (Test-Path -LiteralPath $flyoutXaml -PathType Leaf)) {
@@ -162,7 +162,7 @@ try {
 
     $wrongArchitectureFixturePath = Join-Path $fixtureRoot 'wrong-architecture'
     Copy-ValidFixture -DestinationPath $wrongArchitectureFixturePath
-    $executablePath = Join-Path $wrongArchitectureFixturePath 'AppleDeviceHub.exe'
+    $executablePath = Join-Path $wrongArchitectureFixturePath 'Clasp.exe'
     $stream = [System.IO.File]::Open($executablePath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
     try {
         $reader = [System.IO.BinaryReader]::new($stream)

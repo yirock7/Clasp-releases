@@ -100,21 +100,18 @@
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                         <design:GlassIconButton x:Name="BatteryHistoryIconButton"
-                                                AutomationProperties.Name="Battery history"
-                                                ToolTipService.ToolTip="Battery history"
+                                                x:Uid="FlyoutBatteryHistoryButton"
                                                 Click="OnBatteryHistoryClick">
                             <FontIcon Glyph="&#xE81C;" FontSize="16" />
                         </design:GlassIconButton>
                         <design:GlassIconButton x:Name="BluetoothIconButton"
-                                                AutomationProperties.Name="Open Windows Bluetooth settings"
-                                                ToolTipService.ToolTip="Windows Bluetooth settings"
+                                                x:Uid="FlyoutBluetoothSettingsButton"
                                                 Click="OnOpenBluetoothSettingsClick"
                                                 Visibility="{x:Bind design:GlassBind.Collapsed(ViewModel.IsDemo), Mode=OneWay}">
                             <FontIcon Glyph="&#xE702;" FontSize="16" />
                         </design:GlassIconButton>
                         <design:GlassIconButton x:Name="SettingsIconButton"
-                                                AutomationProperties.Name="Settings"
-                                                ToolTipService.ToolTip="Settings"
+                                                x:Uid="FlyoutSettingsButton"
                                                 Click="OnSettingsClick">
                             <FontIcon Glyph="&#xE713;" FontSize="16" />
                         </design:GlassIconButton>
@@ -128,7 +125,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <design:GlassStatusChip Kind="Warning" Text="Unavailable" VerticalAlignment="Top" />
+                    <design:GlassStatusChip x:Uid="FlyoutUnavailableChip" Kind="Warning" VerticalAlignment="Top" />
                     <TextBlock x:Name="UnavailableText"
                                Grid.Column="1"
                                Text="{x:Bind ViewModel.UnavailableReason, Mode=OneWay}"
@@ -141,11 +138,11 @@
                 <!-- ===== Updates: the one-time question, then "update available" ===== -->
                 <StackPanel x:Name="UpdateConsentPanel" Spacing="{StaticResource GlassSpace4}"
                             Visibility="{x:Bind design:GlassBind.Visible(ShowUpdateConsent), Mode=OneTime}">
-                    <TextBlock Text="Check for updates automatically? Clasp checks once a day. You can change this in Settings."
+                    <TextBlock x:Uid="FlyoutUpdateConsentText"
                                Style="{StaticResource GlassCaptionTextStyle}" TextWrapping="WrapWholeWords" />
                     <StackPanel Orientation="Horizontal" Spacing="{StaticResource GlassSpace8}">
-                        <design:GlassButton x:Name="UpdateConsentYesButton" Content="Check daily" Click="OnUpdateConsentYesClick" />
-                        <design:GlassButton x:Name="UpdateConsentNoButton" Content="No thanks" Click="OnUpdateConsentNoClick" />
+                        <design:GlassButton x:Name="UpdateConsentYesButton" x:Uid="FlyoutUpdateConsentYesButton" Click="OnUpdateConsentYesClick" />
+                        <design:GlassButton x:Name="UpdateConsentNoButton" x:Uid="FlyoutUpdateConsentNoButton" Click="OnUpdateConsentNoClick" />
                     </StackPanel>
                 </StackPanel>
                 <StackPanel x:Name="UpdateBannerPanel" Spacing="{StaticResource GlassSpace4}"
@@ -154,12 +151,12 @@
                                Style="{StaticResource GlassBodyTextStyle}" FontWeight="SemiBold" TextWrapping="WrapWholeWords"
                                AutomationProperties.LiveSetting="Polite" />
                     <design:GlassButton x:Name="InstallUpdateButton"
+                                        x:Uid="FlyoutInstallUpdateButton"
                                         Style="{StaticResource FlyoutActionButtonStyle}"
                                         HorizontalAlignment="Left"
                                         Content="{x:Bind UpdateInstallText, Mode=OneTime}"
                                         IsPending="{x:Bind UpdateIsPending, Mode=OneTime}"
                                         IsEnabled="{x:Bind CanInstallUpdate, Mode=OneTime}"
-                                        AutomationProperties.HelpText="Updates Clasp and reopens it."
                                         Click="OnInstallUpdateClick" />
                 </StackPanel>
 
@@ -231,9 +228,8 @@
                                         IsEnabled="{x:Bind CanConnectPairedDevice, Mode=OneTime}"
                                         Click="OnPairedConnectClick" />
                     <design:GlassButton x:Name="PairNewAirPodsButton"
-                                        Content="Pair new AirPods"
+                                        x:Uid="FlyoutPairNewAirPodsButton"
                                         HorizontalAlignment="Left"
-                                        AutomationProperties.HelpText="Opens Windows Bluetooth pairing. Hold the button on the AirPods case until the light flashes white."
                                         Visibility="{x:Bind design:GlassBind.Visible(ShowPairNewAirPods), Mode=OneTime}"
                                         Click="OnPairNewAirPodsClick" />
                 </StackPanel>
@@ -247,7 +243,7 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Spacing="1">
-                    <TextBlock Text="Sound output"
+                    <TextBlock x:Uid="FlyoutSoundOutputHeading"
                                        Style="{StaticResource GlassCaptionTextStyle}"
                                        FontWeight="SemiBold"
                                        AutomationProperties.HeadingLevel="Level2" />
@@ -315,7 +311,7 @@
                 <StackPanel x:Name="PlaybackSection"
                             Spacing="{StaticResource GlassSpace4}"
                             Visibility="{x:Bind design:GlassBind.Visible(HasPlaybackControls), Mode=OneTime}">
-                    <TextBlock Text="Now Playing"
+                    <TextBlock x:Uid="FlyoutNowPlayingHeading"
                                Style="{StaticResource GlassCaptionTextStyle}"
                                FontWeight="SemiBold"
                                AutomationProperties.HeadingLevel="Level2" />
@@ -349,9 +345,8 @@
                             <ColumnDefinition Width="44" />
                         </Grid.ColumnDefinitions>
                         <design:GlassIconButton x:Name="PlaybackPreviousButton"
+                                                x:Uid="FlyoutPlaybackPreviousButton"
                                                 Grid.Column="0"
-                                                AutomationProperties.Name="Previous track"
-                                                ToolTipService.ToolTip="Previous track"
                                                 IsEnabled="{x:Bind PlaybackCanPrevious, Mode=OneTime}"
                                                 IsPending="{x:Bind PlaybackIsBusy, Mode=OneTime}"
                                                 Click="OnPlaybackPreviousClick">
@@ -367,9 +362,8 @@
                             <FontIcon Glyph="{x:Bind PlaybackCenterGlyph, Mode=OneTime}" FontSize="18" />
                         </design:GlassIconButton>
                         <design:GlassIconButton x:Name="PlaybackNextButton"
+                                                x:Uid="FlyoutPlaybackNextButton"
                                                 Grid.Column="2"
-                                                AutomationProperties.Name="Next track"
-                                                ToolTipService.ToolTip="Next track"
                                                 IsEnabled="{x:Bind PlaybackCanNext, Mode=OneTime}"
                                                 IsPending="{x:Bind PlaybackIsBusy, Mode=OneTime}"
                                                 Click="OnPlaybackNextClick">
@@ -407,11 +401,10 @@
                 <StackPanel x:Name="BroadcastSection" Spacing="{StaticResource GlassSpace4}"
                             Visibility="{x:Bind design:GlassBind.Visible(ShowBroadcastSection), Mode=OneTime}">
                         <ComboBox x:Name="BroadcastSourcePicker"
+                                  x:Uid="FlyoutBroadcastSourcePicker"
                                   HorizontalAlignment="Stretch"
-                                  PlaceholderText="Choose nearby AirPods"
                                   ItemsSource="{x:Bind design:BindableItems.From(ViewModel.BroadcastSources), Mode=OneWay}"
                                   SelectedItem="{x:Bind ViewModel.SelectedBroadcastSource, Mode=OneWay}"
-                                  AutomationProperties.Name="Nearby device, not confirmed"
                                   SelectionChanged="OnBroadcastSourceSelected">
                                   <ComboBox.ItemTemplate>
                                       <DataTemplate x:DataType="presentation:BroadcastSourceViewModel">
@@ -433,7 +426,7 @@
                                             Click="OnNearbyDetailsClick" />
                         <StackPanel x:Name="NearbyDetails" Spacing="2"
                                     Visibility="{x:Bind design:GlassBind.Visible(ShowNearbyDetails), Mode=OneTime}">
-                            <TextBlock Text="Nearby estimate from a Bluetooth signal. It may be a different pair of AirPods."
+                            <TextBlock x:Uid="FlyoutNearbyEstimateNote"
                                        Style="{StaticResource GlassCaptionTextStyle}" />
                             <TextBlock Text="{x:Bind ViewModel.SelectedBroadcastSignalText, Mode=OneWay}"
                                        Style="{StaticResource GlassCaptionTextStyle}" />
@@ -446,13 +439,13 @@
                             Visibility="{x:Bind design:GlassBind.Visible(ViewModel.IsConnected), Mode=OneWay}">
                     <StackPanel Spacing="{StaticResource GlassSpace8}">
                         <TextBlock x:Name="ModeHeading"
-                                   Text="Listening mode"
+                                   x:Uid="FlyoutListeningModeHeading"
                                    Style="{StaticResource GlassCaptionTextStyle}"
                                    FontWeight="SemiBold"
                                    Margin="4,0,0,0"
                                    AutomationProperties.HeadingLevel="Level2" />
                         <design:GlassSegmentedControl x:Name="ModeSelector"
-                                                      AutomationProperties.Name="Listening mode"
+                                                      x:Uid="FlyoutListeningModeSelector"
                                                       ItemsSource="{x:Bind ViewModel.ModeOptions, Mode=OneWay}"
                                                       SelectedIndex="{x:Bind ViewModel.DisplayedModeIndex, Mode=OneWay}"
                                                       ConfirmedIndex="{x:Bind ViewModel.ActualModeIndex, Mode=OneWay}"
@@ -484,7 +477,7 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel VerticalAlignment="Center" Spacing="2">
-                                    <TextBlock Text="Conversation Awareness" Style="{StaticResource GlassLabelTextStyle}" />
+                                    <TextBlock x:Uid="FlyoutConversationAwarenessLabel" Style="{StaticResource GlassLabelTextStyle}" />
                                     <TextBlock Text="{x:Bind ViewModel.ConversationAwarenessCaption, Mode=OneWay}"
                                                Style="{StaticResource GlassCaptionTextStyle}"
                                                Visibility="{x:Bind design:GlassBind.Collapsed(ViewModel.IsConversationAwarenessPending), Mode=OneWay}" />
@@ -496,7 +489,7 @@
                                                       IsActive="{x:Bind ViewModel.IsConversationAwarenessPending, Mode=OneWay}"
                                                       Foreground="{ThemeResource GlassPendingBrush}"
                                                       AutomationProperties.AccessibilityView="Raw" />
-                                        <TextBlock Text="Waiting for confirmation…" Style="{StaticResource GlassCaptionTextStyle}" />
+                                        <TextBlock x:Uid="FlyoutAwarenessPendingText" Style="{StaticResource GlassCaptionTextStyle}" />
                                     </StackPanel>
                                 </StackPanel>
                                 <!-- Unknown is shown as "Unknown", never as a toggle reading Off. -->
@@ -525,7 +518,7 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Adaptive strength" Style="{StaticResource GlassLabelTextStyle}" />
+                                    <TextBlock x:Uid="FlyoutAdaptiveStrengthLabel" Style="{StaticResource GlassLabelTextStyle}" />
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="{StaticResource GlassSpace4}">
                                         <ProgressRing Width="14" Height="14"
                                                       IsIndeterminate="True"
@@ -548,7 +541,7 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Less" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" AutomationProperties.AccessibilityView="Raw" />
+                                    <TextBlock x:Uid="FlyoutStrengthLessLabel" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" AutomationProperties.AccessibilityView="Raw" />
                                     <Slider x:Name="StrengthSlider"
                                             Grid.Column="1"
                                             Style="{StaticResource GlassSliderStyle}"
@@ -562,7 +555,7 @@
                                             Value="{x:Bind ViewModel.AdaptiveStrengthSliderValue, Mode=OneWay}"
                                             IsEnabled="{x:Bind ViewModel.IsAdaptiveStrengthEnabled, Mode=OneWay}"
                                             ValueChanged="OnStrengthChanged" />
-                                    <TextBlock Grid.Column="2" Text="More" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" AutomationProperties.AccessibilityView="Raw" />
+                                    <TextBlock x:Uid="FlyoutStrengthMoreLabel" Grid.Column="2" Style="{StaticResource GlassCaptionTextStyle}" VerticalAlignment="Center" AutomationProperties.AccessibilityView="Raw" />
                                 </Grid>
                                 <TextBlock Text="{x:Bind ViewModel.AdaptiveStrengthCaption, Mode=OneWay}"
                                            Style="{StaticResource GlassCaptionTextStyle}"
@@ -578,7 +571,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <design:GlassStatusChip Kind="Error" Text="Didn't work" VerticalAlignment="Top" />
+                    <design:GlassStatusChip x:Uid="FlyoutErrorChip" Kind="Error" VerticalAlignment="Top" />
                     <TextBlock x:Name="ErrorText"
                                Grid.Column="1"
                                Text="{x:Bind ViewModel.LastErrorText, Mode=OneWay}"

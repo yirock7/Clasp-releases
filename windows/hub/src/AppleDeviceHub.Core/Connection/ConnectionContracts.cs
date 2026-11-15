@@ -1,3 +1,5 @@
+using AppleDeviceHub.Core.Resources;
+
 namespace AppleDeviceHub.Core.Connection;
 
 /// <summary>
@@ -101,7 +103,7 @@ public interface IAirPodsConnectionController
         string deviceId,
         string expectedContainerId,
         CancellationToken cancellationToken = default)
-        => Task.FromResult(new ConnectionAttemptResult(ConnectionAttemptKind.Unsupported, "Windows can't disconnect this device."));
+        => Task.FromResult(new ConnectionAttemptResult(ConnectionAttemptKind.Unsupported, Strings.Connection_Disconnect_Unsupported));
 }
 
 /// <summary>Container identifiers which cannot safely establish a device-to-endpoint association.</summary>
@@ -126,7 +128,7 @@ public static class ConnectionIdentity
 public static class ConnectionDriverState
 {
     /// <summary>Plain-language guidance shown instead of the raw Windows error code.</summary>
-    public const string MissingDriverDetail = "Windows can't find this device's drivers. Check that Bluetooth is on. If it is, remove the device in Bluetooth settings and pair it again, or choose another device in Clasp's Settings.";
+    public static string MissingDriverDetail => Strings.Connection_Detail_MissingDriver;
 
     private const uint EndpointNotPresent = 0x4; // DEVICE_STATE_NOTPRESENT; UNPLUGGED (0x8) is a different state.
     private const int MissingInterfaceHResult = unchecked((int)0xE0000225); // ERROR_NO_SUCH_DEVICE_INTERFACE

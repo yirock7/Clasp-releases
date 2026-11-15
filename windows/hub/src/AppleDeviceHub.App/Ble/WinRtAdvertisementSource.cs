@@ -1,4 +1,6 @@
+using System.Globalization;
 using AppleDeviceHub.Core.Ble;
+using AppleDeviceHub.Core.Resources;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Radios;
@@ -113,7 +115,7 @@ public sealed class WinRtAdvertisementSource : IAdvertisementSource
                 if (watcher.Status == BluetoothLEAdvertisementWatcherStatus.Aborted)
                 {
                     Detach();
-                    return SetStatusIfCurrent(epoch, new AdvertisementSourceStatus(AdvertisementSourceState.Unavailable, "Windows refused to start Bluetooth listening."));
+                    return SetStatusIfCurrent(epoch, new AdvertisementSourceStatus(AdvertisementSourceState.Unavailable, Strings.WinBle_Listening_WindowsRefused));
                 }
                 return SetStatusIfCurrent(epoch, new AdvertisementSourceStatus(AdvertisementSourceState.Running));
             }
@@ -121,13 +123,13 @@ public sealed class WinRtAdvertisementSource : IAdvertisementSource
             {
                 DetachOrStop(watcher);
                 return SetStatusIfCurrent(epoch, new AdvertisementSourceStatus(AdvertisementSourceState.Unavailable,
-                    "Access to Bluetooth was denied (check Windows privacy settings for Bluetooth/radios)."));
+                    Strings.WinBle_Access_Denied));
             }
             catch (Exception ex)
             {
                 DetachOrStop(watcher);
                 return SetStatusIfCurrent(epoch, new AdvertisementSourceStatus(AdvertisementSourceState.Unavailable,
-                    $"Bluetooth listening could not start ({ex.GetType().Name}, 0x{ex.HResult:X8})."));
+                    string.Format(CultureInfo.CurrentCulture, Strings.WinBle_Listening_CouldNotStart, ex.GetType().Name, ex.HResult)));
             }
         }
         finally
@@ -154,8 +156,8 @@ public sealed class WinRtAdvertisementSource : IAdvertisementSource
         return Task.CompletedTask;
     }
 
-    private static readonly AdvertisementSourceStatus Closed =
-        new(AdvertisementSourceState.Unavailable, "The listener has been closed.");
+    private static AdvertisementSourceStatus Closed =>
+        new(AdvertisementSourceState.Unavailable, Strings.WinBle_Listener_Closed);
 
     /// <summary>Release <paramref name="watcher"/> whether or not it was attached.</summary>
     private void DetachOrStop(BluetoothLEAdvertisementWatcher? watcher)
@@ -197,26 +199,26 @@ public sealed class WinRtAdvertisementSource : IAdvertisementSource
         try
         {
             var adapter = await BluetoothAdapter.GetDefaultAsync();
-            if (adapter is null) return "No Bluetooth adapter was found.";
-            if (!adapter.IsLowEnergySupported) return "This Bluetooth adapter does not support Bluetooth LE.";
-            if (!adapter.IsCentralRoleSupported) return "This Bluetooth adapter cannot listen for Bluetooth LE broadcasts.";
+            if (adapter is null) return Strings.WinBle_Adapter_NotFound;
+            if (!adapter.IsLowEnergySupported) return Strings.WinBle_Adapter_NoLowEnergy;
+            if (!adapter.IsCentralRoleSupported) return Strings.WinBle_Adapter_NoCentralRole;
             var radio = await adapter.GetRadioAsync();
-            if (radio is null) return "The Bluetooth radio could not be read.";
+            if (radio is null) return Strings.WinBle_Radio_CouldNotRead;
             return radio.State switch
             {
                 RadioState.On => null,
-                RadioState.Off => "Bluetooth is turned off.",
-                RadioState.Disabled => "Bluetooth is disabled.",
-                _ => "The Bluetooth radio state is unknown.",
+                RadioState.Off => Strings.WinBle_Radio_Off,
+                RadioState.Disabled => Strings.WinBle_Radio_Disabled,
+                _ => Strings.WinBle_Radio_StateUnknown,
             };
         }
         catch (UnauthorizedAccessException)
         {
-            return "Access to Bluetooth was denied (check Windows privacy settings for Bluetooth/radios).";
+            return Strings.WinBle_Access_Denied;
         }
         catch (Exception ex)
         {
-            return $"The Bluetooth adapter could not be checked ({ex.GetType().Name}, 0x{ex.HResult:X8}).";
+            return string.Format(CultureInfo.CurrentCulture, Strings.WinBle_Adapter_CheckFailed, ex.GetType().Name, ex.HResult);
         }
     }
 
@@ -283,13 +285,13 @@ public sealed class WinRtAdvertisementSource : IAdvertisementSource
             string? reason = args.Error switch
             {
                 BluetoothError.Success => null,
-                BluetoothError.RadioNotAvailable => "The Bluetooth radio is not available (turned off or removed).",
-                BluetoothError.DisabledByPolicy => "Bluetooth is disabled by policy.",
-                BluetoothError.DisabledByUser => "Bluetooth access is disabled in Windows settings.",
-                BluetoothError.NotSupported => "Bluetooth LE listening is not supported on this PC.",
-                BluetoothError.ResourceInUse => "The Bluetooth radio is busy.",
-                BluetoothError.ConsentRequired => "Windows requires consent before Bluetooth can be used.",
-                _ => $"Bluetooth listening stopped ({args.Error}).",
+                BluetoothError.RadioNotAvailable => Strings.WinBle_Stopped_RadioNotAvailable,
+                BluetoothError.DisabledByPolicy => Strings.WinBle_Stopped_DisabledByPolicy,
+                BluetoothError.DisabledByUser => Strings.WinBle_Stopped_DisabledByUser,
+                BluetoothError.NotSupported => Strings.WinBle_Stopped_NotSupported,
+                BluetoothError.ResourceInUse => Strings.WinBle_Stopped_RadioBusy,
+                BluetoothError.ConsentRequired => Strings.WinBle_Stopped_ConsentRequired,
+                _ => string.Format(CultureInfo.CurrentCulture, Strings.WinBle_Stopped_WithError, args.Error),
             };
             SetStatus(reason is null
                 ? AdvertisementSourceStatus.Stopped

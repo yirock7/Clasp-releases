@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.Pairing;
 
@@ -26,7 +28,7 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
     /// <summary>How long to wait for Clasp to pick up the newly paired device.</summary>
     public static readonly TimeSpan AdoptTimeout = TimeSpan.FromSeconds(20);
 
-    private const string SearchingText = "Looking for AirPods in pairing mode…";
+    private static string SearchingText => Strings.Pairing_Status_Searching;
 
     private readonly IPairingDiscovery _discovery;
     private readonly Action<Action> _dispatch;
@@ -121,14 +123,14 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
         if (_disposed || !_active || IsBusy || string.IsNullOrEmpty(candidateId)) return;
 
         var candidate = FindCandidate(candidateId);
-        var name = candidate?.Name ?? "your AirPods";
+        var name = candidate?.Name ?? Strings.Pairing_DefaultDeviceName;
         var generation = ++_generation;
         var userCts = new CancellationTokenSource();
         _userCts = userCts;
 
         SafeStop();
         PairingCandidateId = candidateId;
-        StatusText = $"Pairing with {name}…";
+        StatusText = string.Format(CultureInfo.CurrentCulture, Strings.Pairing_Status_Pairing, name);
         State = PairingState.Pairing;
 
         PairingOutcome outcome;
@@ -152,7 +154,7 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            Log($"Pairing {name} failed: {ex.Message}");
+            Log($"Pairing failed: {LogText.ExceptionKind(ex)}");
             outcome = PairingOutcome.Failed;
         }
 
@@ -185,7 +187,7 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
 
     private async Task AdoptAsync(PairingCandidate candidate, string name, int generation, CancellationTokenSource userCts)
     {
-        StatusText = $"Setting up {name}…";
+        StatusText = string.Format(CultureInfo.CurrentCulture, Strings.Pairing_Status_SettingUp, name);
         State = PairingState.Connecting;
 
         var adopted = false;
@@ -200,12 +202,12 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
         }
         catch (TimeoutException)
         {
-            Log($"Setting up {name} timed out.");
+            Log("Setting up the device timed out.");
             linked.Cancel();
         }
         catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested && !userCts.IsCancellationRequested)
         {
-            Log($"Setting up {name} timed out.");
+            Log("Setting up the device timed out.");
             linked.Cancel();
         }
         catch (OperationCanceledException)
@@ -214,7 +216,7 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            Log($"Setting up {name} failed: {ex.Message}");
+            Log($"Setting up the device failed: {LogText.ExceptionKind(ex)}");
             if (generation != _generation || _disposed) return;
             PairingCandidateId = null;
             StatusText = PairingMessages.Describe(PairingOutcome.Failed, name);
@@ -226,8 +228,8 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
         if (generation != _generation || _disposed) return;
         PairingCandidateId = null;
         StatusText = adopted
-            ? $"{name} is paired and ready."
-            : $"{name} is paired. If it doesn't show up below, click Refresh.";
+            ? string.Format(CultureInfo.CurrentCulture, Strings.Pairing_Status_PairedReady, name)
+            : string.Format(CultureInfo.CurrentCulture, Strings.Pairing_Status_PairedRefresh, name);
         State = PairingState.Paired;
     }
 
@@ -243,8 +245,8 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
         StatusText = Candidates.Count switch
         {
             0 => SearchingText,
-            1 => $"{Candidates[0].Name} is ready to pair.",
-            var n => $"Found {n} ready to pair.",
+            1 => string.Format(CultureInfo.CurrentCulture, Strings.Pairing_Status_OneReady, Candidates[0].Name),
+            var n => string.Format(CultureInfo.CurrentCulture, Strings.Pairing_Status_ManyReady, n),
         };
     }
 
@@ -308,19 +310,19 @@ public sealed class PairingSessionViewModel : ObservableObject, IDisposable
         _userCts = null;
         if (cts is null) return;
         try { cts.Cancel(); }
-        catch (Exception ex) { Log($"Cancel failed: {ex.Message}"); }
+        catch (Exception ex) { Log($"Cancel failed: {LogText.ExceptionKind(ex)}"); }
     }
 
     private void SafeStart()
     {
         try { _discovery.Start(); }
-        catch (Exception ex) { Log($"Starting the search failed: {ex.Message}"); }
+        catch (Exception ex) { Log($"Starting the search failed: {LogText.ExceptionKind(ex)}"); }
     }
 
     private void SafeStop()
     {
         try { _discovery.Stop(); }
-        catch (Exception ex) { Log($"Stopping the search failed: {ex.Message}"); }
+        catch (Exception ex) { Log($"Stopping the search failed: {LogText.ExceptionKind(ex)}"); }
     }
 
     private void Log(string message) => _log?.Invoke(message);

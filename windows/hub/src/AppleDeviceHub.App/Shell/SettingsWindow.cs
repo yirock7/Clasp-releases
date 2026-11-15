@@ -2,6 +2,7 @@
 using AppleDeviceHub.App.Design;
 using AppleDeviceHub.App.Views;
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
@@ -24,7 +25,7 @@ internal sealed class SettingsWindow : Window
     {
         _view = new SettingsView { ViewModel = viewModel, Settings = settings, Audio = audio, Playback = playback, Connection = connection, Companion = companion, Updates = updates };
         Content = _view;
-        Title = viewModel.IsDemo ? "Clasp Settings (Demo)" : "Clasp Settings";
+        Title = viewModel.IsDemo ? Strings.Settings_Window_TitleDemo : Strings.Settings_Window_Title;
         // One continuous surface: content runs under the caption buttons (the title stays in the
         // taskbar, Alt+Tab and UIA; the brand row in the sidebar replaces the drawn title).
         ExtendsContentIntoTitleBar = true;

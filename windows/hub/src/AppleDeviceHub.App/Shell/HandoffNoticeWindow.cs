@@ -1,6 +1,7 @@
 ﻿using AppleDeviceHub.App.Design;
 using AppleDeviceHub.App.Views;
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Windows.Graphics;
@@ -36,7 +37,7 @@ internal sealed class HandoffNoticeWindow : Window
         _connection = connection;
         _view = new HandoffNoticeView { Connection = connection, Width = WidthDip };
         Content = _view;
-        Title = "Clasp hand-off notice";
+        Title = Strings.Handoff_Window_Title;
 
         WindowChrome.MakeFloating(this, activatable: false);
         WindowChrome.ApplyFloatingBackdrop(this);
@@ -108,7 +109,7 @@ internal sealed class HandoffNoticeWindow : Window
         }
         catch (Exception ex)
         {
-            LocalLog.Write($"Hand-off notice failed: {ex}");
+            LocalLog.Write($"Hand-off notice failed: {LogText.Exception(ex)}");
         }
     }
 
@@ -142,7 +143,7 @@ internal sealed class HandoffNoticeWindow : Window
     {
         if (!_isOpen || _isClosing || _monitor is not { } monitor) return;
         try { Fit(monitor); }
-        catch (Exception ex) { LocalLog.Write($"Hand-off notice refit failed: {ex.Message}"); }
+        catch (Exception ex) { LocalLog.Write($"Hand-off notice refit failed: {LogText.ExceptionKind(ex)}"); }
     }
 
     public async Task HideAsync()
@@ -159,7 +160,7 @@ internal sealed class HandoffNoticeWindow : Window
         }
         catch (Exception ex)
         {
-            LocalLog.Write($"Hand-off notice hide failed: {ex.Message}");
+            LocalLog.Write($"Hand-off notice hide failed: {LogText.ExceptionKind(ex)}");
         }
         finally
         {

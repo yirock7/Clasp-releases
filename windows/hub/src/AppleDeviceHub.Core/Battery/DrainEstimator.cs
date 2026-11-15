@@ -1,4 +1,5 @@
 using System.Globalization;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.Battery;
 
@@ -92,9 +93,9 @@ public sealed record DrainEstimatorOptions
 /// </summary>
 public static class DrainEstimator
 {
-    public const string NotEnoughDataText = "Not enough data yet for a time estimate";
-    public const string ChargingText = "Charging, so no time estimate";
-    public const string StaleText = "No recent reading, so no time estimate";
+    public static string NotEnoughDataText => Strings.Battery_Estimate_NotEnoughData;
+    public static string ChargingText => Strings.Battery_Estimate_Charging;
+    public static string StaleText => Strings.Battery_Estimate_Stale;
 
     public static DrainEstimate Estimate(IReadOnlyList<BatterySample> samples, DateTimeOffset now, DateTimeOffset? lastHeardAt = null, DrainEstimatorOptions? options = null)
     {
@@ -133,9 +134,9 @@ public static class DrainEstimator
     public static string Format(TimeSpan low, TimeSpan high)
     {
         if (high <= TimeSpan.FromMinutes(90))
-            return string.Create(CultureInfo.InvariantCulture, $"Estimate: about {low.TotalMinutes:0} to {high.TotalMinutes:0} minutes left");
+            return string.Format(CultureInfo.CurrentCulture, Strings.Battery_Estimate_Minutes, low.TotalMinutes.ToString("0", CultureInfo.InvariantCulture), high.TotalMinutes.ToString("0", CultureInfo.InvariantCulture));
         double lowH = Math.Floor(low.TotalHours * 2) / 2;
         double highH = Math.Ceiling(high.TotalHours * 2) / 2;
-        return string.Create(CultureInfo.InvariantCulture, $"Estimate: about {lowH:0.#} to {highH:0.#} hours left");
+        return string.Format(CultureInfo.CurrentCulture, Strings.Battery_Estimate_Hours, lowH.ToString("0.#", CultureInfo.InvariantCulture), highH.ToString("0.#", CultureInfo.InvariantCulture));
     }
 }

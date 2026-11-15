@@ -11,9 +11,7 @@
     xmlns:views="using:AppleDeviceHub.App.Views"
     xmlns:ble="using:AppleDeviceHub.Core.Ble">
 
-    <Expander x:Name="HelpExpander"
-              Header="How to pair your AirPods"
-              AutomationProperties.Name="How to pair your AirPods"
+    <Expander x:Name="HelpExpander" x:Uid="PairingHelpExpander"
               HorizontalAlignment="Stretch"
               HorizontalContentAlignment="Stretch"
               Background="Transparent"
@@ -22,8 +20,7 @@
               Expanding="OnExpanding"
               Collapsed="OnCollapsed">
         <StackPanel Spacing="{StaticResource GlassSpace12}">
-            <ComboBox x:Name="ModelPicker"
-                      Header="Your model"
+            <ComboBox x:Name="ModelPicker" x:Uid="PairingHelpModelPicker"
                       HorizontalAlignment="Stretch"
                       SelectionChanged="OnModelSelected">
                 <ComboBox.ItemTemplate>

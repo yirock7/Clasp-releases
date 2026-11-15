@@ -81,6 +81,26 @@ internal static class ProtocolRegistration
         }
     }
 
+    /// <summary>
+    /// After the rename from AppleDeviceHub.exe to Clasp.exe: if our clasp: link entry still points at the old program in this
+    /// folder, register the running program instead. Does nothing when there is no entry, so it never turns the setting on.
+    /// Returns true when it rewrote the entry.
+    /// </summary>
+    public static bool RepairLegacy(string? exePath)
+    {
+        try
+        {
+            var command = ReadCommand();
+            if (command is null || !command.Contains(OwnerMarker, StringComparison.OrdinalIgnoreCase)) return false;
+            if (AppleDeviceHub.Core.Startup.LegacyExecutable.Rewrite(command, exePath) is null) return false;
+            return Register(exePath!);
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
+        {
+            return false;
+        }
+    }
+
     private static string? ReadCommand()
     {
         using var key = Registry.CurrentUser.OpenSubKey(CommandKeyPath, writable: false);

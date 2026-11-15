@@ -1,3 +1,5 @@
+using AppleDeviceHub.Core.Resources;
+
 namespace AppleDeviceHub.Core.Media;
 
 /// <summary>The direct action requested from the current Windows media player.</summary>
@@ -62,14 +64,14 @@ public sealed record PlaybackSnapshot(
     };
 
     /// <summary>Snapshot shown when SMTC is available but Windows has no current media session.</summary>
-    public static PlaybackSnapshot NoPlayer { get; } = new(
+    public static PlaybackSnapshot NoPlayer => new(
         null, null, null, MediaPlayback.Unknown, false, false, false, false,
-        "Nothing is playing in Windows right now.");
+        Strings.Media_Playback_NothingPlaying);
 
     /// <summary>Snapshot shown when Windows does not grant access to the SMTC manager.</summary>
-    public static PlaybackSnapshot Unavailable { get; } = new(
+    public static PlaybackSnapshot Unavailable => new(
         null, null, null, MediaPlayback.Unknown, false, false, false, false,
-        "Windows media controls aren't available.");
+        Strings.Media_Playback_ControlsUnavailable);
 }
 
 /// <summary>

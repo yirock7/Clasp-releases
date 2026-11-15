@@ -569,7 +569,7 @@ public class BroadcastObservationTransportTests
 public class BroadcastTransportSelectionTests
 {
     [Fact]
-    public void Ble_is_an_explicit_opt_in_choice()
+    public void Ble_can_be_chosen_explicitly()
     {
         var choice = TransportSelection.FromArgs(["--transport=ble"]);
         Assert.Equal(TransportKind.Broadcast, choice.Kind);
@@ -579,10 +579,12 @@ public class BroadcastTransportSelectionTests
     }
 
     [Fact]
-    public void Default_is_still_the_demo()
+    public void Default_is_nearby_observation_never_the_demo()
     {
-        Assert.Equal(TransportKind.Demo, TransportSelection.FromArgs([]).Kind);
-        Assert.True(TransportSelection.FromArgs([]).IsDemo);
+        var choice = TransportSelection.FromArgs([]);
+        Assert.Equal(TransportKind.Broadcast, choice.Kind);
+        Assert.True(choice.IsAvailable);
+        Assert.False(choice.IsDemo);
     }
 
     [Fact]

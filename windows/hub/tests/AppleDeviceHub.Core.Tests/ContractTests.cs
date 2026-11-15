@@ -164,11 +164,20 @@ public class RequestReconcilerTests
 public class TransportSelectionTests
 {
     [Fact]
-    public void Defaults_to_the_demo()
+    public void Defaults_to_nearby_observation_not_the_demo()
     {
         var choice = TransportSelection.FromArgs([]);
-        Assert.Equal(TransportKind.Demo, choice.Kind);
+        Assert.Equal(TransportKind.Broadcast, choice.Kind);
         Assert.True(choice.IsAvailable);
+        Assert.False(choice.IsDemo);
+    }
+
+    [Fact]
+    public void The_demo_needs_the_explicit_flag()
+    {
+        var choice = TransportSelection.FromArgs(["--transport=demo"]);
+        Assert.Equal(TransportKind.Demo, choice.Kind);
+        Assert.True(choice.IsDemo);
     }
 
     [Fact]

@@ -1,5 +1,6 @@
 using System.Globalization;
 using AppleDeviceHub.Core.Ble;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.Battery;
 
@@ -93,17 +94,17 @@ public sealed class LowBatteryAlertPolicy
 
     private static LowBatteryAlert Describe(int level, int? left, int? right, BatteryLayout layout, string noun)
     {
-        string title = $"{noun} battery low";
-        if (layout == BatteryLayout.SingleBattery)
-            return new LowBatteryAlert(title, $"The battery is at about {level.ToString(CultureInfo.InvariantCulture)}%. Charge them soon.", level);
-        string who = (left, right) switch
-        {
-            (int l, int r) when l == level && r == level => "Both earbuds are",
-            (int l, _) when l == level => "The left earbud is",
-            _ => "The right earbud is",
-        };
+        string title = string.Format(CultureInfo.CurrentCulture, Strings.Battery_Alert_Title, noun);
         string pct = level.ToString(CultureInfo.InvariantCulture);
-        string advice = layout == BatteryLayout.EarbudsNoCaseBattery ? "Charge them soon." : "Put them in the case to charge.";
-        return new LowBatteryAlert(title, $"{who} at about {pct}%. {advice}", level);
+        if (layout == BatteryLayout.SingleBattery)
+            return new LowBatteryAlert(title, string.Format(CultureInfo.CurrentCulture, Strings.Battery_Alert_Single, pct), level);
+        bool chargeOnly = layout == BatteryLayout.EarbudsNoCaseBattery;
+        string template = (left, right) switch
+        {
+            (int l, int r) when l == level && r == level => chargeOnly ? Strings.Battery_Alert_BothCharge : Strings.Battery_Alert_BothCase,
+            (int l, _) when l == level => chargeOnly ? Strings.Battery_Alert_LeftCharge : Strings.Battery_Alert_LeftCase,
+            _ => chargeOnly ? Strings.Battery_Alert_RightCharge : Strings.Battery_Alert_RightCase,
+        };
+        return new LowBatteryAlert(title, string.Format(CultureInfo.CurrentCulture, template, pct), level);
     }
 }

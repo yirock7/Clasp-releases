@@ -1,3 +1,5 @@
+using AppleDeviceHub.Core.Resources;
+
 namespace AppleDeviceHub.Core.Commands;
 
 /// <summary>
@@ -37,14 +39,14 @@ public static class ClaspCommandText
     /// <summary>The label shown next to a hotkey box in Settings.</summary>
     public static string DisplayName(ClaspCommand command) => command switch
     {
-        ClaspCommand.Connect => "Connect AirPods",
-        ClaspCommand.Disconnect => "Disconnect AirPods",
-        ClaspCommand.OutputAirPods => "Switch sound to AirPods",
-        ClaspCommand.OutputPrevious => "Return sound to previous speakers",
-        ClaspCommand.FixConnection => "Fix connection",
-        ClaspCommand.ShowFlyout => "Show Clasp",
-        ClaspCommand.ShowSettings => "Open settings",
-        ClaspCommand.PlayPause => "Play or pause",
+        ClaspCommand.Connect => Strings.Command_Name_Connect,
+        ClaspCommand.Disconnect => Strings.Command_Name_Disconnect,
+        ClaspCommand.OutputAirPods => Strings.Command_Name_OutputAirPods,
+        ClaspCommand.OutputPrevious => Strings.Command_Name_OutputPrevious,
+        ClaspCommand.FixConnection => Strings.Command_Name_FixConnection,
+        ClaspCommand.ShowFlyout => Strings.Command_Name_ShowFlyout,
+        ClaspCommand.ShowSettings => Strings.Command_Name_ShowSettings,
+        ClaspCommand.PlayPause => Strings.Command_Name_PlayPause,
         _ => throw new ArgumentOutOfRangeException(nameof(command)),
     };
 

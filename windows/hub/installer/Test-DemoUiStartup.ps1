@@ -67,9 +67,17 @@ if (-not (Test-Path -LiteralPath $exe -PathType Leaf)) {
 
 $exeDirectory = Split-Path -Parent $exe
 $appData = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::LocalApplicationData)
-$settingsPath = Join-Path $appData 'AppleDeviceHub\settings.json'
-$logPath = Join-Path $appData 'AppleDeviceHub\hub.log'
-$settingsHashBefore = Get-FileHashOrMissing -Path $settingsPath
+$settingsPath = Join-Path $appData 'Clasp\settings.json'
+$logPath = Join-Path $appData 'Clasp\hub.log'
+# On a machine that still has the folder from before the rename, Clasp moves it on first start. Take the baseline from the
+# old settings file in that case, so the check still compares the same bytes before and after.
+$legacySettingsPath = Join-Path $appData 'AppleDeviceHub\settings.json'
+if (-not (Test-Path -LiteralPath $settingsPath -PathType Leaf) -and (Test-Path -LiteralPath $legacySettingsPath -PathType Leaf)) {
+    $settingsHashBefore = Get-FileHashOrMissing -Path $legacySettingsPath
+}
+else {
+    $settingsHashBefore = Get-FileHashOrMissing -Path $settingsPath
+}
 $logStartOffset = if (Test-Path -LiteralPath $logPath -PathType Leaf) { (Get-Item -LiteralPath $logPath).Length } else { 0L }
 
 $hostQualified = $false

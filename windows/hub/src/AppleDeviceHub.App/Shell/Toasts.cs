@@ -10,7 +10,7 @@ namespace AppleDeviceHub.App.Shell;
 /// at startup (it registers the notification activator for this process) and
 /// <see cref="Shutdown"/> on exit. If registration fails, <see cref="ShowLowBattery"/> returns
 /// false and nothing is shown; the app keeps working and the reason is in the local log.
-/// Toasts carry text only and no actions, so there is nothing to handle on activation.
+/// Toasts carry text only and no actions, so there is nothing to handle on activation. The one-off "closed unexpectedly" notice is shown the same way.
 /// </summary>
 internal static class Toasts
 {

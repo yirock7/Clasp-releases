@@ -3,6 +3,8 @@ using System.Net.Http;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using AppleDeviceHub.Core.Resources;
+using AppleDeviceHub.Core.Storage;
 using AppleDeviceHub.Core.Updates;
 
 namespace AppleDeviceHub.App.Shell;
@@ -28,8 +30,7 @@ internal sealed class GitHubUpdateService : IUpdateService
     public ClaspVersion? CurrentVersion { get; } = ClaspVersion.FromInformationalVersion(
         typeof(GitHubUpdateService).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion);
 
-    private static string UpdatesFolder => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AppleDeviceHub", "updates");
+    private static string UpdatesFolder => Path.Combine(AppDataFolder.Current, "updates");
 
     private static HttpClient CreateClient()
     {
@@ -56,7 +57,7 @@ internal sealed class GitHubUpdateService : IUpdateService
     public async Task<string> DownloadVerifiedAsync(ReleaseCandidate release, IProgress<double>? progress, CancellationToken cancellationToken)
     {
         if (!release.IsInstallable || release.InstallerSize > MaxInstallerBytes)
-            throw new UpdateVerificationException("the release has no valid installer.");
+            throw new UpdateVerificationException(Strings.UpdateReason_NoValidInstaller);
 
         ReleasePin(); // an earlier verified download that was never started
         var versionFolder = Path.Combine(UpdatesFolder, release.Version.ToString());
@@ -83,12 +84,12 @@ internal sealed class GitHubUpdateService : IUpdateService
                 {
                     total += read;
                     if (total > release.InstallerSize || total > MaxInstallerBytes)
-                        throw new UpdateVerificationException("the download was larger than expected.");
+                        throw new UpdateVerificationException(Strings.UpdateReason_DownloadTooLarge);
                     await file.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
                     progress?.Report((double)total / release.InstallerSize);
                 }
                 if (total != release.InstallerSize)
-                    throw new UpdateVerificationException("the download was incomplete.");
+                    throw new UpdateVerificationException(Strings.UpdateReason_DownloadIncomplete);
             }
 
             // Verify what is really on disk, through a handle that stays open: others may read the file but nobody
@@ -97,12 +98,12 @@ internal sealed class GitHubUpdateService : IUpdateService
             try
             {
                 if (pinned.Length != release.InstallerSize)
-                    throw new UpdateVerificationException("the downloaded file was not the expected size.");
+                    throw new UpdateVerificationException(Strings.UpdateReason_WrongSize);
                 var hash = await SHA256.HashDataAsync(pinned, cancellationToken);
                 if (!UpdateSignature.Verify(UpdateSignature.PublicKey, release.Version, release.InstallerName, hash, signature))
                 {
                     LocalLog.Write($"Update {release.Version} rejected: signature does not verify.");
-                    throw new UpdateVerificationException("its signature doesn't match Clasp's release key.");
+                    throw new UpdateVerificationException(Strings.UpdateReason_SignatureMismatch);
                 }
                 LocalLog.Write($"Update {release.Version} downloaded and verified ({Convert.ToHexStringLower(hash)}).");
             }
@@ -128,7 +129,7 @@ internal sealed class GitHubUpdateService : IUpdateService
         Directory.CreateDirectory(path);
         var info = new DirectoryInfo(path);
         if (info.Attributes.HasFlag(FileAttributes.ReparsePoint) || info.LinkTarget is not null)
-            throw new UpdateVerificationException("the updates folder is not a plain folder.");
+            throw new UpdateVerificationException(Strings.UpdateReason_FolderNotPlain);
     }
 
     private void ReleasePin()
@@ -166,7 +167,7 @@ internal sealed class GitHubUpdateService : IUpdateService
         }
         catch (IOException)
         {
-            throw new UpdateVerificationException("the signature file is too large.");
+            throw new UpdateVerificationException(Strings.UpdateReason_SignatureTooLarge);
         }
     }
 
@@ -177,7 +178,7 @@ internal sealed class GitHubUpdateService : IUpdateService
         // /RELAUNCH makes the installer reopen Clasp when it finishes (see Clasp.iss).
         // The installer must be the file that was just verified and is still held open.
         if (_pinnedInstaller is null || !string.Equals(_pinnedPath, installerPath, StringComparison.OrdinalIgnoreCase))
-            throw new UpdateVerificationException("the downloaded installer was no longer the verified file.");
+            throw new UpdateVerificationException(Strings.UpdateReason_InstallerNoLongerVerified);
         ClaspVersion? version = ClaspVersion.TryParse(Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(installerPath))), out var parsed) ? parsed : null;
         var logPath = Path.Combine(UpdatesFolder, version is { } v ? InstallerLaunch.LogFileName(v) : "setup.log");
         var start = new ProcessStartInfo(installerPath)

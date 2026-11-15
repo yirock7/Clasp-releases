@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using AppleDeviceHub.App.Design;
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
@@ -140,7 +141,7 @@ public sealed partial class BatteryRing : UserControl
             : item.IsLow ? "Low"
             : "Normal";
         VisualStateManager.GoToState(this, state, false);
-        AutomationProperties.SetName(this, item?.AutomationName ?? "Battery unknown");
+        AutomationProperties.SetName(this, item?.AutomationName ?? Strings.BatteryTile_AutomationNameUnknown);
         if (!_tweening) DrawArc(TargetLevel());
     }
 

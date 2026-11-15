@@ -1,3 +1,6 @@
+using System.Globalization;
+using AppleDeviceHub.Core.Resources;
+
 namespace AppleDeviceHub.Core.Ble;
 
 /// <summary>
@@ -25,12 +28,12 @@ public enum IdentityConfidence
 /// <summary>Display wording for <see cref="IdentityConfidence"/>. The word "Confirmed" alone is never used.</summary>
 public static class IdentityConfidenceText
 {
-    public const string Likely = "Your AirPods (likely)";
+    public static string Likely => Strings.Ble_Identity_Likely;
 
-    public const string Unconfirmed = "identity unconfirmed";
+    public static string Unconfirmed => Strings.Ble_Identity_Unconfirmed;
 
     /// <summary>The likely wording for a device family noun ("AirPods", "Beats" or "headphones"); "AirPods" gives <see cref="Likely"/>.</summary>
-    public static string LikelyFor(string noun) => noun == "AirPods" ? Likely : $"Your {noun} (likely)";
+    public static string LikelyFor(string noun) => noun == "AirPods" ? Likely : string.Format(CultureInfo.CurrentCulture, Strings.Ble_Identity_LikelyFor, noun);
 
     /// <summary>True when the wording may say these are probably the user's AirPods.</summary>
     public static bool IsLikely(this IdentityConfidence confidence) => confidence >= IdentityConfidence.Probable;

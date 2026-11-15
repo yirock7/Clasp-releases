@@ -60,7 +60,7 @@ public sealed partial class GlassBackdrop : SystemBackdrop
             // cached root instead of repeating the failing native lookup.
             _usesFallbackConfiguration = true;
             defaults = CreateFallbackConfiguration(xamlRoot);
-            Shell.LocalLog.Write($"GlassBackdrop: default configuration lookup failed; using the connected root theme ({ex.Message}).");
+            Shell.LocalLog.Write($"GlassBackdrop: default configuration lookup failed; using the connected root theme ({AppleDeviceHub.Core.Presentation.LogText.ExceptionKind(ex)}).");
         }
 
         // Keep WinUI's managed configuration as the source of theme/accessibility changes.

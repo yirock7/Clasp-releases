@@ -1,8 +1,10 @@
 using AppleDeviceHub.Core.AirPods;
 using AppleDeviceHub.Core.Ble;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using AppleDeviceHub.Core.Contracts;
 using AppleDeviceHub.Core.Interop;
+using AppleDeviceHub.Core.Resources;
 using AppleDeviceHub.Core.State;
 
 namespace AppleDeviceHub.Core.Presentation;
@@ -81,7 +83,7 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
     private string _deviceName = "AirPods";
     private string _modelName = "";
     private ConnectionSummary _connection = ConnectionSummary.Unknown;
-    private string _connectionText = "Unknown";
+    private string _connectionText = Strings.Hub_Chip_Unknown;
     private ChipKind _connectionChipKind = ChipKind.Neutral;
     private ListeningMode? _actualMode;
     private ListeningMode? _displayedMode;
@@ -89,14 +91,14 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
     private int _actualModeIndex = -1;
     private bool _isModePending;
     private bool _hasModeError;
-    private string _modeStatusText = "Mode unknown";
+    private string _modeStatusText = Strings.Hub_Mode_Unknown;
     private bool _areControlsAvailable;
     private bool? _conversationAwarenessOn;
     private bool _isConversationAwarenessKnown;
     private bool _isConversationAwarenessPending;
     private double? _adaptiveStrength;
-    private string _awarenessAutomationName = "Conversation Awareness, not reported yet";
-    private string _strengthAutomationName = "Adaptive strength, not reported yet";
+    private string _awarenessAutomationName = Strings.Hub_Awareness_Name_NotReported;
+    private string _strengthAutomationName = Strings.Hub_Strength_Name_NotReported;
     private bool _isAdaptiveStrengthKnown;
     private bool _isAdaptiveStrengthEnabled;
     private bool _isAdaptiveStrengthPending;
@@ -137,22 +139,22 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
         Demo = transport as DemoAirPodsTransport;
         _status = transport as IHardwareTransportStatus;
         DataSourceText = IsDemo
-            ? "Demo data. Nothing here comes from real AirPods."
-            : _status?.SourceText ?? $"Data from {transport.Info.Name}.";
+            ? Strings.Hub_DataSource_Demo
+            : _status?.SourceText ?? string.Format(CultureInfo.CurrentCulture, Strings.Hub_DataSource_FromTransport, transport.Info.Name);
         _unavailableReason = _status?.UnavailableReason;
-        if (_unavailableReason is not null) _connectionText = "Not available right now";
+        if (_unavailableReason is not null) _connectionText = Strings.Hub_Chip_NotAvailableRightNow;
 
-        Left = new BatteryItemViewModel("L", "Left earbud");
-        Right = new BatteryItemViewModel("R", "Right earbud");
-        Case = new BatteryItemViewModel("Case", "Charging case");
-        Single = new BatteryItemViewModel("Battery", "Headphones battery");
+        Left = new BatteryItemViewModel(Strings.Battery_Slot_LeftShort, Strings.Battery_Slot_LeftSpoken);
+        Right = new BatteryItemViewModel(Strings.Battery_Slot_RightShort, Strings.Battery_Slot_RightSpoken);
+        Case = new BatteryItemViewModel(Strings.Battery_Slot_CaseShort, Strings.Battery_Slot_CaseSpoken);
+        Single = new BatteryItemViewModel(Strings.Battery_Slot_SingleShort, Strings.Battery_Slot_SingleSpoken);
 
         ModeOptions = new[]
         {
-            new ListeningModeOption(ListeningMode.Off, "Off", ""),
-            new ListeningModeOption(ListeningMode.Transparency, "Transparency", ""),
-            new ListeningModeOption(ListeningMode.Adaptive, "Adaptive", ""),
-            new ListeningModeOption(ListeningMode.NoiseCancellation, "Noise Cancellation", ""),
+            new ListeningModeOption(ListeningMode.Off, Strings.Hub_Mode_Off, ""),
+            new ListeningModeOption(ListeningMode.Transparency, Strings.Hub_Mode_Transparency, ""),
+            new ListeningModeOption(ListeningMode.Adaptive, Strings.Hub_Mode_Adaptive, ""),
+            new ListeningModeOption(ListeningMode.NoiseCancellation, Strings.Hub_Mode_NoiseCancellation, ""),
         };
 
         _transport.StateChanged += OnTransportStateChanged;
@@ -168,7 +170,7 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
     public bool IsDemo { get; }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822", Justification = "XAML binds to it through the view-model instance.")]
-    public string DemoBadgeText => "Demo";
+    public string DemoBadgeText => Strings.Hub_Demo_Badge;
 
     public string DataSourceText { get; }
 
@@ -213,12 +215,13 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
         {
             if (!IsControlSessionOnly || _state is null) return "";
             var reading = _state.Link.AudioConnected;
-            if (reading.Value is not bool connected || reading.ObservedAt is not { } checkedAt) return "Bluetooth: unknown";
-            var word = connected ? "connected" : "not connected";
+            if (reading.Value is not bool connected || reading.ObservedAt is not { } checkedAt) return Strings.Hub_BluetoothLink_Unknown;
             var clock = FormatClock(checkedAt);
-            return _time.GetUtcNow() - checkedAt > LinkCheckMaxAge
-                ? $"Bluetooth: {word}, last checked {clock}"
-                : $"Bluetooth: {word}, checked {clock}";
+            bool stale = _time.GetUtcNow() - checkedAt > LinkCheckMaxAge;
+            var template = connected
+                ? (stale ? Strings.Hub_BluetoothLink_ConnectedLastChecked : Strings.Hub_BluetoothLink_ConnectedChecked)
+                : (stale ? Strings.Hub_BluetoothLink_NotConnectedLastChecked : Strings.Hub_BluetoothLink_NotConnectedChecked);
+            return string.Format(CultureInfo.CurrentCulture, template, clock);
         }
     }
 
@@ -304,43 +307,43 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
     /// <summary>The hero line in the flyout: what is true right now, in plain words.</summary>
     public string ConnectionHeadline => IsBroadcastObservation ? BroadcastHeadline
         : IsControlSessionOnly ? ControlSessionHeadline
-        : IsConnected ? (IsDisconnectPending ? "Disconnecting…" : "Connected")
-        : IsConnecting ? "Connecting…"
-        : IsConnectStalled ? "Couldn't connect"
+        : IsConnected ? (IsDisconnectPending ? Strings.Hub_Headline_Disconnecting : Strings.Hub_Headline_Connected)
+        : IsConnecting ? Strings.Hub_Headline_Connecting
+        : IsConnectStalled ? Strings.Hub_Headline_CouldntConnect
         : Connection switch
         {
-            ConnectionSummary.Nearby => "Ready to connect",
-            ConnectionSummary.NotDetected => "Not nearby",
-            _ => "Looking for your AirPods…",
+            ConnectionSummary.Nearby => Strings.Hub_Headline_ReadyToConnect,
+            ConnectionSummary.NotDetected => Strings.Hub_Headline_NotNearby,
+            _ => Strings.Hub_Headline_LookingForAirPods,
         };
 
-    private string ControlSessionHeadline => IsConnected ? (IsDisconnectPending ? "Ending session…" : "Controls connected")
-        : IsConnecting ? "Starting session…"
-        : IsConnectStalled ? "Couldn't start session"
-        : _state is null && HasUnavailableReason ? "Not available right now"
-        : "Controls not connected";
+    private string ControlSessionHeadline => IsConnected ? (IsDisconnectPending ? Strings.Hub_Headline_EndingSession : Strings.Hub_Headline_ControlsConnected)
+        : IsConnecting ? Strings.Hub_Headline_StartingSession
+        : IsConnectStalled ? Strings.Hub_Headline_CouldntStartSession
+        : _state is null && HasUnavailableReason ? Strings.Hub_Headline_NotAvailableRightNow
+        : Strings.Hub_Headline_ControlsNotConnected;
 
     /// <summary>One short instruction under the headline, or "" when nothing needs doing.</summary>
     public string ConnectionHint => IsBroadcastObservation ? BroadcastHint
         : IsControlSessionOnly ? ControlSessionHint
         : IsConnected ? ""
-        : IsConnecting ? "Keep the case open and close to your PC"
-        : Connection == ConnectionSummary.Nearby ? $"Your {DeviceNoun} are nearby"
-        : "Open the case near your PC";
+        : IsConnecting ? Strings.Hub_Hint_KeepCaseOpen
+        : Connection == ConnectionSummary.Nearby ? string.Format(CultureInfo.CurrentCulture, Strings.Hub_Hint_Nearby, DeviceNoun)
+        : Strings.Hub_Hint_OpenCase;
 
     // Control-session mode: the unavailable reason has its own line, so the hint only explains the action.
     private string ControlSessionHint => IsConnected || HasUnavailableReason ? ""
-        : IsConnecting ? "Turning on your AirPods controls…"
-        : "Turns on your AirPods controls. Pairing and sound settings stay the same.";
+        : IsConnecting ? Strings.Hub_Hint_TurningOnControls
+        : Strings.Hub_Hint_TurnsOnControls;
 
     /// <summary>
     /// The flyout's one primary action: "Connect"/"Disconnect", or "Start session"/"End session"
     /// when only the control session is affected (never "Disconnect" there).
     /// </summary>
-    public string ConnectActionText => IsBroadcastObservation ? (IsObserving ? "Stop listening" : "Start listening")
+    public string ConnectActionText => IsBroadcastObservation ? (IsObserving ? Strings.Hub_Action_StopListening : Strings.Hub_Action_StartListening)
         : IsControlSessionOnly
-        ? (IsConnected ? "End session" : "Start session")
-        : IsConnected ? "Disconnect" : "Connect";
+        ? (IsConnected ? Strings.Hub_Action_EndSession : Strings.Hub_Action_StartSession)
+        : IsConnected ? Strings.Hub_Action_Disconnect : Strings.Hub_Action_Connect;
 
     /// <summary>
     /// Connect is offered once the buds are nearby (or to retry a stalled attempt); Disconnect
@@ -426,20 +429,19 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
     private bool _observeRequestPending;
 
     private string BroadcastHeadline => !IsObserving
-            ? (HasUnavailableReason ? "Bluetooth isn't available" : "Not listening")
-        : HasUnavailableReason ? "Bluetooth isn't available. Trying again…"
-        : HasSelectedBroadcastSource ? (_selectedBroadcastSource!.Identity.IsLikely() ? IdentityConfidenceText.LikelyFor(DeviceNoun) : "Showing a nearby device (not confirmed)")
-        : HasBroadcastSources ? "Pick a nearby device below"
+            ? (HasUnavailableReason ? Strings.Hub_Broadcast_BluetoothUnavailable : Strings.Hub_Broadcast_NotListening)
+        : HasUnavailableReason ? Strings.Hub_Broadcast_BluetoothUnavailableRetrying
+        : HasSelectedBroadcastSource ? (_selectedBroadcastSource!.Identity.IsLikely() ? IdentityConfidenceText.LikelyFor(DeviceNoun) : Strings.Hub_Broadcast_ShowingUnconfirmed)
+        : HasBroadcastSources ? Strings.Hub_Broadcast_PickNearby
         : Connection switch
         {
-            ConnectionSummary.Nearby => NearbyIdentityConfidence.IsLikely() ? IdentityConfidenceText.LikelyFor(DeviceNoun) : $"Nearby {DeviceNoun} (unconfirmed)",
-            ConnectionSummary.NotDetected => "Not heard recently",
-            _ => "Listening for AirPods…",
+            ConnectionSummary.Nearby => NearbyIdentityConfidence.IsLikely() ? IdentityConfidenceText.LikelyFor(DeviceNoun) : string.Format(CultureInfo.CurrentCulture, Strings.Hub_Broadcast_NearbyUnconfirmed, DeviceNoun),
+            ConnectionSummary.NotDetected => Strings.Hub_Broadcast_NotHeardRecently,
+            _ => Strings.Hub_Broadcast_ListeningForAirPods,
         };
 
     /// <summary>Plain-language limits of broadcast observation; shown whenever it is the source.</summary>
-    public const string BroadcastLimitsText =
-        "Nearby estimate. These might not be your AirPods. To change settings, install the Clasp driver.";
+    public static string BroadcastLimitsText => Strings.Hub_Broadcast_Limits;
 
     private string BroadcastHint => HasUnavailableReason && !IsObserving ? "" : BroadcastLimitsText;
 
@@ -457,7 +459,9 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
             if (_disposed) return;
             _observeRequestPending = false;
             if (!result.IsAcknowledged)
-                LastErrorText = $"Couldn't {(start ? "start" : "stop")} observing: {result.Detail?.TrimEnd('.') ?? "no response"}.";
+                LastErrorText = string.Format(CultureInfo.CurrentCulture,
+                    start ? Strings.Hub_Error_CouldntStartObserving : Strings.Hub_Error_CouldntStopObserving,
+                    result.Detail?.TrimEnd('.') ?? Strings.Hub_Error_NoResponse);
             RaiseConnectionDerived();
         });
     }
@@ -718,9 +722,9 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
         : IsControlSessionOnly && _hardwareModeUncertain ? NtpodsDaemonTransport.UncertainModeWriteReason
         : IsControlSessionOnly && !ActualMode.HasValue ? NtpodsDaemonTransport.ModeNotReportedReason
         : _state.Listening.Supported.Count > 0 ? ""
-        : _status?.ReadOnlyReason ?? "Listening mode can't be changed in this session";
+        : _status?.ReadOnlyReason ?? Strings.Hub_Mode_ReadOnlyFallback;
 
-    private const string NotInThisBuild = "Not available yet";
+    private static string NotInThisBuild => Strings.Hub_NotAvailableYet;
 
     /// <summary>The device state says Conversation Awareness can be reported and changed.</summary>
     public bool IsConversationAwarenessSupported => _state?.Supports(DeviceCapabilities.ConversationAwareness) == true;
@@ -741,13 +745,13 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
                     : NotInThisBuild;
             if (IsControlSessionOnly && _hardwareAwarenessUncertain
                 && _awarenessRequest is { Status: RequestStatus.TimedOut or RequestStatus.Failed } r)
-                return $"You asked for {OnOff(r.Requested)}, but it isn't confirmed. Your AirPods last said {OnOff(_state?.ConversationAwareness.Value)}.";
+                return string.Format(CultureInfo.CurrentCulture, Strings.Hub_Awareness_Unconfirmed, OnOff(r.Requested), OnOff(_state?.ConversationAwareness.Value));
             var readOnly = ConversationAwarenessReadOnlyText;
-            return readOnly.Length > 0 ? readOnly : "Lowers media when you speak";
+            return readOnly.Length > 0 ? readOnly : Strings.Hub_Awareness_Caption;
         }
     }
 
-    private static string OnOff(bool? value) => value switch { true => "on", false => "off", null => "unknown" };
+    private static string OnOff(bool? value) => value switch { true => Strings.Hub_Word_On, false => Strings.Hub_Word_Off, null => Strings.Hub_Word_Unknown };
 
     /// <summary>
     /// The Conversation Awareness toggle accepts input: a reported value, controls available and,
@@ -806,10 +810,10 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
     /// <summary>"On", "Off" or "Unknown": the only words used for this setting.</summary>
     public string ConversationAwarenessStateText => ConversationAwarenessOn switch
     {
-        true => "On",
-        false => "Off",
-        null when _state is not null && !IsConversationAwarenessSupported => "Unavailable",
-        null => "Unknown",
+        true => Strings.Hub_Awareness_State_On,
+        false => Strings.Hub_Awareness_State_Off,
+        null when _state is not null && !IsConversationAwarenessSupported => Strings.Hub_Awareness_State_Unavailable,
+        null => Strings.Hub_Awareness_State_Unknown,
     };
 
     /// <summary>Narrator name for the control (or for the "Unknown" label that replaces it).</summary>
@@ -854,9 +858,9 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
 
     /// <summary>Why the strength slider is unavailable, or "" when it is usable.</summary>
     public string AdaptiveStrengthCaption => _state is not null && !_state.Supports(DeviceCapabilities.AdaptiveStrength) ? NotInThisBuild
-        : !IsAdaptiveStrengthKnown ? "Strength not reported yet"
+        : !IsAdaptiveStrengthKnown ? Strings.Hub_Strength_Caption_NotReported
         : IsAdaptiveStrengthEnabled ? ""
-        : "Available in Adaptive mode";
+        : Strings.Hub_Strength_Caption_AdaptiveOnly;
 
     // ---- Errors ------------------------------------------------------------------------
 
@@ -931,7 +935,9 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
             {
                 _connectCommandId = null;
                 IsConnectPending = false;
-                SetConnectError($"{(IsControlSessionOnly ? "Couldn't start session" : "Couldn't connect")}: {result.Detail?.TrimEnd('.') ?? "no response from your AirPods"}.");
+                SetConnectError(string.Format(CultureInfo.CurrentCulture,
+                    IsControlSessionOnly ? Strings.Hub_Error_CouldntStartSessionDetail : Strings.Hub_Error_CouldntConnectDetail,
+                    result.Detail?.TrimEnd('.') ?? Strings.Hub_Error_NoResponseFromAirPods));
                 ArmTimeout();
             }
         });
@@ -966,7 +972,8 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
             {
                 _disconnectCommandId = null;
                 IsDisconnectPending = false;
-                LastErrorText = $"Couldn't disconnect: {result.Detail?.TrimEnd('.') ?? "no response from your AirPods"}.";
+                LastErrorText = string.Format(CultureInfo.CurrentCulture, Strings.Hub_Error_CouldntDisconnectDetail,
+                    result.Detail?.TrimEnd('.') ?? Strings.Hub_Error_NoResponseFromAirPods);
                 ArmTimeout();
             }
         });
@@ -1133,7 +1140,7 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
         }
         catch (OperationCanceledException)
         {
-            return new CommandResult(command.CommandId, CommandOutcome.TransportUnavailable, Transport.Origin, "The connection to your AirPods stopped");
+            return new CommandResult(command.CommandId, CommandOutcome.TransportUnavailable, Transport.Origin, Strings.Hub_Error_ConnectionStopped);
         }
         catch (Exception ex)
         {
@@ -1144,7 +1151,7 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
     /// <summary>Surface a failure and let the one-shot demo flag reset in the view.</summary>
     private void AfterResult(RequestStatus? status, string? detail)
     {
-        if (status is RequestStatus.Failed) LastErrorText = detail ?? "That didn't work";
+        if (status is RequestStatus.Failed) LastErrorText = detail ?? Strings.Hub_Error_DidntWork;
     }
 
     // ---- State application -------------------------------------------------------------
@@ -1170,7 +1177,7 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
     {
         if (_disposed || _status is null) return;
         UnavailableReason = _status.UnavailableReason;
-        if (_state is null) ConnectionText = HasUnavailableReason ? "Not available right now" : "Unknown";
+        if (_state is null) ConnectionText = HasUnavailableReason ? Strings.Hub_Chip_NotAvailableRightNow : Strings.Hub_Chip_Unknown;
         RaiseConnectionDerived();
     });
 
@@ -1205,11 +1212,11 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
         }
     }
 
-    private const string TimeoutMessage = "Your AirPods didn't respond";
+    private static string TimeoutMessage => Strings.Hub_Error_Timeout;
 
-    private const string ConnectTimeoutMessage = "Couldn't connect. Keep the case open near your PC and try again.";
+    private static string ConnectTimeoutMessage => Strings.Hub_Error_ConnectTimeout;
 
-    private const string SessionTimeoutMessage = "Couldn't start session. Your AirPods didn't respond in time. Try again.";
+    private static string SessionTimeoutMessage => Strings.Hub_Error_SessionTimeout;
 
     private string ConnectTimeoutText => IsControlSessionOnly ? SessionTimeoutMessage : ConnectTimeoutMessage;
 
@@ -1222,7 +1229,7 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
         LastErrorText = text;
     }
 
-    private const string DisconnectTimeoutMessage = "Couldn't disconnect. Your AirPods didn't respond. Try again.";
+    private static string DisconnectTimeoutMessage => Strings.Hub_Error_DisconnectTimeout;
 
     private void OnTimeoutTick()
     {
@@ -1356,19 +1363,19 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
             RaiseConnectionDerived();
             ConnectionText = IsControlSessionOnly ? Connection switch
             {
-                ConnectionSummary.Connected => "Controls connected",
-                ConnectionSummary.Connecting => "Starting session…",
-                ConnectionSummary.Nearby => "Ready",
-                ConnectionSummary.NotDetected => "Not available",
-                _ => "Unknown",
+                ConnectionSummary.Connected => Strings.Hub_Chip_ControlsConnected,
+                ConnectionSummary.Connecting => Strings.Hub_Chip_StartingSession,
+                ConnectionSummary.Nearby => Strings.Hub_Chip_Ready,
+                ConnectionSummary.NotDetected => Strings.Hub_Chip_NotAvailable,
+                _ => Strings.Hub_Chip_Unknown,
             }
             : Connection switch
             {
-                ConnectionSummary.Connected => "Connected",
-                ConnectionSummary.Connecting => "Connecting…",
-                ConnectionSummary.Nearby => "Nearby",
-                ConnectionSummary.NotDetected => "Not nearby",
-                _ => "Unknown",
+                ConnectionSummary.Connected => Strings.Hub_Chip_Connected,
+                ConnectionSummary.Connecting => Strings.Hub_Chip_Connecting,
+                ConnectionSummary.Nearby => Strings.Hub_Chip_Nearby,
+                ConnectionSummary.NotDetected => Strings.Hub_Chip_NotNearby,
+                _ => Strings.Hub_Chip_Unknown,
             };
             ConnectionChipKind = Connection switch
             {
@@ -1411,7 +1418,7 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
         }
         else if (HasUnavailableReason)
         {
-            ConnectionText = "Not available right now";
+            ConnectionText = Strings.Hub_Chip_NotAvailableRightNow;
         }
         UpdateMode();
         UpdateAwareness();
@@ -1455,13 +1462,13 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
 
         string text = request switch
         {
-            { IsPending: true } r => $"Switching to {Label(r.Requested)}…",
+            { IsPending: true } r => string.Format(CultureInfo.CurrentCulture, Strings.Hub_Mode_Switching, Label(r.Requested)),
             { Status: RequestStatus.Failed or RequestStatus.TimedOut } r =>
-                $"Couldn't switch to {Label(r.Requested)}: {r.Detail?.TrimEnd('.')}. Still {Label(actual)}.",
-            { Status: RequestStatus.Superseded } => $"{Label(actual)} (changed on the device)",
-            _ => actual is null ? "Mode unknown" : Label(actual),
+                string.Format(CultureInfo.CurrentCulture, Strings.Hub_Mode_SwitchFailed, Label(r.Requested), r.Detail?.TrimEnd('.'), Label(actual)),
+            { Status: RequestStatus.Superseded } => string.Format(CultureInfo.CurrentCulture, Strings.Hub_Mode_ChangedOnDevice, Label(actual)),
+            _ => actual is null ? Strings.Hub_Mode_Unknown : Label(actual),
         };
-        ModeStatusText = IsDemo ? $"{text} · Demo" : text;
+        ModeStatusText = IsDemo ? string.Format(CultureInfo.CurrentCulture, Strings.Hub_Mode_StatusDemo, text) : text;
         UpdateStrength();
     }
 
@@ -1475,10 +1482,10 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
         // to show, and the control is not offered.
         ConversationAwarenessOn = actual is null ? null : pending ? request!.Requested : actual;
         ConversationAwarenessAutomationName = _state is not null && !IsConversationAwarenessSupported && !IsConversationAwarenessKnown
-            ? "Conversation Awareness, not available yet"
-            : !IsConversationAwarenessKnown ? "Conversation Awareness, not reported yet"
-            : pending ? "Conversation Awareness, waiting for confirmation"
-            : "Conversation Awareness";
+            ? Strings.Hub_Awareness_Name_NotAvailable
+            : !IsConversationAwarenessKnown ? Strings.Hub_Awareness_Name_NotReported
+            : pending ? Strings.Hub_Awareness_Name_Pending
+            : Strings.Hub_Awareness_Name;
         Raise(nameof(IsConversationAwarenessInputEnabled));
         Raise(nameof(ConversationAwarenessReadOnlyText));
         Raise(nameof(ConversationAwarenessCaption));
@@ -1501,16 +1508,16 @@ public sealed class HubViewModel : ObservableObject, IAsyncDisposable
         else if (!pending) AdaptiveStrength = actual;
         else if (AdaptiveStrength is null) AdaptiveStrength = _queuedStrength ?? request?.Requested ?? actual;
         AdaptiveStrengthAutomationName = _state is not null && !_state.Supports(DeviceCapabilities.AdaptiveStrength)
-            ? "Adaptive strength, not available yet"
-            : !IsAdaptiveStrengthKnown ? "Adaptive strength, not reported yet"
-            : pending ? "Adaptive strength, waiting for confirmation"
-            : "Adaptive strength";
+            ? Strings.Hub_Strength_Name_NotAvailable
+            : !IsAdaptiveStrengthKnown ? Strings.Hub_Strength_Name_NotReported
+            : pending ? Strings.Hub_Strength_Name_Pending
+            : Strings.Hub_Strength_Name;
         Raise(nameof(AdaptiveStrengthCaption));
     }
 
     private string Label(ListeningMode? mode)
     {
-        if (mode is not { } m) return "unknown";
+        if (mode is not { } m) return Strings.Hub_Word_Unknown;
         foreach (var option in ModeOptions)
         {
             if (option.Mode == m) return option.Label;

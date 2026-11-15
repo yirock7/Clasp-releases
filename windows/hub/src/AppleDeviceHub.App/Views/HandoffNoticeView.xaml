@@ -30,10 +30,8 @@
                                Style="{StaticResource GlassCaptionTextStyle}"
                                TextWrapping="WrapWholeWords" />
                 </StackPanel>
-                <design:GlassIconButton Grid.Column="1"
+                <design:GlassIconButton x:Uid="HandoffDismissButton" Grid.Column="1"
                                         VerticalAlignment="Top"
-                                        AutomationProperties.Name="Dismiss"
-                                        ToolTipService.ToolTip="Dismiss"
                                         Click="OnDismissClick">
                     <FontIcon Glyph="&#xE711;" FontSize="14" />
                 </design:GlassIconButton>

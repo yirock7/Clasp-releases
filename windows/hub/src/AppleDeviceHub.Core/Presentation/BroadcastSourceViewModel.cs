@@ -1,4 +1,6 @@
+using System.Globalization;
 using AppleDeviceHub.Core.Ble;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.Presentation;
 
@@ -13,7 +15,8 @@ public sealed class BroadcastSourceViewModel : ObservableObject
     public BroadcastSourceViewModel(BroadcastSource source)
     {
         Id = source.Id;
-        Label = $"Source {source.Number} · {source.ModelName} (0x{source.ModelId:X4})";
+        Label = string.Format(CultureInfo.CurrentCulture, Strings.Hub_Broadcast_SourceLabel,
+            source.Number, source.ModelName, source.ModelId.ToString("X4", CultureInfo.InvariantCulture));
         _identity = source.Identity;
         _modelId = source.ModelId;
         Update(source);
@@ -42,15 +45,22 @@ public sealed class BroadcastSourceViewModel : ObservableObject
         // A single-battery model reports its one level in the left slot; a model whose case reports no battery has no case line.
         var left = Percent(source.LeftBattery);
         var right = Percent(source.RightBattery);
+        var culture = CultureInfo.CurrentCulture;
+        var heading = Strings.Hub_Broadcast_BatteryHeading;
         BatteryText = source.Layout switch
         {
-            BatteryLayout.SingleBattery => $"Approximate battery\nBattery: {left}",
-            BatteryLayout.EarbudsNoCaseBattery => $"Approximate battery\nLeft: {left}    Right: {right}",
-            _ => $"Approximate battery\nLeft: {left}    Right: {right}\nCase: {Percent(source.CaseBattery)}",
+            BatteryLayout.SingleBattery => heading + "\n" + string.Format(culture, Strings.Hub_Broadcast_BatterySingleLine, left),
+            BatteryLayout.EarbudsNoCaseBattery => heading + "\n" + string.Format(culture, Strings.Hub_Broadcast_BatteryEarbudsLine, left, right),
+            _ => heading + "\n" + string.Format(culture, Strings.Hub_Broadcast_BatteryEarbudsLine, left, right)
+                + "\n" + string.Format(culture, Strings.Hub_Broadcast_BatteryCaseLine, Percent(source.CaseBattery)),
         };
-        SignalText = $"Last heard {HubViewModel.FormatClock(source.LastHeardAt)}"
-            + (source.Rssi is short rssi ? $" · Signal {rssi} dBm" : "");
+        var heard = HubViewModel.FormatClock(source.LastHeardAt);
+        SignalText = source.Rssi is short rssi
+            ? string.Format(culture, Strings.Hub_Broadcast_SignalHeardWithStrength, heard, rssi)
+            : string.Format(culture, Strings.Hub_Broadcast_SignalHeard, heard);
     }
 
-    private static string Percent(int? value) => value is int level ? (level == 0 ? "<10%" : $"~{level}%") : "not reported";
+    private static string Percent(int? value) => value is int level
+        ? (level == 0 ? Strings.Battery_Percent_UnderTen : string.Format(CultureInfo.CurrentCulture, Strings.Hub_Broadcast_PercentApprox, string.Format(CultureInfo.CurrentCulture, Strings.Battery_Percent_Format, level.ToString(CultureInfo.InvariantCulture))))
+        : Strings.Hub_Broadcast_PercentNotReported;
 }

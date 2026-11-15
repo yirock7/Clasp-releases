@@ -44,4 +44,41 @@ public sealed class LogTextTests
         Assert.DoesNotContain("abc", a);
         Assert.Equal("ref:none", LogText.OpaqueRef(null));
     }
+
+    private static Exception Thrown(Exception exception)
+    {
+        try { throw exception; }
+        catch (Exception caught) { return caught; }
+    }
+
+    [Fact]
+    public void Exception_text_has_type_hresult_and_stack_but_never_the_message()
+    {
+        var thrown = Thrown(new InvalidOperationException("Headphones (Jane's AirPods Pro) AA:BB:CC:DD:EE:FF", new IOException("C:/Users/jane/secret.txt")));
+        var text = LogText.Exception(thrown);
+        Assert.Contains("System.InvalidOperationException (0x", text);
+        Assert.Contains("System.IO.IOException (0x", text);
+        Assert.Contains(nameof(Thrown), text);
+        Assert.DoesNotContain("Jane", text);
+        Assert.DoesNotContain("AA:BB", text);
+        Assert.DoesNotContain("secret", text);
+    }
+
+    [Fact]
+    public void Exception_text_covers_aggregate_children_without_their_messages()
+    {
+        var aggregate = new AggregateException("outer name", new ArgumentException("child name"));
+        var text = LogText.Exception(aggregate);
+        Assert.Contains("System.ArgumentException", text);
+        Assert.DoesNotContain("name", text);
+    }
+
+    [Fact]
+    public void Exception_kind_is_one_short_message_free_phrase()
+    {
+        var text = LogText.ExceptionKind(new System.ComponentModel.Win32Exception("secret device"));
+        Assert.StartsWith("System.ComponentModel.Win32Exception (0x", text);
+        Assert.DoesNotContain("secret", text);
+        Assert.Equal("no exception", LogText.Exception(null));
+    }
 }

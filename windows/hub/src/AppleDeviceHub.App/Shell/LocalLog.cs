@@ -1,7 +1,7 @@
 namespace AppleDeviceHub.App.Shell;
 
 /// <summary>
-/// Tiny local diagnostics log (%LOCALAPPDATA%\AppleDeviceHub\hub.log). Local only, never
+/// Tiny local diagnostics log (%LOCALAPPDATA%\Clasp\hub.log). Local only, never
 /// uploaded. It records UI events such as window placement and, in hardware mode, engine and
 /// session events that name a device only by its opaque local device_id (never its pairing name
 /// or Bluetooth address).
@@ -12,8 +12,7 @@ internal static class LocalLog
     private static readonly object Gate = new();
     private static string? _lastFailure;
 
-    public static string PathOnDisk { get; } = System.IO.Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AppleDeviceHub", "hub.log");
+    public static string PathOnDisk => System.IO.Path.Combine(AppleDeviceHub.Core.Storage.AppDataFolder.Current, "hub.log");
 
     /// <summary>Used only when hub.log cannot be written, so such a run still leaves a trace and its reason.</summary>
     public static string FallbackPathOnDisk { get; } = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "Clasp-hub-fallback.log");

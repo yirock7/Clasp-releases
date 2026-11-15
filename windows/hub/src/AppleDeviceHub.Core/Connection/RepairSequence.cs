@@ -1,3 +1,5 @@
+using AppleDeviceHub.Core.Resources;
+
 namespace AppleDeviceHub.Core.Connection;
 
 /// <summary>Whether the Windows Bluetooth radio is switched on.</summary>
@@ -148,7 +150,7 @@ public sealed class RepairSequence
         CancellationToken cancellationToken = default)
     {
         if (Interlocked.CompareExchange(ref _running, 1, 0) != 0)
-            return new(RepairOutcome.AlreadyRunning, "Already fixing the connection. Give it a moment.");
+            return new(RepairOutcome.AlreadyRunning, Strings.Connection_Repair_AlreadyRunning);
         RunningChanged?.Invoke(this, EventArgs.Empty);
         try
         {
@@ -171,11 +173,11 @@ public sealed class RepairSequence
         }
         catch (OperationCanceledException)
         {
-            result = new(RepairOutcome.Cancelled, "Fix canceled.");
+            result = new(RepairOutcome.Cancelled, Strings.Connection_Repair_Canceled);
         }
         catch (Exception)
         {
-            result = new(RepairOutcome.Failed, "Couldn't restart Bluetooth. Try again.");
+            result = new(RepairOutcome.Failed, Strings.Connection_Repair_RestartFailed);
         }
 
         if (attemptedOff && result.Outcome is not (RepairOutcome.Success or RepairOutcome.ReconnectFailed
@@ -184,9 +186,9 @@ public sealed class RepairSequence
             // The radio may still be off; make sure it is back on. Not cancellable, but bounded.
             if (!await EnsureOnAsync().ConfigureAwait(false))
                 result = new(RepairOutcome.RadioStuckOff,
-                    "Clasp couldn't turn Bluetooth back on. Turn it on in Windows Settings > Bluetooth & devices.");
+                    Strings.Connection_Repair_RadioStuckOff);
             else if (result.Outcome == RepairOutcome.Cancelled)
-                result = new(RepairOutcome.Cancelled, "Fix canceled. Bluetooth is back on.");
+                result = new(RepairOutcome.Cancelled, Strings.Connection_Repair_CanceledRadioBackOn);
         }
         Report(RepairStep.Finished, result.Message);
         return result;
@@ -199,48 +201,48 @@ public sealed class RepairSequence
         if (early is not null) return early;
         if (state.State == BluetoothRadioState.Off)
             return new(RepairOutcome.RadioWasOff,
-                "Bluetooth is off. Turn it on, then try Fix connection again.");
+                Strings.Connection_Repair_RadioWasOff);
 
-        Report(RepairStep.TurningOff, "Turning Bluetooth off…");
+        Report(RepairStep.TurningOff, Strings.Connection_Repair_Step_TurningOff);
         markOff();
         var off = await TimedAsync(_options.TurnOffTimeout, t => _radio.SetStateAsync(false, t), ct).ConfigureAwait(false);
         if (off is null)
-            return new(RepairOutcome.TurnOffTimedOut, "Windows is taking too long to turn Bluetooth off.");
+            return new(RepairOutcome.TurnOffTimedOut, Strings.Connection_Repair_TurnOffTimedOut);
         early = Classify(off.Outcome);
         if (early is not null) return early;
 
-        Report(RepairStep.Settling, "Just a moment…");
+        Report(RepairStep.Settling, Strings.Connection_Repair_Step_Settling);
         await _delay(_options.SettleDelay, ct).ConfigureAwait(false);
 
-        Report(RepairStep.TurningOn, "Turning Bluetooth back on…");
+        Report(RepairStep.TurningOn, Strings.Connection_Repair_Step_TurningOn);
         var on = await TimedAsync(_options.TurnOnTimeout, t => _radio.SetStateAsync(true, t), ct).ConfigureAwait(false);
         if (on is null)
-            return new(RepairOutcome.TurnOnTimedOut, "Windows is taking too long to turn Bluetooth back on.");
+            return new(RepairOutcome.TurnOnTimedOut, Strings.Connection_Repair_TurnOnTimedOut);
         early = Classify(on.Outcome);
         if (early is not null) return early;
 
-        Report(RepairStep.WaitingForDevice, "Looking for your AirPods…");
+        Report(RepairStep.WaitingForDevice, Strings.Connection_Repair_Step_LookingForAirPods);
         if (!await WaitForAsync(deviceId, containerId, requireConnected: false, _options.DeviceReadyTimeout, ct).ConfigureAwait(false))
             return new(RepairOutcome.DeviceNotReady,
-                "Bluetooth restarted, but your AirPods didn't show up. Take them out of the case and try Connect.");
+                Strings.Connection_Repair_DeviceNotReady);
 
-        Report(RepairStep.Reconnecting, "Reconnecting your AirPods…");
+        Report(RepairStep.Reconnecting, Strings.Connection_Repair_Step_Reconnecting);
         var attempt = await TimedAsync(_options.ReconnectTimeout,
             t => _connection.ReconnectAsync(deviceId, containerId, t), ct).ConfigureAwait(false);
         if (attempt is not null && attempt.Kind == ConnectionAttemptKind.Attempted
             && await WaitForAsync(deviceId, containerId, requireConnected: true, _options.ReconnectVerifyTimeout, ct).ConfigureAwait(false))
-            return new(RepairOutcome.Success, "Bluetooth restarted and your AirPods reconnected.");
+            return new(RepairOutcome.Success, Strings.Connection_Repair_Success);
         return new(RepairOutcome.ReconnectFailed,
-            "Bluetooth restarted, but the AirPods didn't reconnect. Take them out of the case and try Connect.");
+            Strings.Connection_Repair_ReconnectFailed);
     }
 
     private static RepairResult? Classify(RadioSwitchOutcome outcome) => outcome switch
     {
         RadioSwitchOutcome.Success => null,
-        RadioSwitchOutcome.AccessDenied => new(RepairOutcome.AccessDenied, "Windows didn't allow Clasp to turn Bluetooth off."),
-        RadioSwitchOutcome.NoRadio => new(RepairOutcome.NoRadio, "Clasp couldn't find a Bluetooth radio on this PC."),
-        RadioSwitchOutcome.Busy => new(RepairOutcome.RadioBusy, "Bluetooth is busy right now. Try again in a moment."),
-        _ => new(RepairOutcome.Failed, "Couldn't change Bluetooth. Try again."),
+        RadioSwitchOutcome.AccessDenied => new(RepairOutcome.AccessDenied, Strings.Connection_Repair_AccessDenied),
+        RadioSwitchOutcome.NoRadio => new(RepairOutcome.NoRadio, Strings.Connection_Repair_NoRadio),
+        RadioSwitchOutcome.Busy => new(RepairOutcome.RadioBusy, Strings.Connection_Repair_RadioBusy),
+        _ => new(RepairOutcome.Failed, Strings.Connection_Repair_ChangeFailed),
     };
 
     /// <summary>Runs <paramref name="work"/> with a deadline; null means the deadline passed. Caller cancel still throws.</summary>

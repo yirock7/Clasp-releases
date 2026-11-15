@@ -1,5 +1,6 @@
 using System.Globalization;
 using AppleDeviceHub.Core.Presentation;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.Updates;
 
@@ -113,10 +114,10 @@ public sealed class UpdateViewModel : ObservableObject
     public bool IsDevelopmentBuild => _service.CurrentVersion is null;
 
     public string CurrentVersionText => _service.CurrentVersion is { } version
-        ? $"Version {version}"
-        : "Development build. Updates are off.";
+        ? string.Format(CultureInfo.CurrentCulture, Strings.Update_CurrentVersion, version)
+        : Strings.Update_DevelopmentBuild;
 
-    public string AvailableVersionText => AvailableRelease is { } release ? $"Clasp {release.Version}" : "";
+    public string AvailableVersionText => AvailableRelease is { } release ? string.Format(CultureInfo.CurrentCulture, Strings.Update_AvailableVersion, release.Version) : "";
 
     public bool IsBusy => Phase is UpdatePhase.Checking or UpdatePhase.Downloading or UpdatePhase.Installing;
 
@@ -124,7 +125,7 @@ public sealed class UpdateViewModel : ObservableObject
 
     public bool CanInstall => Phase == UpdatePhase.Available && AvailableRelease is { IsInstallable: true };
 
-    public string InstallButtonText => AvailableRelease is { } release ? $"Update to {release.Version}" : "Update";
+    public string InstallButtonText => AvailableRelease is { } release ? string.Format(CultureInfo.CurrentCulture, Strings.Update_InstallButton, release.Version) : Strings.Update_InstallButtonDefault;
 
     /// <summary>The flyout banner: a newer release was found and nothing is in progress.</summary>
     public bool ShowUpdateBanner => Phase == UpdatePhase.Available;
@@ -135,18 +136,18 @@ public sealed class UpdateViewModel : ObservableObject
 
     public string StatusText => Phase switch
     {
-        UpdatePhase.Checking => "Checking for updates…",
-        UpdatePhase.UpToDate => "Clasp is up to date.",
-        UpdatePhase.Available when AvailableRelease is { } release => $"Clasp {release.Version} is available.",
-        UpdatePhase.Downloading => $"Downloading the update… {DownloadPercent}%",
-        UpdatePhase.Installing => "Installing the update. Clasp will restart.",
-        UpdatePhase.Failed => _errorText ?? "The update didn't finish.",
-        _ => IsDevelopmentBuild ? "Development builds don't check for updates." : "",
+        UpdatePhase.Checking => Strings.Update_Status_Checking,
+        UpdatePhase.UpToDate => Strings.Update_Status_UpToDate,
+        UpdatePhase.Available when AvailableRelease is { } release => string.Format(CultureInfo.CurrentCulture, Strings.Update_Status_Available, release.Version),
+        UpdatePhase.Downloading => string.Format(CultureInfo.CurrentCulture, Strings.Update_Status_Downloading, DownloadPercent),
+        UpdatePhase.Installing => Strings.Update_Status_Installing,
+        UpdatePhase.Failed => _errorText ?? Strings.Update_Status_FailedDefault,
+        _ => IsDevelopmentBuild ? Strings.Update_Status_DevelopmentBuild : "",
     };
 
     public string LastCheckedText => _settings.LastUpdateCheckAt is { } at
-        ? $"Last checked {at.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)}"
-        : "Not checked yet";
+        ? string.Format(CultureInfo.CurrentCulture, Strings.Update_LastChecked, at.ToLocalTime().ToString("g", CultureInfo.CurrentCulture))
+        : Strings.Update_NotCheckedYet;
 
     /// <summary>"Yes" to the one-time question: check automatically, daily.</summary>
     public void AcceptAutomaticChecks()
@@ -193,8 +194,8 @@ public sealed class UpdateViewModel : ObservableObject
             or System.Text.Json.JsonException or IOException)
         {
             Fail(automatic
-                ? "Couldn't check for updates. Clasp will try again later."
-                : "Couldn't check for updates. Check your internet connection and try again.");
+                ? Strings.Update_Error_CheckFailedAutomatic
+                : Strings.Update_Error_CheckFailedManual);
         }
     }
 
@@ -215,12 +216,12 @@ public sealed class UpdateViewModel : ObservableObject
         catch (UpdateVerificationException exception)
         {
             AvailableRelease = null;
-            Fail($"Clasp didn't install the update because {exception.Message}");
+            Fail(string.Format(CultureInfo.CurrentCulture, Strings.Update_Error_VerificationFailed, exception.Message));
         }
         catch (Exception exception) when (exception is HttpRequestException or TaskCanceledException or OperationCanceledException
             or IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception)
         {
-            Fail("Couldn't download the update. Nothing was changed. Try again later.");
+            Fail(Strings.Update_Error_DownloadFailed);
         }
     }
 

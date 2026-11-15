@@ -1,4 +1,6 @@
+using System.Globalization;
 using AppleDeviceHub.Core.Contracts;
+using AppleDeviceHub.Core.Resources;
 
 namespace AppleDeviceHub.Core.Presentation;
 
@@ -16,10 +18,10 @@ public sealed class BatteryItemViewModel : ObservableObject
     private bool _isCharging;
     private bool _isStale;
     private bool _isLow;
-    private string _statusText = "Unknown";
+    private string _statusText = Strings.Battery_Status_Unknown;
     private string _label;
     private string _spokenLabel;
-    private string _automationTail = ", battery unknown";
+    private string _automationTail = ", " + Strings.Battery_Spoken_Unknown;
 
     public BatteryItemViewModel(string label, string spokenLabel)
     {
@@ -75,22 +77,24 @@ public sealed class BatteryItemViewModel : ObservableObject
 
         IsKnown = known;
         Level01 = underTen ? 0.05 : reported is int p ? p / 100.0 : 0; // 0 only feeds the hidden/dashed gauge
-        PercentText = underTen ? "<10%" : reported is int shown ? $"{shown}%" : "—";
+        PercentText = underTen ? Strings.Battery_Percent_UnderTen : reported is int shown ? string.Format(CultureInfo.CurrentCulture, Strings.Battery_Percent_Format, shown.ToString(CultureInfo.InvariantCulture)) : "—";
         IsCharging = charging;
         IsStale = freshness == Freshness.Stale;
         IsLow = reported is int level && level <= LowThreshold;
 
         string age = IsStale && component.Level.ObservedAt is { } at ? Ago(now - at) : "";
-        StatusText = !known ? "Unknown"
+        StatusText = !known ? Strings.Battery_Status_Unknown
             : IsStale ? age
-            : charging ? "Charging"
+            : charging ? Strings.Battery_Status_Charging
             : "";
 
         var parts = new List<string>();
-        parts.Add(underTen ? "under 10 percent" : reported is int spoken ? $"{spoken} percent" : "battery unknown");
-        if (charging) parts.Add("charging");
-        if (IsStale) parts.Add($"last reported {age}");
-        if (isDemo) parts.Add("demo data");
+        parts.Add(underTen ? Strings.Battery_Spoken_UnderTenPercent
+            : reported is int spoken ? string.Format(CultureInfo.CurrentCulture, Strings.Battery_Spoken_Percent, spoken)
+            : Strings.Battery_Spoken_Unknown);
+        if (charging) parts.Add(Strings.Battery_Spoken_Charging);
+        if (IsStale) parts.Add(string.Format(CultureInfo.CurrentCulture, Strings.Battery_Spoken_LastReported, age));
+        if (isDemo) parts.Add(Strings.Battery_Spoken_DemoData);
         var tail = ", " + string.Join(", ", parts);
         if (tail != _automationTail)
         {
@@ -99,8 +103,8 @@ public sealed class BatteryItemViewModel : ObservableObject
         }
     }
 
-    private static string Ago(TimeSpan span) => span.TotalMinutes < 1 ? "just now"
-        : span.TotalHours < 1 ? $"{(int)span.TotalMinutes} min ago"
-        : span.TotalHours < 48 ? $"{(int)span.TotalHours} h ago"
-        : $"{(int)span.TotalDays} d ago";
+    private static string Ago(TimeSpan span) => span.TotalMinutes < 1 ? Strings.Battery_Age_JustNow
+        : span.TotalHours < 1 ? string.Format(CultureInfo.CurrentCulture, Strings.Battery_Age_Minutes, (int)span.TotalMinutes)
+        : span.TotalHours < 48 ? string.Format(CultureInfo.CurrentCulture, Strings.Battery_Age_Hours, (int)span.TotalHours)
+        : string.Format(CultureInfo.CurrentCulture, Strings.Battery_Age_Days, (int)span.TotalDays);
 }

@@ -4,6 +4,8 @@ using AppleDeviceHub.Core.Automation;
 using AppleDeviceHub.Core.Ble;
 using AppleDeviceHub.Core.Connection;
 using AppleDeviceHub.Core.Contracts;
+using AppleDeviceHub.Core.Resources;
+using System.Globalization;
 
 namespace AppleDeviceHub.Core.Presentation;
 
@@ -210,11 +212,11 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
         => SelectedDevice?.ModelId is ushort model ? AppleModelCatalog.FamilyNounOf(model) : "AirPods";
 
     /// <summary>Windows' reading as a gauge (labelled with the device noun, "AirPods" by default), for the battery ring; unknown when there is none.</summary>
-    public BatteryItemViewModel WindowsBattery { get; } = new("AirPods", "AirPods, reported by Windows");
+    public BatteryItemViewModel WindowsBattery { get; } = new("AirPods", string.Format(CultureInfo.CurrentCulture, Strings.Companion_Battery_ReportedByWindows, "AirPods"));
 
     /// <summary>"Battery 80%" while Windows reports a reading, otherwise empty.</summary>
     public string WindowsBatteryText => WindowsBatteryPercent is int percent
-        ? $"Battery {percent.ToString(System.Globalization.CultureInfo.CurrentCulture)}%"
+        ? string.Format(CultureInfo.CurrentCulture, Strings.Companion_Battery_Text, percent.ToString(CultureInfo.CurrentCulture))
         : "";
 
     /// <summary>
@@ -224,7 +226,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
     /// </summary>
     public string WindowsBatteryHint
         => WindowsBatteryPercent is null && SelectedDevice is { IsConnected: true, HasHandsfreeService: false }
-            ? $"Battery isn't available. Handsfree is off for your {SelectedDeviceNoun} in Windows."
+            ? string.Format(CultureInfo.CurrentCulture, Strings.Companion_Battery_HandsfreeOffHint, SelectedDeviceNoun)
             : "";
 
     /// <summary>
@@ -237,21 +239,21 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
     {
         get
         {
-            if (_isConnecting) return "Connecting…";
-            if (_isDisconnecting) return "Disconnecting…";
+            if (_isConnecting) return Strings.Companion_Status_Connecting;
+            if (_isDisconnecting) return Strings.Companion_Status_Disconnecting;
             var selected = SelectedDevice;
             if (selected is null)
             {
-                if (_selectedDeviceId is not null) return "This device isn't available right now";
-                return _snapshot.Devices.Count == 0 ? "No paired devices found" : "Choose a device";
+                if (_selectedDeviceId is not null) return Strings.Companion_Status_DeviceUnavailable;
+                return _snapshot.Devices.Count == 0 ? Strings.Companion_Status_NoPairedDevices : Strings.Companion_Status_ChooseDevice;
             }
 
             if (selected.IsConnected)
-                return selected.IsCurrentOutput ? "Connected and set as your sound output" : "Connected";
+                return selected.IsCurrentOutput ? Strings.Companion_Status_ConnectedAsOutput : Strings.Companion_Status_Connected;
             if (!selected.HasAvailableAudioEndpoint)
-                return "Paired, but not ready for audio yet";
-            if (selected.CanReconnect) return "Ready to connect";
-            return "Windows can't connect this device";
+                return Strings.Companion_Status_NotReadyForAudio;
+            if (selected.CanReconnect) return Strings.Companion_Status_ReadyToConnect;
+            return Strings.Companion_Status_CannotConnect;
         }
     }
 
@@ -288,7 +290,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
                 timeout.Cancel();
                 await DispatchAsync(() =>
                 {
-                    _snapshotError = "Windows is taking a while to check your devices.";
+                    _snapshotError = Strings.Companion_Detail_RefreshSlow;
                     Raise(nameof(DetailText));
                 }).ConfigureAwait(false);
             }
@@ -300,7 +302,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
             {
                 await DispatchAsync(() =>
                 {
-                    _snapshotError = "Couldn't refresh your devices. Showing what was last known.";
+                    _snapshotError = Strings.Companion_Detail_RefreshCanceled;
                     Raise(nameof(DetailText));
                 }).ConfigureAwait(false);
             }
@@ -308,7 +310,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
             {
                 await DispatchAsync(() =>
                 {
-                    _snapshotError = "Couldn't refresh your devices."; Log($"Refresh failed ({exception.GetType().Name}, 0x{exception.HResult:X8}).");
+                    _snapshotError = Strings.Companion_Detail_RefreshFailed; Log($"Refresh failed ({exception.GetType().Name}, 0x{exception.HResult:X8}).");
                     Raise(nameof(DetailText));
                 }).ConfigureAwait(false);
             }
@@ -373,7 +375,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
         if (_isNearby) _attemptedEpisode = _nearbyEpisode;
 
         SetConnecting(true);
-        _operationDetail = "Asking Windows to connect.";
+        _operationDetail = Strings.Companion_Detail_AskingToConnect;
         Raise(nameof(DetailText));
         return ConnectCoreAsync(deviceId, containerId, generation, attemptGeneration, operationCancellation, userRequested, attemptId);
     }
@@ -439,7 +441,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
                 Log("Connect: waiting for Windows to finish its current operation.");
                 await DispatchOrCancelAsync(generation, deviceId, operationCancellation, () =>
                 {
-                    _operationDetail = "Windows is busy. Connecting as soon as it's done.";
+                    _operationDetail = Strings.Companion_Detail_WindowsBusyWaiting;
                     Raise(nameof(DetailText));
                 }).ConfigureAwait(false);
             }
@@ -450,7 +452,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
     private ConnectionAttemptResult BusyGiveUp(DateTimeOffset startedAt)
     {
         Log($"Connect: gave up, Windows stayed busy for {ElapsedMs(startedAt)} ms.");
-        return new(ConnectionAttemptKind.Busy, "Windows is busy. Try again in a moment.");
+        return new(ConnectionAttemptKind.Busy, Strings.Companion_Detail_WindowsBusyGaveUp);
     }
 
     /// <summary>Throws OperationCanceledException (and cancels the operation) unless this connect is still current.</summary>
@@ -516,7 +518,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
                 {
                     // A successful KS response means the driver attempted to connect, not that
                     // the Bluetooth device actually connected.
-                    _operationDetail = "Connecting. Waiting for audio to be ready.";
+                    _operationDetail = Strings.Companion_Detail_WaitingForAudio;
                     Raise(nameof(DetailText));
                 }
             }).ConfigureAwait(false))
@@ -610,8 +612,8 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
             await DispatchForOperationAsync(generation, deviceId, () =>
             {
                 _operationDetail = userRequested
-                    ? "Not connected yet. Make sure they're out of the case and nearby, then try again."
-                    : "Windows tried to connect, but couldn't confirm it yet.";
+                    ? Strings.Companion_Detail_ConnectTimedOutUser
+                    : Strings.Companion_Detail_ConnectTimedOutAuto;
                 SetConnecting(false);
                 if (_nearbyEpisode == attemptGeneration)
                 {
@@ -633,7 +635,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
         {
             await DispatchForOperationAsync(generation, deviceId, () =>
             {
-                _operationDetail = "Couldn't connect. Try again."; Log($"Connect: failed ({exception.GetType().Name}, 0x{exception.HResult:X8}).");
+                _operationDetail = Strings.Companion_Detail_ConnectFailed; Log($"Connect: failed ({exception.GetType().Name}, 0x{exception.HResult:X8}).");
                 SetConnecting(false);
                 RaiseStatusProperties();
             }).ConfigureAwait(false);
@@ -671,7 +673,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
         var generation = ++_operationGeneration;
         CancelActiveConnect();
         SetDisconnecting(true);
-        _operationDetail = "Asking Windows to disconnect.";
+        _operationDetail = Strings.Companion_Detail_AskingToDisconnect;
         Raise(nameof(DetailText));
         return DisconnectCoreAsync(selected.Id, selected.ContainerId, generation);
     }
@@ -708,7 +710,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
             }
 
             await DispatchForOperationAsync(generation, deviceId, () =>
-                _operationDetail = "Disconnect requested, but audio still seems to be active.")
+                _operationDetail = Strings.Companion_Detail_DisconnectStillActive)
                 .ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (_lifetimeToken.IsCancellationRequested)
@@ -718,7 +720,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
         catch (Exception)
         {
             await DispatchForOperationAsync(generation, deviceId, () =>
-                _operationDetail = "Couldn't disconnect. Try again.")
+                _operationDetail = Strings.Companion_Detail_DisconnectFailed)
                 .ConfigureAwait(false);
         }
         finally
@@ -803,7 +805,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
         if (_disposed) return;
         if (!snapshot.IsComplete)
         {
-            _snapshotError = snapshot.DetailText ?? "Couldn't read your devices from Windows.";
+            _snapshotError = snapshot.DetailText ?? Strings.Companion_Detail_SnapshotUnreadable;
             Raise(nameof(DetailText));
             return;
         }
@@ -844,13 +846,13 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
             var canReconnect = matches.Any(endpoint => endpoint.SupportsReconnect);
             var hasEndpoint = endpointCandidates.Length > 0;
             var detail = ambiguousContainer
-                ? "Windows can't tell which device this audio belongs to."
+                ? Strings.Companion_Detail_AmbiguousAudio
                 : hasEndpoint
                     ? device.Detail
-                    : "Windows has no audio output for this device.";
+                    : Strings.Companion_Detail_NoAudioOutput;
             safeDevices.Add(device with
             {
-                Name = string.IsNullOrWhiteSpace(device.Name) ? "Bluetooth device" : device.Name,
+                Name = string.IsNullOrWhiteSpace(device.Name) ? Strings.Companion_Device_UnnamedBluetooth : device.Name,
                 ContainerId = containerId,
                 HasAvailableAudioEndpoint = hasEndpoint,
                 IsConnected = connected,
@@ -965,7 +967,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
         _switchedAwayFromIds.Add(old.Id);
         _selectedDeviceId = replacement.Id;
         _settings.AirPodsDeviceId = replacement.Id;
-        _operationDetail = $"Switched to {replacement.Name} because Windows can't find the drivers for {old.Name}.";
+        _operationDetail = string.Format(CultureInfo.CurrentCulture, Strings.Companion_Detail_SwitchedFromDriverless, replacement.Name, old.Name);
         return true;
     }
 
@@ -1152,7 +1154,7 @@ public sealed class CompanionConnectionViewModel : ObservableObject, IDisposable
         Raise(nameof(WindowsBatteryHint));
         var now = DateTimeOffset.UtcNow;
         var noun = SelectedDeviceNoun;
-        WindowsBattery.SetLabels(noun, $"{noun}, reported by Windows");
+        WindowsBattery.SetLabels(noun, string.Format(CultureInfo.CurrentCulture, Strings.Companion_Battery_ReportedByWindows, noun));
         WindowsBattery.Update(BatteryComponent.From(WindowsBatteryPercent, null, now), now, isDemo: false);
         Raise(nameof(StatusText));
         Raise(nameof(DetailText));
