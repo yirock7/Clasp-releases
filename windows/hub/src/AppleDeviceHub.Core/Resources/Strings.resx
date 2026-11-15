@@ -2841,8 +2841,8 @@
     <comment>Paragraph in the open-source licenses dialog. The URL and the file name THIRD-PARTY-NOTICES.md must stay unchanged. Wraps over 2 to 3 lines.</comment>
   </data>
   <data name="Settings_Licenses_Line_NtPods" xml:space="preserve">
-    <value>Portions derived from NTPods by arctumn (GPL-3.0).</value>
-    <comment>Credit line in the open-source licenses dialog. NTPods and arctumn are names. One or two lines.</comment>
+    <value>Clasp is built on the research of LibrePods (Kavish Devar and contributors), with model data from CAPod and MagicPodsCore. Some code in the optional engine and driver comes from NTPods (GPL-3.0).</value>
+    <comment>Credit paragraph in the open-source licenses dialog. LibrePods, CAPod, MagicPodsCore and NTPods are project names; Kavish Devar is a person. Keep GPL-3.0 as is. Wraps over 3 to 4 lines at ~500 px.</comment>
   </data>
   <data name="Settings_Licenses_Line_WindowsAppSdk" xml:space="preserve">
     <value>Windows App SDK and WinUI 3 (Microsoft). Distributed under the Microsoft Software License Terms for the Windows App SDK package.</value>

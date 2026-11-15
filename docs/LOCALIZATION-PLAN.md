@@ -222,7 +222,7 @@ to know before phases 2 to 4.
       and slotted into `Update_Error_VerificationFailed`. Translators must keep that shape, or rework it into whole sentences.
     - Media action names (Play, Pause, …) are inserted into sentences as `{0}`; the stem-press and "seconds" strings have
       separate singular/plural keys.
-    - Left in English on purpose: everything logged, engine/transport text (`Engine\`, `Interop\`, `NtpodsDaemonTransport`
+    - Left in English on purpose: everything logged, engine/transport text (`Engine\`, `Interop\`, the daemon transport
       reasons, reachable only with `--transport=hardware`), command-line errors, `HotkeyBinding` key names, the demo transport
       text, ear/stem decision reasons, `LastDecision` text. `AudioOutputViewModel` `LastActionText` still shows the English
       audio role name (`Multimedia`, `Console`) via `"{Role}: {Detail}"`; localize it in phase 4 if it matters.

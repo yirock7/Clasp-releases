@@ -12,7 +12,7 @@ over Apple's Accessory Protocol (AAP). AAP runs on a classic-Bluetooth **L2CAP
 channel at PSM `0x1001`**, which Windows user-mode Winsock cannot open (only
 RFCOMM is exposed; raw L2CAP `connect()` fails with `WSAENETDOWN`). This driver
 opens that channel in kernel mode and bridges it to user space via
-`DeviceIoControl`, so the NTPods app can read battery, toggle ANC, etc.
+`DeviceIoControl`, so a companion app can read battery, toggle ANC, etc.
 
 ## How it binds (the key trick)
 
@@ -72,14 +72,14 @@ from the SDK is needed to sign it):
 .\install.ps1 -PackageDir C:\path	o\package   # creates a test cert, signs, trusts, installs
 ```
 
-The old all-in-one NTPods installer (drivers, daemon and WinUI app) was removed from
+The old all-in-one installer (drivers, daemon and WinUI app) was removed from
 this repository. A signed, supported install path is future work: Windows only loads kernel drivers that Microsoft has signed.
 
 Manually, step by step:
 
 ```powershell
 # 1. test cert + sign
-$c = New-SelfSignedCertificate -Type CodeSigningCert -Subject "CN=NTPods Test" -CertStoreLocation Cert:\LocalMachine\My
+$c = New-SelfSignedCertificate -Type CodeSigningCert -Subject "CN=Clasp AAP Test" -CertStoreLocation Cert:\LocalMachine\My
 signtool sign /fd SHA256 /sha1 $c.Thumbprint NTPodsAAP.sys
 signtool sign /fd SHA256 /sha1 $c.Thumbprint ntpodsaap.cat
 # 2. trust the cert (Trusted Root + Trusted Publishers, LocalMachine)

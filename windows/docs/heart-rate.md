@@ -1,6 +1,6 @@
 # Heart rate on Windows
 
-> **Note:** the legacy daemon that implemented this (`ntpodsd`) was removed from the repository. This page is kept as protocol research and as the reason the AAP driver requests a 1691-byte MTU.
+> **Note:** the legacy daemon that implemented this was removed from the repository. This page is kept as protocol research and as the reason the AAP driver requests a 1691-byte MTU.
 
 **Short version: heart rate works on Windows.** AirPods Pro 3 stream heart rate at
 1 Hz into the app. The fix was not in the AAP protocol at all. It was the **L2CAP
@@ -139,7 +139,7 @@ Settings ▸ Experimental. Switching **Monitor heart rate** on starts the stream
 - The **Readings** picker switches the graph to a past session.
 
 Every reading is stored by the daemon (`daemon/src/hrdb.rs`) in
-`%LOCALAPPDATA%\NTPods\heart-rate.sqlite3`, which has two tables:
+`heart-rate.sqlite3` in its folder under `%LOCALAPPDATA%`, which has two tables:
 
 - `sessions` (device, start, end);
 - `samples` (session, Unix ms, BPM, confidence).

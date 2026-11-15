@@ -1,6 +1,6 @@
 # clasp-engine protocol, version 1.1 (1.0 plus the additive section 9)
 
-The local protocol between Clasp (the C# app, `windows/hub`) and the restricted Rust engine (`clasp-engine`, built from `windows/daemon`). It replaces the legacy upstream NTPods pipes (`NTPods-events`, `NTPods-cmds`, the raw L2CAP proxy pipes), which belonged to the removed legacy daemon. `clasp-engine` never creates them.
+The local protocol between Clasp (the C# app, `windows/hub`) and the restricted Rust engine (`clasp-engine`, built from `windows/daemon`). It replaces the legacy daemon pipes (the event and command pipes and the raw L2CAP proxy pipes), which belonged to the removed legacy daemon. `clasp-engine` never creates them.
 
 Both implementations must pass the fixtures in `fixtures/`. A change to anything here is a contract change: bump `minor` for additive changes and `major` for breaking ones, and update both sides and the fixtures together.
 
