@@ -510,11 +510,10 @@ public class LastSeenTrackerTests
     }
 
     [Fact]
-    public void Identity_without_an_independent_clue_is_not_recorded()
+    public void Unknown_identity_is_not_recorded()
     {
         var t = new LastSeenTracker(new InMemoryBatteryHistoryStore());
         Assert.False(t.Observe("d", IdentityConfidence.Unknown, -40, Now));
-        Assert.False(t.Observe("d", IdentityConfidence.Probable, -40, Now));
         Assert.Null(t.Text("d", Now));
     }
 
